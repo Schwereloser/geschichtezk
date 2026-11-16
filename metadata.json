@@ -1,0 +1,8 @@
+{
+  "name": "Einrichtung und Sicherung der NS-Diktatur (1933–1934)",
+  "description": "Interaktiver historischer Zeitstrahl zur Beseitigung der demokratischen Ordnung und Sicherung der nationalsozialistischen Herrschaft 1933–1934.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
