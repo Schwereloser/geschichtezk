@@ -10,7 +10,7 @@
   html {
     scroll-behavior: smooth;
     font-family: var(--font-sans);
-    background-color: #CBB38E;
+    background-color: #D5C8B2;
     color: #173668;
     -webkit-tap-highlight-color: transparent;
   }
@@ -37,28 +37,53 @@
   text-wrap: balance;
 }
 
-/* Tactile brown kraft paper surface with subtle fiber shading */
-.kraft-paper-bg {
-  background-color: #CBB38E;
+/* Warm base shading beneath the low-opacity cork pinboard photo texture */
+.cork-pinboard-bg {
+  background-color: #C9A87D;
   background-image:
-    radial-gradient(circle at 20% 25%, rgba(235, 217, 186, 0.35), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(164, 134, 92, 0.28), transparent 60%),
-    repeating-linear-gradient(
-      0deg,
-      rgba(120, 92, 56, 0.025) 0px,
-      rgba(120, 92, 56, 0.025) 1px,
-      transparent 1px,
-      transparent 4px
-    );
+    radial-gradient(ellipse at 50% 42%, rgba(245, 224, 190, 0.32) 0%, rgba(180, 134, 86, 0.2) 72%, rgba(118, 76, 38, 0.34) 100%);
 }
 
-/* Cream notepaper sheet with subtle horizontal ruling */
-.notepaper-sheet {
-  background-color: #FAF4E6;
+/* Warm beveled oak wood frame surrounding the pinboard */
+.wood-pinboard-frame {
+  background-color: #C79A6B;
+  background-image:
+    linear-gradient(135deg, rgba(255, 232, 198, 0.38) 0%, rgba(182, 128, 76, 0.12) 48%, rgba(102, 62, 26, 0.34) 100%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(128, 82, 42, 0.08) 0px,
+      rgba(128, 82, 42, 0.08) 2px,
+      rgba(232, 196, 152, 0.06) 2px,
+      rgba(232, 196, 152, 0.06) 7px
+    );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 240, 214, 0.65),
+    inset 0 -2px 0 rgba(92, 54, 22, 0.5),
+    0 18px 42px -12px rgba(42, 24, 8, 0.55);
+}
+
+/* Translucent masking tape strip for pinned sheets & photos */
+.masking-tape {
+  background-color: rgba(238, 226, 196, 0.72);
   background-image: linear-gradient(
-    to bottom,
-    rgba(23, 54, 104, 0.045) 1px,
-    transparent 1px
+    90deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(218, 200, 162, 0.22) 50%,
+    rgba(255, 255, 255, 0.15) 100%
   );
-  background-size: 100% 28px;
+  border-left: 1px dashed rgba(185, 168, 134, 0.55);
+  border-right: 1px dashed rgba(185, 168, 134, 0.55);
+  box-shadow: 0 1px 3px rgba(45, 28, 10, 0.18);
+}
+
+/* Faceted crumpled archival paper sheet */
+.notepaper-sheet {
+  background-color: #F6F1E7;
+  background-image:
+    linear-gradient(rgba(250, 246, 236, 0.68), rgba(246, 240, 226, 0.72)),
+    url('/assets/aistudio/image_9b68bc16.png'),
+    url('/assets/aistudio/image_4aedb5fd.png');
+  background-size: 100% 100%, 170% auto, cover;
+  background-position: center, 50% 88%, center;
+  background-repeat: no-repeat;
 }

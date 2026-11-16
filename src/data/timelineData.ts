@@ -1,3 +1,8 @@
+import reichstagImg from '../assets/images/hero_weimar_reichstag_1794822380073.jpg';
+import decreeImg from '../assets/images/phase_archival_decree_1794822382633.jpg';
+import libraryImg from '../assets/images/phase_memorial_library_1794822382260.jpg';
+import parliamentImg from '../assets/images/phase_parliament_chamber_1794822380719.jpg';
+
 export type PhaseId = 'phase-1' | 'phase-2' | 'phase-3' | 'phase-4';
 
 export type MechanismId =
@@ -5,9 +10,90 @@ export type MechanismId =
   | 'terror-verfolgung'
   | 'gesellschaft-propaganda';
 
+export type InstitutionId =
+  | 'grundrechte'
+  | 'reichstag'
+  | 'regierung'
+  | 'laender'
+  | 'polizei'
+  | 'parteien'
+  | 'gewerkschaften'
+  | 'kultur'
+  | 'kirche';
+
+export type InstitutionStatus = 'normal' | 'attacked' | 'destroyed';
+
+export type NewOrganId =
+  | 'hilfspolizei'
+  | 'kz-system'
+  | 'reichsstatthalter'
+  | 'daf'
+  | 'einparteienstaat';
+
+export type NewOrganStatus = 'created' | 'active';
+
+export interface InstitutionNode {
+  id: InstitutionId;
+  label: string;
+  shortLabel: string;
+}
+
+export interface NewOrganNode {
+  id: NewOrganId;
+  label: string;
+  shortLabel: string;
+  foundedLabel: string;
+}
+
+export const INSTITUTIONS: InstitutionNode[] = [
+  { id: 'grundrechte', label: 'Grundrechte & Presse', shortLabel: 'Grundrechte' },
+  { id: 'reichstag', label: 'Reichstag (Parlament)', shortLabel: 'Reichstag' },
+  { id: 'regierung', label: 'Reichspräsident & Kabinett', shortLabel: 'Regierung' },
+  { id: 'laender', label: 'Länder & Föderalismus', shortLabel: 'Länder' },
+  { id: 'polizei', label: 'Polizei & Verwaltung', shortLabel: 'Polizei / Amt' },
+  { id: 'parteien', label: 'Parteien & Opposition', shortLabel: 'Parteien' },
+  { id: 'gewerkschaften', label: 'Gewerkschaften & Arbeit', shortLabel: 'Gewerkschaften' },
+  { id: 'kultur', label: 'Kultur & Wissenschaft', shortLabel: 'Kultur' },
+  { id: 'kirche', label: 'Katholische Kirche', shortLabel: 'Kirche' },
+];
+
+export const NEW_ORGANS: NewOrganNode[] = [
+  {
+    id: 'hilfspolizei',
+    label: 'NS-Hilfspolizei (SA/SS)',
+    shortLabel: 'Hilfspolizei',
+    foundedLabel: 'ab 22. Feb',
+  },
+  {
+    id: 'kz-system',
+    label: 'KZ-System (Dachau)',
+    shortLabel: 'KZ-System',
+    foundedLabel: 'ab 22. Mär',
+  },
+  {
+    id: 'reichsstatthalter',
+    label: 'Reichsstatthalter',
+    shortLabel: 'Statthalter',
+    foundedLabel: 'ab 07. Apr',
+  },
+  {
+    id: 'daf',
+    label: 'Deutsche Arbeitsfront (DAF)',
+    shortLabel: 'DAF',
+    foundedLabel: 'ab 10. Mai',
+  },
+  {
+    id: 'einparteienstaat',
+    label: 'NSDAP-Einparteienstaat',
+    shortLabel: 'Einparteienstaat',
+    foundedLabel: 'ab 14. Jul',
+  },
+];
+
 export interface ActorEntry {
   name: string;
   role?: string;
+  action: string;
 }
 
 export interface QuoteEntry {
@@ -28,7 +114,6 @@ export interface TimelineEvent {
   indexNumber: string;
   dateLabel: string;
   shortDate: string;
-  /** Numeric day-of-year (1933) for proportional horizontal timeline placement */
   dayOfYear: number;
   title: string;
   officialTitle?: string;
@@ -47,11 +132,9 @@ export interface TimelineEvent {
   voteResult?: VoteResult;
   sourceWorkNote?: string;
   historicalCorrection?: string;
-  image?: {
-    src: string;
-    alt: string;
-    caption: string;
-  };
+  institutionStates: Record<InstitutionId, InstitutionStatus>;
+  newOrgans: Partial<Record<NewOrganId, NewOrganStatus>>;
+  institutionNote: string;
 }
 
 export interface HistoricalPhase {
@@ -59,22 +142,16 @@ export interface HistoricalPhase {
   numberLabel: string;
   title: string;
   periodLabel: string;
-  description: string;
-  image: {
-    src: string;
-    alt: string;
-    caption: string;
-  };
 }
 
 export const GUIDING_QUESTION =
   'Wie gelang es den Nationalsozialisten, die demokratische Ordnung zu beseitigen und ihre Herrschaft dauerhaft zu sichern?';
 
 export const ARCHIVAL_IMAGES = {
-  reichstag: '/src/assets/images/hero_weimar_reichstag_1794822380073.jpg',
-  parliament: '/src/assets/images/phase_parliament_chamber_1794822380719.jpg',
-  decree: '/src/assets/images/phase_archival_decree_1794822382633.jpg',
-  library: '/src/assets/images/phase_memorial_library_1794822382260.jpg',
+  reichstag: reichstagImg,
+  parliament: parliamentImg,
+  decree: decreeImg,
+  library: libraryImg,
 } as const;
 
 export const PHASES: HistoricalPhase[] = [
@@ -82,53 +159,25 @@ export const PHASES: HistoricalPhase[] = [
     id: 'phase-1',
     numberLabel: '01',
     title: 'Machtübertragung und erste Maßnahmen',
-    periodLabel: 'Januar–Februar 1933 (inkl. Wahl 5. März)',
-    description:
-      'Ernennung Hitlers zum Reichskanzler durch konservative Eliten, Auflösung des Reichstags, Ausbau der Gewaltbefugnisse und Außerkraftsetzung zentraler Grundrechte.',
-    image: {
-      src: ARCHIVAL_IMAGES.reichstag,
-      alt: 'Historische Aufnahme des Berliner Reichstagsgebäudes',
-      caption: 'Abb. 1 · Das Reichstagsgebäude in Berlin, Schauplatz des Übergangs von der Weimarer Republik zur NS-Diktatur.',
-    },
+    periodLabel: 'Januar–Februar 1933',
   },
   {
     id: 'phase-2',
     numberLabel: '02',
-    title: 'Ermächtigungsgesetz und Ausschaltung des Parlamentarismus',
+    title: 'Ermächtigungsgesetz & Ausschaltung des Parlaments',
     periodLabel: 'März–April 1933',
-    description:
-      'Bündnisinszenierung mit alten Eliten, Errichtung des ersten Konzentrationslagers in Dachau, Verfassungsdurchbrechung durch das Ermächtigungsgesetz und Gleichschaltung von Ländern und Verwaltung.',
-    image: {
-      src: ARCHIVAL_IMAGES.parliament,
-      alt: 'Historischer Plenarsaal mit aufsteigenden Sitzreihen',
-      caption: 'Abb. 2 · Parlamentarischer Sitzungssaal – mit dem Ermächtigungsgesetz vom 23. März 1933 entmachtete sich der Reichstag selbst.',
-    },
   },
   {
     id: 'phase-3',
     numberLabel: '03',
     title: 'Zerschlagung gesellschaftlicher Organisationen',
     periodLabel: 'Mai–Juli 1933',
-    description:
-      'Zerschlagung freier Gewerkschaften, kulturelle Gleichschaltung durch Bücherverbrennungen, Verbot der SPD, Selbstauflösung der bürgerlichen Parteien und gesetzliche Festschreibung des Einparteienstaates.',
-    image: {
-      src: ARCHIVAL_IMAGES.library,
-      alt: 'Teilweise geleerte hölzerne Bibliotheksregale im gedämpften Licht',
-      caption: 'Abb. 3 · Geleistete Gleichschaltung von Kultur und Gesellschaft im Mai 1933.',
-    },
   },
   {
     id: 'phase-4',
     numberLabel: '04',
     title: 'Ausbau des Führerstaates',
-    periodLabel: 'August–Dezember 1933 (inkl. Konkordat vom 20. Juli)',
-    description:
-      'Vertragliche Regelung des Verhältnisses zwischen dem Deutschen Reich und dem Vatikan im Zuge der weiteren Konsolidierung des Regimes.',
-    image: {
-      src: ARCHIVAL_IMAGES.decree,
-      alt: 'Archivierte Gesetzestexte und Urkunden aus dem Jahr 1933',
-      caption: 'Abb. 4 · Staatsrechtliche Verträge und Verordnungen zur Absicherung der Herrschaft.',
-    },
+    periodLabel: 'Ab Juli 1933',
   },
 ];
 
@@ -136,6 +185,18 @@ export const MECHANISM_LABELS: Record<MechanismId, string> = {
   'staat-recht': 'Staat, Verfassung & Recht',
   'terror-verfolgung': 'Terror, Gewalt & Verfolgung',
   'gesellschaft-propaganda': 'Gesellschaft, Wirtschaft & Propaganda',
+};
+
+const ALL_NORMAL: Record<InstitutionId, InstitutionStatus> = {
+  grundrechte: 'normal',
+  reichstag: 'normal',
+  regierung: 'normal',
+  laender: 'normal',
+  polizei: 'normal',
+  parteien: 'normal',
+  gewerkschaften: 'normal',
+  kultur: 'normal',
+  kirche: 'normal',
 };
 
 export const TIMELINE_EVENTS: TimelineEvent[] = [
@@ -151,32 +212,55 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Reichspräsident Paul von Hindenburg ernennt Adolf Hitler nach Verhandlungen mit konservativen Politikern zum Reichskanzler einer Koalitionsregierung.',
+      'Hindenburg ernennt Hitler nach Verhandlungen mit konservativen Politikern zum Reichskanzler.',
     actors: [
-      { name: 'Adolf Hitler', role: 'Vorsitzender der NSDAP, neuer Reichskanzler' },
-      { name: 'Paul von Hindenburg', role: 'Reichspräsident' },
-      { name: 'Franz von Papen', role: 'Ehemaliger Reichskanzler und neuer Vizekanzler' },
-      { name: 'Alfred Hugenberg', role: 'Vorsitzender der DNVP' },
-      { name: 'Wilhelm Frick', role: 'Nationalsozialistischer Minister im Kabinett' },
-      { name: 'Hermann Göring', role: 'Nationalsozialistischer Minister im Kabinett' },
+      {
+        name: 'Adolf Hitler',
+        role: 'NSDAP, Reichskanzler',
+        action:
+          'Wird von Hindenburg zum Reichskanzler einer rechtskonservativen Koalitionsregierung ernannt und übernimmt die Regierungsführung.',
+      },
+      {
+        name: 'Paul von Hindenburg',
+        role: 'Reichspräsident',
+        action:
+          'Ernennt Hitler nach wochenlangen Verhandlungen verfassungsgemäß zum Reichskanzler.',
+      },
+      {
+        name: 'Franz von Papen',
+        role: 'Vizekanzler',
+        action:
+          'Handelt das Bündnis mit der NSDAP aus und wird Vizekanzler – in dem Irrglauben, Hitler kontrollieren zu können.',
+      },
+      {
+        name: 'Alfred Hugenberg',
+        role: 'DNVP',
+        action:
+          'Tritt als DNVP-Chef ins Kabinett ein (Wirtschaft & Ernährung) und stützt die rechte Mehrheitsbildung.',
+      },
+      {
+        name: 'Wilhelm Frick',
+        role: 'Minister',
+        action:
+          'Übernimmt als einer von nur drei Nationalsozialisten das Reichsinnenministerium.',
+      },
+      {
+        name: 'Hermann Göring',
+        role: 'Minister',
+        action:
+          'Wird Reichsminister ohne Geschäftsbereich und kommissarischer Innenminister in Preußen.',
+      },
     ],
     eventsAndMeasures: [
-      'Hindenburg ernennt Hitler zum Reichskanzler.',
-      'Vorausgegangen sind Verhandlungen zwischen Hitler, Papen und konservativen Politikern.',
-      'Im Kabinett sitzen zunächst nur drei Nationalsozialisten: Hitler, Wilhelm Frick und Hermann Göring.',
-      'Die Mehrheit der Minister gehört konservativen oder parteilosen Kreisen an.',
-      'Papen wird Vizekanzler und glaubt, Hitler politisch kontrollieren zu können.',
+      'Nur 3 Nationalsozialisten im Kabinett (Hitler, Frick, Göring).',
+      'Konservative Ministermehrheit; Papen glaubt, Hitler kontrollieren zu können.',
     ],
     contextNotes: [
-      'Hitler war nicht durch eine direkte Volkswahl zum Reichskanzler geworden.',
-      'Die Ernennung erfolgte formal auf Grundlage der Weimarer Verfassung.',
-      'Konservative Eliten ermöglichten Hitler den Zugang zur Staatsmacht.',
+      'Ernennung formal auf Basis der Weimarer Verfassung – ermöglicht durch konservative Eliten.',
     ],
-    image: {
-      src: ARCHIVAL_IMAGES.reichstag,
-      alt: 'Reichstagsgebäude in Berlin',
-      caption: 'Berlin, Januar 1933 · Ausgangspunkt der Machtübertragung an die Regierung Hitler–Papen.',
-    },
+    institutionStates: { ...ALL_NORMAL, regierung: 'attacked' },
+    newOrgans: {},
+    institutionNote: 'Hitler übernimmt das Kanzleramt in einer Koalitionsregierung.',
   },
   {
     id: 'aufloesung-reichstag',
@@ -189,18 +273,38 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Auf Vorschlag Hitlers löst Reichspräsident Hindenburg den Reichstag auf und setzt Neuwahlen für den 5. März an.',
+      'Hindenburg löst auf Hitlers Vorschlag den Reichstag auf und setzt Neuwahlen für den 5. März an.',
     actors: [
-      { name: 'Paul von Hindenburg', role: 'Reichspräsident' },
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'NSDAP', role: 'Regierungspartei im Wahlkampf' },
+      {
+        name: 'Paul von Hindenburg',
+        role: 'Reichspräsident',
+        action:
+          'Unterzeichnet die Auflösungsverordnung des Reichstags und setzt Neuwahlen für den 5. März 1933 an.',
+      },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Beantragt die Parlamentsauflösung, um per Neuwahl eine eigene parlamentarische Mehrheit zu gewinnen.',
+      },
+      {
+        name: 'NSDAP',
+        role: 'Wahlkampf',
+        action:
+          'Startet sofort einen aggressiven, reichsweiten Wahlkampf mit staatlichen Machtmitteln im Rücken.',
+      },
     ],
     eventsAndMeasures: [
-      'Hindenburg löst auf Vorschlag Hitlers den Reichstag auf.',
-      'Neuwahlen werden für den 5. März angesetzt.',
-      'Hitler erhofft sich eine parlamentarische Mehrheit für seine Regierung.',
-      'Die NSDAP beginnt einen massiven Wahlkampf.',
+      'Neuwahl am 5. März mit dem Ziel einer Regierungsmehrheit.',
+      'Beginn eines massiven NSDAP-Wahlkampfs.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      regierung: 'attacked',
+      reichstag: 'attacked',
+    },
+    newOrgans: {},
+    institutionNote: 'Der Reichstag wird aufgelöst; die NSDAP startet den Wahlkampf.',
   },
   {
     id: 'verordnung-schutz-volk',
@@ -213,15 +317,27 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Erste einschneidende Beschränkungen von Versammlungs- und Pressefreiheit, gezielt gegen die linke Opposition.',
+      'Erste Einschränkungen der Versammlungs- und Pressefreiheit gegen politische Gegner.',
     actors: [
-      { name: 'Reichsregierung / Behörden', role: 'Durchsetzung von Verboten' },
+      {
+        name: 'Reichsregierung',
+        role: 'Verbotsbefugnisse',
+        action:
+          'Erlässt die Notverordnung, mit der Polizei und Behörden Versammlungen und oppositionelle Zeitungen verbieten dürfen.',
+      },
     ],
     eventsAndMeasures: [
-      'Einschränkung der Versammlungs- und Pressefreiheit.',
-      'Behörden erhalten zusätzliche Möglichkeiten, politische Veranstaltungen und Veröffentlichungen zu verbieten.',
-      'Besonders betroffen sind kommunistische und sozialdemokratische Organisationen.',
+      'Behörden können politische Veranstaltungen und Zeitungen verbieten.',
+      'Besonders betroffen: kommunistische und sozialdemokratische Organisationen.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      grundrechte: 'attacked',
+    },
+    newOrgans: {},
+    institutionNote: 'Versammlungs- und Pressefreiheit werden erstmals beschnitten.',
   },
   {
     id: 'geheimtreffen-wirtschaft',
@@ -234,23 +350,60 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'gesellschaft-propaganda',
     mechanismLabel: MECHANISM_LABELS['gesellschaft-propaganda'],
     summary:
-      'Hitler und Göring informieren führende Industrielle und Bankiers über die politischen Ziele der Regierung und sichern einen Wahlkampffonds von drei Millionen Reichsmark.',
+      'Industrielle und Bankiers sagen der NSDAP einen Wahlkampffonds von 3 Mio. Reichsmark zu.',
     actors: [
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Hermann Göring', role: 'Reichstagspräsident / Minister' },
-      { name: 'Gustav Krupp von Bohlen und Halbach', role: 'Vertreter der Schwerindustrie' },
-      { name: 'Albert Vögler', role: 'Vertreter der Schwerindustrie' },
-      { name: 'Hjalmar Schacht', role: 'Finanzexperte' },
-      { name: 'Kurt von Schröder', role: 'Bankier' },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Erläutert vor rund 25 Großindustriellen seine Pläne zur Beseitigung der Demokratie und zur Aufrüstung.',
+      },
+      {
+        name: 'Hermann Göring',
+        role: 'Minister',
+        action:
+          'Lädt die Wirtschaftsführer in sein Palais ein und bittet offen um einen Wahlkampffonds für die Regierung.',
+      },
+      {
+        name: 'Gustav Krupp',
+        role: 'Schwerindustrie',
+        action:
+          'Bedankt sich als Vertreter der Schwerindustrie bei Hitler und unterstützt die Sammlung des Wahlfonds.',
+      },
+      {
+        name: 'Albert Vögler',
+        role: 'Schwerindustrie',
+        action:
+          'Nimmt als Vorstand der Vereinigten Stahlwerke teil und trägt die Finanzierung durch die Ruhrindustrie mit.',
+      },
+      {
+        name: 'Hjalmar Schacht',
+        role: 'Finanzwirtschaft',
+        action:
+          'Organisiert die Abwicklung des 3-Millionen-Reichsmark-Fonds zugunsten der NSDAP und ihrer Partner.',
+      },
+      {
+        name: 'Kurt von Schröder',
+        role: 'Bankier',
+        action:
+          'Vermittelt als Kölner Bankier zwischen Großindustrie und NSDAP und beteiligt sich am Spendenaufkommen.',
+      },
     ],
     eventsAndMeasures: [
-      'Hitler trifft sich mit führenden Vertretern der deutschen Industrie und Finanzwirtschaft.',
-      'Die Teilnehmer werden über die politischen Ziele der Regierung informiert.',
-      'Es wird ein Wahlkampffonds von drei Millionen Reichsmark bereitgestellt.',
-      'Vertreter der Schwerindustrie und Banken unterstützen damit die NSDAP finanziell.',
+      'Wirtschaftsvertreter werden über die politischen Ziele informiert.',
+      'Bereitstellung von 3 Millionen Reichsmark für den NSDAP-Wahlkampf.',
     ],
     historicalCorrection:
-      'Hinweis aus der Datensammlung: Im Gliederungsabschnitt „2. März–April 1933“ unter „20. März 1933“ eingeordnet – das Treffen fand historisch jedoch am 20. Februar 1933 statt, nicht am 20. März.',
+      'Im Text unter Abschnitt 2 („20. März“) genannt – fand historisch am 20. Februar 1933 statt.',
+    institutionStates: {
+      ...ALL_NORMAL,
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      grundrechte: 'attacked',
+      parteien: 'attacked',
+    },
+    newOrgans: {},
+    institutionNote: 'Millionenfinanzierung verschafft der NSDAP im Wahlkampf Vorteile.',
   },
   {
     id: 'sa-ss-hilfspolizei',
@@ -264,19 +417,47 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'terror-verfolgung',
     mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
     summary:
-      'Hermann Göring verleiht den parteigebundenen Kampfverbänden SA und SS staatliche Polizeibefugnisse.',
+      'Göring verleiht parteigebundenen NS-Kampfverbänden staatliche Polizeibefugnisse.',
     actors: [
-      { name: 'Hermann Göring', role: 'Preußischer Innenminister (kommissarisch)' },
-      { name: 'SA', role: 'Parteigebundener Kampfverband' },
-      { name: 'SS', role: 'Parteigebundener Kampfverband' },
-      { name: 'Preußische Polizei', role: 'Staatliche Ordnungsmacht' },
+      {
+        name: 'Hermann Göring',
+        role: 'Preußen',
+        action:
+          'Beruft per Erlass rund 50.000 SA-, SS- und Stahlhelm-Männer als staatliche Hilfspolizisten in Preußen.',
+      },
+      {
+        name: 'SA',
+        role: 'Hilfspolizei',
+        action:
+          'Erhält Polizeigewalt, stürmt Parteilokale, schüchtert Wahlgegner ein und misshandelt Verhaftete.',
+      },
+      {
+        name: 'SS',
+        role: 'Hilfspolizei',
+        action:
+          'Wird ebenfalls mit Polizeibefugnissen ausgestattet und beteiligt sich an Razzien gegen politische Gegner.',
+      },
+      {
+        name: 'Preußische Polizei',
+        role: 'Staatspolizei',
+        action:
+          'Muss NS-Kampfverbände an ihrer Seite dulden und verliert die alleinige Kontrolle über Polizeieinsätze.',
+      },
     ],
     eventsAndMeasures: [
-      'Göring setzt SA- und SS-Mitglieder als Hilfspolizisten ein.',
-      'Parteigebundene Kampfverbände erhalten staatliche Befugnisse.',
-      'Politische Gegner werden verhaftet, eingeschüchtert und misshandelt.',
-      'Die Grenze zwischen staatlicher Polizei und nationalsozialistischen Gewaltorganisationen verschwimmt.',
+      'Verhaftung, Einschüchterung und Misshandlung politischer Gegner.',
+      'Grenze zwischen Polizei und NS-Gewaltverbänden verschwimmt.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      grundrechte: 'attacked',
+      parteien: 'attacked',
+      polizei: 'attacked',
+    },
+    newOrgans: { hilfspolizei: 'created' },
+    institutionNote: 'Neues Organ: SA und SS werden als Hilfspolizei mit Staatsgewalt ausgestattet.',
   },
   {
     id: 'reichstagsbrand',
@@ -290,21 +471,44 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'terror-verfolgung',
     mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
     summary:
-      'Das Berliner Reichstagsgebäude brennt; die NS-Führung nutzt das Ereignis als Vorwand für eine massive Verfolgungswelle.',
+      'Das Reichstagsgebäude brennt; die NSDAP nutzt die Tat als Vorwand zur Gegnerverfolgung.',
     actors: [
-      { name: 'Marinus van der Lubbe', role: 'Niederländischer Kommunist, am Brandort festgenommen' },
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Hermann Göring', role: 'Verantwortlich für polizeiliche Verfolgung' },
+      {
+        name: 'Marinus van der Lubbe',
+        role: 'Festgenommen',
+        action:
+          'Wird noch am Abend im brennenden Reichstagsgebäude als mutmaßlicher Brandstifter festgenommen.',
+      },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Eilt zum Brandort und erklärt das Feuer zum Signal eines angeblichen kommunistischen Aufstands.',
+      },
+      {
+        name: 'Hermann Göring',
+        role: 'Polizeiführung',
+        action:
+          'Leitet noch in der Brandnacht eine Massenverhaftungswelle gegen Kommunisten und politische Gegner ein.',
+      },
     ],
     eventsAndMeasures: [
-      'Das Reichstagsgebäude in Berlin brennt.',
-      'Der niederländische Kommunist Marinus van der Lubbe wird am Brandort festgenommen.',
-      'Die Nationalsozialisten behaupten, der Brand sei Teil eines kommunistischen Umsturzversuchs.',
-      'Hitler und Göring nutzen das Ereignis zur Verschärfung der politischen Verfolgung.',
+      'Festnahme von Marinus van der Lubbe am Brandort.',
+      'NS-Behauptung eines angeblichen kommunistischen Umsturzversuchs.',
     ],
     contextNotes: [
-      'Die tatsächlichen Hintergründe und eine mögliche Beteiligung weiterer Personen sind historisch umstritten.',
+      'Tatsächliche Hintergründe und mögliche Mitbeteiligte sind historisch umstritten.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      grundrechte: 'attacked',
+      parteien: 'attacked',
+      polizei: 'attacked',
+    },
+    newOrgans: { hilfspolizei: 'active' },
+    institutionNote: 'Der Brand dient als Vorwand zur Verschärfung der Verfolgung.',
   },
   {
     id: 'reichstagsbrandverordnung',
@@ -313,24 +517,41 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     shortDate: '28. Feb',
     dayOfYear: 59,
     title: 'Reichstagsbrandverordnung',
-    officialTitle: 'Verordnung des Reichspräsidenten zum Schutz von Volk und Staat',
+    officialTitle: 'Verordnung zum Schutz von Volk und Staat',
     phaseId: 'phase-1',
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Auf Grundlage von Artikel 48 der Weimarer Reichsverfassung werden zentrale Grundrechte dauerhaft außer Kraft gesetzt und die „Schutzhaft“ ermöglicht.',
+      'Auf Basis von Art. 48 WRV werden wesentliche Grundrechte dauerhaft außer Kraft gesetzt.',
     actors: [
-      { name: 'Paul von Hindenburg', role: 'Reichspräsident (Unterzeichnung nach Art. 48)' },
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Hermann Göring', role: 'Umsetzung in Preußen' },
-      { name: 'Wilhelm Frick', role: 'Reichsinnenminister' },
+      {
+        name: 'Paul von Hindenburg',
+        role: 'Art. 48',
+        action:
+          'Setzt mit seiner Unterschrift nach Art. 48 der Weimarer Verfassung zentrale Grundrechte auf unbestimmte Zeit aus.',
+      },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Legt die Notverordnung vor und erhält damit die rechtliche Handhabe gegen jede politische Opposition.',
+      },
+      {
+        name: 'Hermann Göring',
+        role: 'Preußen',
+        action:
+          'Nutzt die Verordnung in Preußen sofort für massenhafte Verhaftungen und Zeitungsverbote.',
+      },
+      {
+        name: 'Wilhelm Frick',
+        role: 'Innenminister',
+        action:
+          'Zeichnet als Reichsinnenminister verantwortlich und weist Länderbehörden zur Umsetzung an.',
+      },
     ],
     eventsAndMeasures: [
-      'Hindenburg unterzeichnet die Verordnung auf Grundlage von Artikel 48 der Weimarer Reichsverfassung.',
-      'Außerkraftsetzung wesentlicher Grundrechte.',
-      'Polizei kann politische Gegner in sogenannte Schutzhaft nehmen.',
-      'Hausdurchsuchungen und Beschlagnahmungen werden erleichtert.',
-      'Zeitungen und politische Veranstaltungen können verboten werden.',
+      '„Schutzhaft“ ohne richterliche Kontrolle sowie Hausdurchsuchungen.',
+      'Verbot von Zeitungen und Versammlungen – gültig bis Kriegsende 1945.',
     ],
     suspendedRights: [
       'Persönliche Freiheit',
@@ -338,16 +559,18 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Pressefreiheit',
       'Versammlungsfreiheit',
       'Vereinigungsfreiheit',
-      'Brief- und Fernmeldegeheimnis',
+      'Brief- & Fernmeldegeheimnis',
     ],
-    contextNotes: [
-      'Die Verordnung bleibt bis zum Ende des NS-Regimes in Kraft.',
-    ],
-    image: {
-      src: ARCHIVAL_IMAGES.decree,
-      alt: 'Archivierte Gesetzestexte und Verordnungen von 1933',
-      caption: '28. Februar 1933 · Notverordnung nach Art. 48 WRV als juristisches Fundament des Ausnahmezustands.',
+    institutionStates: {
+      ...ALL_NORMAL,
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      grundrechte: 'attacked',
+      parteien: 'attacked',
+      polizei: 'attacked',
     },
+    newOrgans: { hilfspolizei: 'active' },
+    institutionNote: 'Grundrechte werden per Notverordnung außer Kraft gesetzt.',
   },
   {
     id: 'reichstagswahl-1933',
@@ -360,19 +583,41 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Unter Bedingungen von Gewalt und Repression erreicht die NSDAP 43,9 % der Stimmen und erlangt gemeinsam mit der DNVP eine parlamentarische Mehrheit.',
+      'Trotz Terror und Repression verfehlt die NSDAP mit 43,9 % die absolute Mehrheit; mit der DNVP reicht es für die Mehrheit.',
     actors: [
-      { name: 'NSDAP', role: '43,9 % der Stimmen' },
-      { name: 'DNVP', role: 'Koalitionspartner' },
-      { name: 'KPD & SPD', role: 'Verfolgte Oppositionsparteien' },
+      {
+        name: 'NSDAP',
+        role: '43,9 %',
+        action:
+          'Erzielt trotz massivem Terror nur 43,9 % der Stimmen und verfehlt die erhoffte absolute Mehrheit.',
+      },
+      {
+        name: 'DNVP',
+        role: 'Koalitionspartner',
+        action:
+          'Kommt als „Kampffront Schwarz-Weiß-Rot“ auf 8 % und sichert dem Kabinett die knappe Regierungsmehrheit.',
+      },
+      {
+        name: 'KPD & SPD',
+        role: 'Verfolgte Opposition',
+        action:
+          'Behaupten zusammen rund 30 % der Stimmen, obwohl ihre Abgeordneten und Wahlkämpfer massiv verfolgt werden.',
+      },
     ],
     eventsAndMeasures: [
-      'Die NSDAP erreicht 43,9 % der Stimmen.',
-      'Zusammen mit der DNVP verfügt die Regierungskoalition über eine parlamentarische Mehrheit.',
-      'Die NSDAP erreicht allein keine absolute Mehrheit.',
-      'Der Wahlkampf ist durch Gewalt, Einschüchterung und Einschränkungen der Opposition geprägt.',
-      'Zahlreiche kommunistische und sozialdemokratische Politiker werden verfolgt.',
+      '43,9 % NSDAP; nur zusammen mit DNVP parlamentarische Mehrheit.',
+      'Wahlkampf geprägt von Gewalt und Verfolgung von KPD- und SPD-Politikern.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      parteien: 'attacked',
+      polizei: 'attacked',
+    },
+    newOrgans: { hilfspolizei: 'active' },
+    institutionNote: 'Grundrechte bleiben dauerhaft zerstört; unfreie Wahl unter Terror.',
   },
   {
     id: 'tag-von-potsdam',
@@ -381,25 +626,52 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     shortDate: '21. Mär',
     dayOfYear: 80,
     title: 'Tag von Potsdam',
-    location: 'Potsdamer Garnisonkirche',
+    location: 'Garnisonkirche Potsdam',
     phaseId: 'phase-2',
     mechanism: 'gesellschaft-propaganda',
     mechanismLabel: MECHANISM_LABELS['gesellschaft-propaganda'],
     summary:
-      'Propagandistische Inszenierung des Bündnisses zwischen nationalsozialistischer Bewegung und preußisch-konservativer Tradition bei der Eröffnung des neuen Reichstags.',
+      'Propagandistische Inszenierung der Einheit von NS-Bewegung und preußisch-konservativen Eliten.',
     actors: [
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Paul von Hindenburg', role: 'Reichspräsident' },
-      { name: 'Franz von Papen', role: 'Vizekanzler' },
-      { name: 'NSDAP', role: 'Regierungspartei' },
-      { name: 'Konservative Eliten', role: 'Traditionelle Machtträger' },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Verneigt sich demonstrativ im Frack vor Hindenburg, um bürgerlich-konservative Wähler zu beruhigen.',
+      },
+      {
+        name: 'Paul von Hindenburg',
+        role: 'Reichspräsident',
+        action:
+          'Verleiht der NS-Regierung durch seinen Handschlag in der Garnisonkirche die Autorität des alten Preußens.',
+      },
+      {
+        name: 'Franz von Papen',
+        role: 'Vizekanzler',
+        action:
+          'Wirkt an der feierlichen Staatsinszenierung mit, um die konservative Koalition öffentlich zu festigen.',
+      },
+      {
+        name: 'NSDAP',
+        role: 'Regierungspartei',
+        action:
+          'Nutzt den Tag über Rundfunk und Presse als riesiges Propagandafest zur eigenen Legitimation.',
+      },
     ],
     eventsAndMeasures: [
-      'Feierliche Eröffnung des neuen Reichstags in der Potsdamer Garnisonkirche.',
-      'Hitler tritt demonstrativ respektvoll gegenüber Hindenburg auf.',
-      'Inszenierung der Verbindung zwischen nationalsozialistischer Bewegung und preußisch-konservativer Tradition.',
-      'Die Veranstaltung wird propagandistisch genutzt, um Vertrauen bei traditionellen gesellschaftlichen Eliten zu gewinnen.',
+      'Feierliche Reichstagseröffnung; Hitler gibt sich demonstrativ respektvoll.',
+      'Soll Vertrauen bei traditionellen gesellschaftlichen Eliten gewinnen.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      parteien: 'attacked',
+      polizei: 'attacked',
+    },
+    newOrgans: { hilfspolizei: 'active' },
+    institutionNote: 'Traditionelle Eliten und Reichspräsident werden propagandistisch eingebunden.',
   },
   {
     id: 'kz-dachau',
@@ -407,27 +679,48 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     dateLabel: '22. März 1933',
     shortDate: '22. Mär',
     dayOfYear: 81,
-    title: 'Erste Häftlinge im Konzentrationslager Dachau',
-    location: 'Dachau bei München',
+    title: 'Erste Häftlinge im KZ Dachau',
+    location: 'Dachau',
     phaseId: 'phase-2',
     mechanism: 'terror-verfolgung',
     mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
     summary:
-      'Einrichtung des Konzentrationslagers Dachau unter Schutzhaft-Vorwand – es wird zum organisatorischen Vorbild für das spätere Lagersystem.',
+      'Einrichtung des Konzentrationslagers Dachau unter Schutzhaft-Vorwand als Vorbild für das Lagersystem.',
     actors: [
-      { name: 'Heinrich Himmler', role: 'Aufbau und Leitung im Rahmen von SS und bayerischer Polizei' },
-      { name: 'SS', role: 'Wach- und Lagerorganisation' },
-      { name: 'Bayerische Polizei', role: 'Beteiligte Behörde' },
+      {
+        name: 'Heinrich Himmler',
+        role: 'SS-Chef',
+        action:
+          'Kündigt als kommissarischer Münchner Polizeipräsident die Eröffnung des Lagers für „Schutzhäftlinge“ an.',
+      },
+      {
+        name: 'SS',
+        role: 'Lagerleitung',
+        action:
+          'Übernimmt kurz darauf Bewachung und Leitung des Lagers außerhalb jeder gerichtlichen Kontrolle.',
+      },
+      {
+        name: 'Bayerische Polizei',
+        role: 'Behörde',
+        action:
+          'Liefert die ersten festgenommenen Kommunisten, Sozialdemokraten und Gewerkschafter in das Lager ein.',
+      },
     ],
     eventsAndMeasures: [
-      'Das Konzentrationslager Dachau wird eingerichtet.',
-      'Die ersten Gefangenen treffen ein.',
-      'Zu den frühen Häftlingen gehören Kommunisten, Sozialdemokraten und Gewerkschafter.',
-      'Die Inhaftierung erfolgt häufig unter dem Vorwand der Schutzhaft.',
+      'Erste Häftlinge: Kommunisten, Sozialdemokraten und Gewerkschafter.',
+      'Wird zum organisatorischen Modell für spätere Konzentrationslager.',
     ],
-    contextNotes: [
-      'Dachau wird zum organisatorischen Vorbild für das spätere Konzentrationslagersystem.',
-    ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      regierung: 'attacked',
+      reichstag: 'attacked',
+      polizei: 'attacked',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: { hilfspolizei: 'active', 'kz-system': 'created' },
+    institutionNote: 'Neues Organ: Mit dem KZ Dachau entsteht das dauerhafte Konzentrationslagersystem.',
   },
   {
     id: 'ermaechtigungsgesetz',
@@ -437,65 +730,74 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     dayOfYear: 82,
     title: 'Ermächtigungsgesetz',
     officialTitle: 'Gesetz zur Behebung der Not von Volk und Reich',
-    location: 'Krolloper in Berlin',
+    location: 'Krolloper Berlin',
     phaseId: 'phase-2',
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Mit 444 zu 94 Stimmen überträgt der Reichstag der Reichsregierung das Recht, Gesetze ohne Zustimmung des Parlaments und abweichend von der Verfassung zu erlassen.',
+      'Die Reichsregierung darf Gesetze ohne Reichstag und abweichend von der Verfassung erlassen.',
     actors: [
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Otto Wels', role: 'SPD-Fraktionsvorsitzender' },
-      { name: 'Hermann Göring', role: 'Reichstagspräsident' },
-      { name: 'Paul von Hindenburg', role: 'Reichspräsident' },
-      { name: 'Abgeordnete des Reichstags', role: 'Stimmten in der Krolloper ab' },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Fordert in seiner Regierungserklärung die Annahme des Gesetzes und droht offen mit Gewalt bei Ablehnung.',
+      },
+      {
+        name: 'Otto Wels',
+        role: 'SPD',
+        action:
+          'Begründet trotz Einschüchterung durch SA-Posten mutig das geschlossene „Nein“ der Sozialdemokraten.',
+      },
+      {
+        name: 'Hermann Göring',
+        role: 'Reichstagspräsident',
+        action:
+          'Leitet die Sitzung in der Krolloper und lässt KPD-Mandate sowie inhaftierte Abgeordnete ausschließen.',
+      },
+      {
+        name: 'Paul von Hindenburg',
+        role: 'Reichspräsident',
+        action:
+          'Fertigt das vom Reichstag und Reichsrat beschlossene Gesetz am Folgetag aus.',
+      },
     ],
     eventsAndMeasures: [
-      'Die Reichsregierung kann Gesetze ohne Zustimmung des Reichstags verabschieden.',
-      'Regierungsgesetze dürfen von der Reichsverfassung abweichen.',
-      'Die Gesetzgebung wird damit weitgehend von der Regierung übernommen.',
-      'Das Gesetz wird zunächst auf vier Jahre befristet.',
+      'Gesetzgebung geht auf 4 Jahre befristet an die Regierung über.',
+      'KPD-Mandate annulliert; zahlreiche SPD-Abgeordnete verhaftet.',
     ],
     voteResult: {
       yes: 444,
       no: 94,
-      note: 'Die SPD stimmt geschlossen dagegen.',
-      details: [
-        'Die KPD-Abgeordneten können nicht teilnehmen, da ihre Mandate bereits annulliert wurden.',
-        'Zahlreiche SPD-Abgeordnete sind ebenfalls inhaftiert oder an der Teilnahme gehindert.',
-      ],
+      note: 'SPD stimmt geschlossen dagegen.',
+      details: ['KPD ausgeschlossen; SPD-Abgeordnete teilweise inhaftiert.'],
     },
     quotes: [
       {
         speaker: 'Otto Wels (SPD)',
-        context: 'Beginn der Rede im Reichstag am 23. März 1933',
-        text: '„Meine Damen und Herren! Der außenpolitischen Forderung deutscher Gleichberechtigung, die der Herr Reichskanzler erhoben hat, stimmen wir Sozialdemokraten um so nachdrücklicher zu, als wir sie bereits von jeher grundsätzlich verfochten haben.“',
-      },
-      {
-        speaker: 'Otto Wels (SPD)',
-        context: 'Zentrale Aussage der Rede',
+        context: 'Reichstagsrede, 23. März 1933',
         text: '„Freiheit und Leben kann man uns nehmen, die Ehre nicht.“',
       },
     ],
     welsSpeechPoints: [
-      'Verteidigung der parlamentarischen Demokratie.',
-      'Verteidigung der Meinungs- und Pressefreiheit.',
-      'Kritik an der bereits stattfindenden Verfolgung politischer Gegner.',
-      'Ablehnung der Selbstentmachtung des Parlaments.',
+      'Verteidigung der Demokratie, Meinungsfreiheit und Ablehnung der Selbstentmachtung.',
     ],
     hitlerReplyPoints: [
-      'Hitler weist die Kritik von Otto Wels zurück.',
-      'Er rechtfertigt die Notwendigkeit einer starken Regierung.',
-      'Er stellt die bisherige parlamentarische Ordnung als gescheitert dar.',
-      'Er kündigt an, dass die Regierung ihre politischen Ziele unabhängig von parlamentarischen Widerständen durchsetzen werde.',
+      'Weist Kritik zurück und kündigt Politik unabhängig vom Parlament an.',
     ],
     sourceWorkNote:
-      'Wichtig für die Quellenarbeit: Die vollständigen Redetexte sollten aus dem stenografischen Reichstagsprotokoll vom 23. März 1933 übernommen werden.',
-    image: {
-      src: ARCHIVAL_IMAGES.parliament,
-      alt: 'Plenarsaal der Abstimmung über das Ermächtigungsgesetz',
-      caption: '23. März 1933 · Abstimmung in der Berliner Krolloper: 444 Ja-Stimmen bei 94 Nein-Stimmen der SPD.',
+      'Vollständige Redetexte aus dem stenografischen Reichstagsprotokoll (23. März 1933).',
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'attacked',
+      regierung: 'attacked',
+      polizei: 'attacked',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
     },
+    newOrgans: { hilfspolizei: 'active', 'kz-system': 'active' },
+    institutionNote: 'Der Reichstag entmachtet sich selbst; die Regierung regiert ohne Parlament.',
   },
   {
     id: 'gleichschaltung-laender-1',
@@ -503,22 +805,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     dateLabel: '31. März 1933',
     shortDate: '31. Mär',
     dayOfYear: 90,
-    title: 'Erstes Gesetz zur Gleichschaltung der Länder',
+    title: '1. Gesetz zur Gleichschaltung der Länder',
     phaseId: 'phase-2',
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Die Zusammensetzung der Landtage wird unter Ausschluss der KPD an das Reichstagswahlergebnis vom 5. März angepasst.',
+      'Anpassung der Landtage an die Reichstagswahl vom 5. März ohne KPD-Sitze.',
     actors: [
-      { name: 'Reichsregierung', role: 'Gesetzgebende Exekutive' },
-      { name: 'Landtage & Landesregierungen', role: 'Gleichgeschaltete Landesorgane' },
+      {
+        name: 'Reichsregierung',
+        role: 'Exekutive',
+        action:
+          'Erlässt mithilfe des Ermächtigungsgesetzes die Umbildung aller Landtage nach dem Reichstagswahlergebnis.',
+      },
     ],
     eventsAndMeasures: [
-      'Die Zusammensetzung der Landtage wird an das Ergebnis der Reichstagswahl vom 5. März angepasst.',
-      'KPD-Mandate werden nicht berücksichtigt.',
-      'Die Länderparlamente verlieren ihre politische Eigenständigkeit.',
-      'Die Landesregierungen erhalten zusätzliche Befugnisse.',
+      'Länderparlamente verlieren ihre politische Eigenständigkeit.',
+      'KPD-Mandate bleiben unberücksichtigt.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'attacked',
+      polizei: 'attacked',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: { hilfspolizei: 'active', 'kz-system': 'active' },
+    institutionNote: 'Parlament und Gewaltenteilung sind ausgeschaltet; Gleichschaltung der Länder beginnt.',
   },
   {
     id: 'gleichschaltung-laender-2',
@@ -526,22 +842,40 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     dateLabel: '7. April 1933',
     shortDate: '07. Apr',
     dayOfYear: 97,
-    title: 'Zweites Gesetz zur Gleichschaltung der Länder',
+    title: '2. Gesetz zur Gleichschaltung der Länder',
     phaseId: 'phase-2',
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Einsetzung von Reichsstatthaltern zur Kontrolle der Landesregierungen – die föderale Ordnung wird weiter ausgehöhlt.',
+      'Reichsstatthalter kontrollieren die Landesregierungen – der Föderalismus wird beseitigt.',
     actors: [
-      { name: 'Reichsstatthalter', role: 'Kontrollinstanz in den Ländern' },
-      { name: 'Reichsregierung', role: 'Zentrale Reichsebene' },
+      {
+        name: 'Reichsregierung',
+        role: 'Reichsstatthalter',
+        action:
+          'Schafft das Amt der Reichsstatthalter, die Landesregierungen einsetzen, Landtage auflösen und Landesgesetze stoppen können.',
+      },
     ],
     eventsAndMeasures: [
-      'Reichsstatthalter werden in den Ländern eingesetzt.',
-      'Sie kontrollieren die Landesregierungen.',
-      'Die Reichsregierung erhält stärkeren Einfluss auf die Landespolitik.',
-      'Die föderale Ordnung wird weiter eingeschränkt.',
+      'Einsetzung von Reichsstatthaltern in allen Ländern.',
+      'Föderale Eigenständigkeit wird stark eingeschränkt.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'attacked',
+      polizei: 'attacked',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'created',
+    },
+    institutionNote: 'Neues Organ: Reichsstatthalter unterstellen die Länder direkt der Berliner Zentrale.',
   },
   {
     id: 'berufsbeamtentum',
@@ -554,20 +888,41 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'terror-verfolgung',
     mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
     summary:
-      'Einführung des „Arierparagraphs“ und Entfernung politisch missliebiger sowie jüdischer Beamtinnen und Beamter aus dem Staatsdienst.',
+      'Einführung des „Arierparagraphs“; Entlassung politisch missliebiger und jüdischer Beamter.',
     actors: [
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Wilhelm Frick', role: 'Reichsinnenminister' },
-      { name: 'Reichsinnenministerium', role: 'Zuständiges Ressort' },
-      { name: 'Öffentliche Verwaltung', role: 'Betroffener Staatsdienst' },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Unterzeichnet das Gesetz zur Säuberung von Justiz, Verwaltung, Schulen und Hochschulen.',
+      },
+      {
+        name: 'Wilhelm Frick',
+        role: 'Innenminister',
+        action:
+          'Entwirft das Gesetz samt „Arierparagraph“ zur Entlassung demokratischer und jüdischer Staatsdiener.',
+      },
     ],
     eventsAndMeasures: [
-      'Politisch missliebige Beamte können aus dem Staatsdienst entfernt werden.',
-      'Jüdische Beamte werden aufgrund ihrer Abstammung grundsätzlich aus dem Staatsdienst gedrängt.',
-      'Es gibt zunächst Ausnahmen, insbesondere für bestimmte ehemalige Frontkämpfer des Ersten Weltkriegs.',
-      'Der sogenannte Arierparagraph wird eingeführt.',
-      'Die Verwaltung wird personell im Sinne der NS-Ideologie umgestaltet.',
+      'Entfernung politischer Gegner und jüdischer Beamter aus dem Staatsdienst.',
+      'Anfangs Ausnahmen für bestimmte Frontkämpfer des Ersten Weltkriegs.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'attacked',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+    },
+    institutionNote: 'Föderalismus zerstört; Verwaltung und Beamtentum werden im NS-Sinn gesäubert.',
   },
   {
     id: 'tag-der-nationalen-arbeit',
@@ -580,17 +935,41 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'gesellschaft-propaganda',
     mechanismLabel: MECHANISM_LABELS['gesellschaft-propaganda'],
     summary:
-      'Erklärung des 1. Mai zum gesetzlichen Feiertag mit Großkundgebungen zur propagandistischen Einbindung der Arbeiterschaft.',
+      '1. Mai wird gesetzlicher Feiertag; Regime inszeniert sich bei Großkundgebungen als Arbeitervertreter.',
     actors: [
-      { name: 'NSDAP / NS-Regime', role: 'Veranstalter der Großkundgebungen' },
-      { name: 'Gewerkschaftsvertreter', role: 'Beteiligung an den Feierlichkeiten' },
+      {
+        name: 'NSDAP',
+        role: 'Veranstalter',
+        action:
+          'Erklärt den 1. Mai zum bezahlten Feiertag und veranstaltet riesige Propagandakundgebungen (u. a. in Berlin-Tempelhof).',
+      },
+      {
+        name: 'Gewerkschaften',
+        role: 'Teilnahme',
+        action:
+          'Rufen teils zur Teilnahme an den Mai-Umzügen auf, um ihre Organisation vor einem Verbot zu schützen.',
+      },
     ],
     eventsAndMeasures: [
-      'Der 1. Mai wird zum gesetzlichen Feiertag erklärt.',
-      'Die Nationalsozialisten veranstalten große Kundgebungen.',
-      'Gewerkschaftsvertreter beteiligen sich an den Feierlichkeiten.',
-      'Das Regime inszeniert sich als Vertreter der deutschen Arbeiterschaft.',
+      'Gewerkschaftsvertreter beteiligen sich an den NS-Feierlichkeiten.',
+      'Täuschung und propagandistische Einbindung vor dem Zugriff am Folgetag.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+    },
+    institutionNote: 'Staatliche Verwaltung ist gleichgeschaltet; Arbeiterschaft wird umworben.',
   },
   {
     id: 'zerschlagung-gewerkschaften',
@@ -603,20 +982,47 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'terror-verfolgung',
     mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
     summary:
-      'Nur einen Tag nach dem 1. Mai besetzen SA und NSBO die Gewerkschaftshäuser, verhaften Gewerkschaftsführer und beschlagnahmen das Vermögen.',
+      'SA und NSBO besetzen Gewerkschaftshäuser, verhaften Führer und beschlagnahmen Vermögen.',
     actors: [
-      { name: 'SA', role: 'Besetzung der Gewerkschaftshäuser' },
-      { name: 'NSBO', role: 'Nationalsozialistische Betriebszellenorganisation' },
-      { name: 'Gewerkschaftsführer', role: 'Verhaftet' },
-      { name: 'Deutsche Arbeitsfront (DAF)', role: 'Nachfolgeorganisation' },
+      {
+        name: 'SA',
+        role: 'Besetzung',
+        action:
+          'Stürmt am Morgen deutschlandweit die Gewerkschaftshäuser und verschleppt zahlreiche Gewerkschaftsfunktionäre.',
+      },
+      {
+        name: 'NSBO',
+        role: 'NS-Betriebszellen',
+        action:
+          'Übernimmt gemeinsam mit der SA die Büros, Kassen und Zeitungen der freien Gewerkschaften.',
+      },
+      {
+        name: 'Gewerkschaften',
+        role: 'Zerschlagen',
+        action:
+          'Werden entmachtet, enteignet und verlieren jede eigenständige Interessenvertretung der Arbeitnehmer.',
+      },
     ],
     eventsAndMeasures: [
-      'SA und NSBO besetzen Gewerkschaftshäuser.',
-      'Gewerkschaftsführer werden verhaftet.',
-      'Gewerkschaftsvermögen wird beschlagnahmt.',
-      'Freie Gewerkschaften werden zerschlagen.',
-      'Die unabhängige Interessenvertretung der Arbeitnehmer wird beseitigt.',
+      'Freie Gewerkschaften werden gewaltsam zerschlagen.',
+      'Unabhängige Interessenvertretung der Arbeitnehmer beseitigt.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+    },
+    institutionNote: 'Gewerkschaftshäuser werden gestürmt und die Arbeitnehmervertretung zerschlagen.',
   },
   {
     id: 'gruendung-daf',
@@ -629,17 +1035,42 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'gesellschaft-propaganda',
     mechanismLabel: MECHANISM_LABELS['gesellschaft-propaganda'],
     summary:
-      'Zusammenfassung von Arbeitnehmern und Arbeitgebern unter Robert Ley – bei Abschaffung von Tarifautonomie und Streikrecht.',
+      'Zwangsvereinigung von Arbeitnehmern und Arbeitgebern unter Robert Ley – ohne Streikrecht.',
     actors: [
-      { name: 'Robert Ley', role: 'Leiter der Deutschen Arbeitsfront' },
-      { name: 'Deutsche Arbeitsfront (DAF)', role: 'NS-Kontrollorganisation' },
+      {
+        name: 'Robert Ley',
+        role: 'DAF-Leiter',
+        action:
+          'Wird Leiter der neu gegründeten DAF und unterstellt die gesamte Arbeiterschaft der nationalsozialistischen Kontrolle.',
+      },
+      {
+        name: 'Deutsche Arbeitsfront (DAF)',
+        role: 'Kontrollorgan',
+        action:
+          'Ersetzt die verbotenen Gewerkschaften als einheitliche NS-Massenorganisation für Arbeitnehmer und Arbeitgeber.',
+      },
     ],
     eventsAndMeasures: [
-      'Unter Robert Ley werden Arbeitnehmer und Arbeitgeber in einer nationalsozialistischen Organisation zusammengefasst.',
-      'Die DAF ist keine unabhängige Gewerkschaft.',
-      'Tarifautonomie und Streikrecht werden beseitigt.',
-      'Die Organisation dient der Kontrolle der Arbeiterschaft.',
+      'Tarifautonomie und Streikrecht werden abgeschafft.',
+      'DAF dient nicht dem Schutz, sondern der Kontrolle der Arbeiterschaft.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'created',
+    },
+    institutionNote: 'Neues Organ: Die DAF ersetzt freie Gewerkschaften und schafft Streikrecht ab.',
   },
   {
     id: 'buecherverbrennungen',
@@ -652,25 +1083,61 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'gesellschaft-propaganda',
     mechanismLabel: MECHANISM_LABELS['gesellschaft-propaganda'],
     summary:
-      'Öffentliche Verbrennung von Werken jüdischer, marxistischer, pazifistischer und weiterer missliebiger Autorinnen und Autoren zur kulturellen Gleichschaltung.',
+      'NS-Studentenverbände verbrennen öffentlich Werke jüdischer, marxistischer und pazifistischer Autoren.',
     actors: [
-      { name: 'Nationalsozialistische Studentenverbände', role: 'Organisatoren der Verbrennungen' },
-      { name: 'Erich Kästner', role: 'Verfolgter / verbrannter Autor' },
-      { name: 'Heinrich Mann', role: 'Verfolgter / verbrannter Autor' },
-      { name: 'Erich Maria Remarque', role: 'Verfolgter / verbrannter Autor' },
-      { name: 'Bertolt Brecht', role: 'Verfolgter / verbrannter Autor' },
+      {
+        name: 'NS-Studentenverbände',
+        role: 'Organisatoren',
+        action:
+          'Sammeln „undeutsche“ Literatur aus Bibliotheken und Buchhandlungen und verbrennen sie öffentlich auf Scheiterhaufen.',
+      },
+      {
+        name: 'Erich Kästner',
+        role: 'Autor',
+        action:
+          'Sieht in Berlin unerkannt als einziger der verfemten Schriftsteller persönlich mit an, wie seine eigenen Bücher brennen.',
+      },
+      {
+        name: 'Heinrich Mann',
+        role: 'Autor',
+        action:
+          'Seine gesellschaftskritischen Werke werden verbrannt; er war bereits kurz zuvor ins französische Exil geflohen.',
+      },
+      {
+        name: 'Erich Maria Remarque',
+        role: 'Autor',
+        action:
+          'Sein Antikriegsroman „Im Westen nichts Neues“ wird unter „Feuersprüchen“ gegen Pazifismus den Flammen übergeben.',
+      },
+      {
+        name: 'Bertolt Brecht',
+        role: 'Autor',
+        action:
+          'Seine politischen Stücke und Gedichte landen auf dem Index und werden öffentlich verbrannt; Brecht lebt bereits im Exil.',
+      },
     ],
     eventsAndMeasures: [
-      'Nationalsozialistische Studentenverbände organisieren öffentliche Bücherverbrennungen.',
-      'Werke jüdischer, marxistischer, pazifistischer und anderer missliebiger Autoren werden verbrannt.',
-      'Betroffen sind unter anderem Erich Kästner, Heinrich Mann, Erich Maria Remarque und Bertolt Brecht.',
-      'Die Aktion dient der kulturellen Gleichschaltung.',
+      'Aktion zur kulturellen Gleichschaltung von Literatur und Universitäten.',
+      'Verbrannt u. a. Kästner, Heinrich Mann, Remarque und Brecht.',
     ],
-    image: {
-      src: ARCHIVAL_IMAGES.library,
-      alt: 'Teilweise geleerte Bibliotheksregale',
-      caption: '10. Mai 1933 · Kulturelle Gleichschaltung durch Verfolgung und öffentliche Bücherverbrennungen.',
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      gewerkschaften: 'destroyed',
+      parteien: 'attacked',
+      kultur: 'attacked',
     },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'active',
+    },
+    institutionNote: 'Freie Gewerkschaften sind zerstört; nun greift die kulturelle Gleichschaltung.',
   },
   {
     id: 'verbot-spd',
@@ -683,17 +1150,43 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'terror-verfolgung',
     mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
     summary:
-      'Offizielles Verbot der Sozialdemokratischen Partei Deutschlands, Beschlagnahmung des Parteivermögens und Verfolgung ihrer Politiker.',
+      'Offizielles Verbot der Sozialdemokraten, Vermögensbeschlagnahmung und Verfolgung.',
     actors: [
-      { name: 'SPD', role: 'Verbotene Oppositionspartei' },
-      { name: 'Sozialdemokratische Politiker', role: 'Verfolgt und verhaftet' },
+      {
+        name: 'SPD',
+        role: 'Verbotene Partei',
+        action:
+          'Wird von Innenminister Frick als „volks- und staatsfeindlich“ verboten; alle Mandate werden annulliert.',
+      },
+      {
+        name: 'Otto Wels',
+        role: 'SPD-Vorsitz',
+        action:
+          'Organisiert als Parteivorsitzender aus dem Exil in Prag (Sopade) den politischen Widerstand gegen das Regime.',
+      },
     ],
     eventsAndMeasures: [
-      'Die SPD wird offiziell verboten.',
-      'Parteivermögen wird beschlagnahmt.',
-      'Sozialdemokratische Politiker werden verfolgt und verhaftet.',
-      'Die Partei kann nicht mehr legal politisch tätig sein.',
+      'SPD-Parteivermögen wird beschlagnahmt.',
+      'Sozialdemokratische Politiker werden verhaftet und verfolgt.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      gewerkschaften: 'destroyed',
+      kultur: 'destroyed',
+      parteien: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'active',
+    },
+    institutionNote: 'Kultur ist gleichgeschaltet; die letzte große demokratische Opposition wird verboten.',
   },
   {
     id: 'selbstaufloesung-parteien',
@@ -706,18 +1199,49 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Unter massivem politischem Druck lösen sich die Zentrumspartei (5. Juli), die Bayerische Volkspartei und weitere Parteien selbst auf.',
+      'Unter politischem Druck lösen sich Zentrum (5. Juli), BVP und weitere Parteien selbst auf.',
     actors: [
-      { name: 'Zentrumspartei', role: 'Selbstauflösung am 5. Juli 1933' },
-      { name: 'Bayerische Volkspartei', role: 'Selbstauflösung' },
-      { name: 'NSDAP', role: 'Verbleibende einzige politische Kraft' },
+      {
+        name: 'Zentrumspartei',
+        role: 'Aufgelöst 5. Juli',
+        action:
+          'Löst sich am 5. Juli 1933 als letzte bürgerliche Partei unter Druck und im Zuge der Konkordatsverhandlungen selbst auf.',
+      },
+      {
+        name: 'Bayerische Volkspartei',
+        role: 'Aufgelöst',
+        action:
+          'Gibt am 4. Juli nach Verhaftungen eigener Abgeordneter und Drohungen der NS-Behörden ihren Bestand auf.',
+      },
+      {
+        name: 'NSDAP',
+        role: 'Einzige Partei',
+        action:
+          'Übt massiven Druck auf alle noch bestehenden Parteien aus und bleibt als einzige politische Organisation übrig.',
+      },
     ],
     eventsAndMeasures: [
-      'Die Zentrumspartei löst sich am 5. Juli auf.',
-      'Die Bayerische Volkspartei löst sich ebenfalls auf.',
-      'Weitere Parteien geben unter politischem Druck ihre Tätigkeit auf.',
+      'Zentrumspartei und Bayerische Volkspartei geben auf.',
       'Die NSDAP bleibt als einzige politische Kraft übrig.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      gewerkschaften: 'destroyed',
+      kultur: 'destroyed',
+      parteien: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'active',
+    },
+    institutionNote: 'Bürgerliche Parteien lösen sich unter Druck selbst auf.',
   },
   {
     id: 'einparteienstaat-gesetz',
@@ -730,17 +1254,44 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Die NSDAP wird gesetzlich zur einzigen politischen Partei erklärt; Neugründung oder Weiterführung anderer Parteien wird unter Strafe gestellt.',
+      'Die NSDAP wird gesetzlich zur einzigen Partei erklärt – der Einparteienstaat steht.',
     actors: [
-      { name: 'NSDAP', role: 'Gesetzlich einzige politische Partei' },
-      { name: 'Reichsregierung', role: 'Gesetzgebung zum Einparteienstaat' },
+      {
+        name: 'NSDAP',
+        role: 'Staatspartei',
+        action:
+          'Wird im Gesetzestext als „einzige politische Partei“ Deutschlands festgeschrieben und erhält ein Machtmonopol.',
+      },
+      {
+        name: 'Reichsregierung',
+        role: 'Gesetzgeber',
+        action:
+          'Bedroht jeden Versuch, eine andere Partei aufrechtzuerhalten oder neu zu gründen, mit Zuchthaus- oder Gefängnisstrafen.',
+      },
     ],
     eventsAndMeasures: [
-      'Die NSDAP wird gesetzlich zur einzigen politischen Partei erklärt.',
-      'Die Gründung neuer Parteien wird verboten.',
-      'Wer eine andere Partei unterstützt oder aufrechterhält, macht sich strafbar.',
-      'Der Einparteienstaat wird gesetzlich festgeschrieben.',
+      'Gründung oder Unterstützung anderer Parteien wird unter Strafe gestellt.',
+      'Das Mehrparteiensystem ist endgültig abgeschafft.',
     ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      gewerkschaften: 'destroyed',
+      kultur: 'destroyed',
+      parteien: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'active',
+      einparteienstaat: 'created',
+    },
+    institutionNote: 'Neues Organ: Der NSDAP-Einparteienstaat wird per Gesetz festgeschrieben.',
   },
   {
     id: 'reichskonkordat',
@@ -753,41 +1304,49 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     mechanism: 'staat-recht',
     mechanismLabel: MECHANISM_LABELS['staat-recht'],
     summary:
-      'Staatsvertrag zwischen dem Deutschen Reich und dem Vatikan zur Regelung des Verhältnisses zwischen Staat und katholischer Kirche.',
+      'Vertrag zwischen Deutschem Reich und Vatikan regelt das Verhältnis zur katholischen Kirche.',
     actors: [
-      { name: 'Adolf Hitler', role: 'Reichskanzler' },
-      { name: 'Kardinalstaatssekretär Eugenio Pacelli', role: 'Verhandlungsführer des Vatikans' },
-      { name: 'Papst Pius XI.', role: 'Oberhaupt der katholischen Kirche' },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Gewinnt durch den Vertrag mit dem Vatikan internationale Anerkennung und drängt den politischen Katholizismus zurück.',
+      },
+      {
+        name: 'Eugenio Pacelli',
+        role: 'Kardinalstaatssekretär',
+        action:
+          'Unterzeichnet das Konkordat für den Vatikan in Rom – im Gegenzug für kirchliche Schutzgarantien verzichtet der Klerus auf Parteipolitik.',
+      },
+      {
+        name: 'Papst Pius XI.',
+        role: 'Vatikan',
+        action:
+          'Genehmigt den völkerrechtlichen Vertrag, um katholische Schulen und Seelsorge in Deutschland rechtlich abzusichern.',
+      },
     ],
     eventsAndMeasures: [
-      'Vertrag zwischen dem Deutschen Reich und dem Vatikan.',
+      'Staatsvertrag zwischen dem Deutschen Reich und dem Vatikan.',
       'Regelungen zum Verhältnis zwischen Staat und katholischer Kirche.',
     ],
-    contextNotes: [
-      'Hinweis zur Textgrundlage: Dieser Eintrag steht am Ende des vorliegenden Datensammlungs-Manuskripts unter Abschnitt 4 („August–Dezember 1933: Ausbau des Führerstaates“).',
-    ],
+    institutionStates: {
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      gewerkschaften: 'destroyed',
+      kultur: 'destroyed',
+      parteien: 'destroyed',
+      kirche: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'active',
+      einparteienstaat: 'active',
+    },
+    institutionNote: 'Alle politischen Gegenkräfte sind zerstört; neue NS-Organe beherrschen Staat und Gesellschaft.',
   },
-];
-
-export interface KeyActorDirectoryItem {
-  name: string;
-  roleSummary: string;
-  eventCount: number;
-}
-
-export const KEY_ACTORS_DIRECTORY: string[] = [
-  'Adolf Hitler',
-  'Paul von Hindenburg',
-  'Hermann Göring',
-  'Franz von Papen',
-  'Wilhelm Frick',
-  'Otto Wels',
-  'Heinrich Himmler',
-  'SA',
-  'SS',
-  'NSDAP',
-  'SPD',
-  'Alfred Hugenberg',
-  'Marinus van der Lubbe',
-  'Robert Ley',
 ];
