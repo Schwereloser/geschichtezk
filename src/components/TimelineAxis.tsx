@@ -69,6 +69,35 @@ const PIN_STAGGER_PX = [
   2, 8, 3, 10, 1, 7, 4, 10, 2, 9, 1, 9, 5, 2, 8, 3, 10, 3, 7, 5, 9, 3,
 ];
 
+// Gentle asymmetric sag between pushpins so the main red thread stays visible between cards
+const MAIN_THREAD_SAG_PX = [
+  11, 18, 9, 20, 13, 16, 10, 19, 12, 17, 9, 20, 14, 11, 18, 10, 19, 12, 17, 13,
+  16,
+];
+
+function buildMainTimelineThreadPath(count: number): string {
+  const step = 100;
+  const firstY = (PIN_STAGGER_PX[0] ?? 4) + 10;
+  let d = `M -120 ${firstY + 14} Q -35 ${firstY + 18}, 50 ${firstY}`;
+
+  for (let i = 0; i < count - 1; i++) {
+    const x0 = i * step + 50;
+    const y0 = (PIN_STAGGER_PX[i % PIN_STAGGER_PX.length] ?? 4) + 10;
+    const x1 = (i + 1) * step + 50;
+    const y1 = (PIN_STAGGER_PX[(i + 1) % PIN_STAGGER_PX.length] ?? 4) + 10;
+    const sag = MAIN_THREAD_SAG_PX[i % MAIN_THREAD_SAG_PX.length] ?? 14;
+    const midX = (x0 + x1) / 2 + (i % 2 === 0 ? -4 : 4);
+    const ctrlY = Math.max(y0, y1) + sag;
+    d += ` Q ${midX} ${ctrlY}, ${x1} ${y1}`;
+  }
+
+  const lastX = (count - 1) * step + 50;
+  const lastY =
+    (PIN_STAGGER_PX[(count - 1) % PIN_STAGGER_PX.length] ?? 4) + 10;
+  d += ` Q ${lastX + 85} ${lastY + 18}, ${lastX + 170} ${lastY + 10}`;
+  return d;
+}
+
 export function TimelineAxis({
   events,
   startIndex,
@@ -132,6 +161,8 @@ export function TimelineAxis({
       : introStage === 'panToStart'
       ? { duration: 1.35, ease: [0.32, 0.04, 0.24, 1] as const }
       : { type: 'spring' as const, stiffness: 250, damping: 30, mass: 0.9 };
+
+  const mainThreadPath = buildMainTimelineThreadPath(totalCount);
 
   return (
     <section
@@ -382,6 +413,36 @@ export function TimelineAxis({
               }}
               className="relative h-full flex items-stretch py-3 sm:py-5"
             >
+              {/* Main Red Thread Connecting the 22 Primary Note Pushpins (strictly behind z-10 cards & z-30 pins) */}
+              <motion.div
+                aria-hidden="true"
+                initial={false}
+                animate={{ y: startIndex % 2 === 0 ? 0 : 2 }}
+                transition={{ type: 'spring', stiffness: 210, damping: 18 }}
+                className="absolute left-0 right-0 top-3 sm:top-5 h-[60px] pointer-events-none z-0 overflow-visible"
+              >
+                <svg
+                  viewBox="0 0 2200 60"
+                  preserveAspectRatio="none"
+                  className="w-full h-full overflow-visible"
+                >
+                  <path
+                    d={mainThreadPath}
+                    fill="none"
+                    stroke="rgba(55, 25, 10, 0.24)"
+                    strokeWidth="4.8"
+                    transform="translate(0, 3.5)"
+                  />
+                  <path
+                    d={mainThreadPath}
+                    fill="none"
+                    stroke="#9E2424"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </motion.div>
+
               {/* All 22 Station Columns */}
               {events.map((event, idx) => {
                 const isExpanded = expandedIds.includes(event.id);
