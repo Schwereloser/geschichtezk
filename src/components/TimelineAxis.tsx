@@ -11,6 +11,11 @@ import {
   RIGHT_BOARD_PHOTOS,
   TimelineEvent,
 } from '../data/timelineData';
+import {
+  ConclusionCheckNote,
+  ConclusionCompareNote,
+  ConclusionPillarsNote,
+} from './ConclusionNoteCards';
 import { FlankingPinboardPhoto } from './FlankingPinboardPhoto';
 import { FoldableNoteCard } from './FoldableNoteCard';
 import { InstitutionsMap } from './InstitutionsMap';
@@ -20,9 +25,9 @@ export type IntroStage = 'overview' | 'zoomCenter' | 'panToStart' | 'ready';
 
 interface TimelineAxisProps {
   events: TimelineEvent[];
-  startIndex: number;
-  minStartIndex: number;
-  maxStartIndex: number;
+  focusedIndex: number;
+  minIndex: number;
+  maxIndex: number;
   visibleCount: number;
   expandedIds: string[];
   introStage: IntroStage;
@@ -32,6 +37,8 @@ interface TimelineAxisProps {
   onNext: () => void;
   onCenterIndex: (index: number) => void;
   onJumpToPhase: (phaseId: PhaseId) => void;
+  onJumpToConclusion: () => void;
+  onJumpToEvent: (eventId: string) => void;
 }
 
 // Subtle vertical pin stagger (in px) so Notizzettel feel naturally pinned by hand
@@ -45,34 +52,37 @@ const MAIN_THREAD_SAG_PX = [
   16,
 ];
 
-function buildMainTimelineThreadPath(count: number): string {
-  const step = 100;
-  const firstY = (PIN_STAGGER_PX[0] ?? 4) + 10;
-  let d = `M -120 ${firstY + 14} Q -35 ${firstY + 18}, 50 ${firstY}`;
+interface PinCoord {
+  x: number;
+  y: number;
+}
 
-  for (let i = 0; i < count - 1; i++) {
-    const x0 = i * step + 50;
-    const y0 = (PIN_STAGGER_PX[i % PIN_STAGGER_PX.length] ?? 4) + 10;
-    const x1 = (i + 1) * step + 50;
-    const y1 = (PIN_STAGGER_PX[(i + 1) % PIN_STAGGER_PX.length] ?? 4) + 10;
-    const sag = MAIN_THREAD_SAG_PX[i % MAIN_THREAD_SAG_PX.length] ?? 14;
-    const midX = (x0 + x1) / 2 + (i % 2 === 0 ? -4 : 4);
-    const ctrlY = Math.max(y0, y1) + sag;
-    d += ` Q ${midX} ${ctrlY}, ${x1} ${y1}`;
+function buildMainTimelineThreadPath(pins: PinCoord[]): string {
+  if (pins.length === 0) return '';
+  const first = pins[0];
+  let d = `M -120 ${first.y + 14} Q ${first.x - 85} ${first.y + 18}, ${first.x} ${first.y}`;
+
+  for (let i = 0; i < pins.length - 1; i++) {
+    const p0 = pins[i];
+    const p1 = pins[i + 1];
+    const baseSag = MAIN_THREAD_SAG_PX[i % MAIN_THREAD_SAG_PX.length] ?? 14;
+    const spanScale = Math.max(1, (p1.x - p0.x) / 100);
+    const sag = Math.round(baseSag * (1 + (spanScale - 1) * 0.25));
+    const midX = (p0.x + p1.x) / 2 + (i % 2 === 0 ? -4 : 4);
+    const ctrlY = Math.max(p0.y, p1.y) + sag;
+    d += ` Q ${midX} ${ctrlY}, ${p1.x} ${p1.y}`;
   }
 
-  const lastX = (count - 1) * step + 50;
-  const lastY =
-    (PIN_STAGGER_PX[(count - 1) % PIN_STAGGER_PX.length] ?? 4) + 10;
-  d += ` Q ${lastX + 85} ${lastY + 18}, ${lastX + 170} ${lastY + 10}`;
+  const last = pins[pins.length - 1];
+  d += ` Q ${last.x + 85} ${last.y + 18}, ${last.x + 170} ${last.y + 10}`;
   return d;
 }
 
 export function TimelineAxis({
   events,
-  startIndex,
-  minStartIndex,
-  maxStartIndex,
+  focusedIndex,
+  minIndex,
+  maxIndex,
   visibleCount,
   expandedIds,
   introStage,
@@ -82,6 +92,8 @@ export function TimelineAxis({
   onNext,
   onCenterIndex,
   onJumpToPhase,
+  onJumpToConclusion,
+  onJumpToEvent,
 }: TimelineAxisProps) {
   const [selectedPhoto, setSelectedPhoto] =
     useState<ContextualBoardPhoto | null>(null);
@@ -100,39 +112,83 @@ export function TimelineAxis({
   const isOverview = introStage === 'overview';
   const showControls = introStage === 'ready';
 
-  const centerIndex = Math.max(
-    0,
-    Math.min(
-      events.length - 1,
-      visibleCount === 3 ? startIndex + 1 : startIndex
-    )
-  );
-  const centerEvent = events[centerIndex] ?? events[0];
+  const conclusionStartIndex = events.length;
+  const conclusionUnitWidth = visibleCount === 3 ? 2 : 1;
+  const totalUnits = events.length + 3 * conclusionUnitWidth;
 
-  const sliceStart = Math.max(0, startIndex);
-  const sliceEnd = Math.min(events.length, startIndex + visibleCount);
-  const visibleEvents = events.slice(sliceStart, sliceEnd);
+  const eventSlots = events.map((_, i) => ({
+    unitStart: i,
+    unitWidth: 1,
+    unitCenter: i + 0.5,
+  }));
+
+  const conclusionSlots = [0, 1, 2].map((j) => {
+    const unitStart = events.length + j * conclusionUnitWidth;
+    return {
+      unitStart,
+      unitWidth: conclusionUnitWidth,
+      unitCenter: unitStart + conclusionUnitWidth / 2,
+    };
+  });
+
+  const allSlots = [...eventSlots, ...conclusionSlots];
+  const centerIndex = Math.max(0, Math.min(allSlots.length - 1, focusedIndex));
+  const activeSlot = allSlots[centerIndex] ?? allSlots[0];
+
+  const isInConclusionZone = !isOverview && centerIndex >= conclusionStartIndex;
+  const conclusionLabels = [
+    'Vorher / Nachher (1933)',
+    '3 Säulen & Fachbegriffe',
+    'Kurzer Ankreuz-Check',
+  ] as const;
+  const conclusionOffset = Math.max(
+    0,
+    Math.min(2, centerIndex - conclusionStartIndex)
+  );
+  const activeConclusionLabel = conclusionLabels[conclusionOffset];
+
+  const centerEvent =
+    centerIndex < events.length ? events[centerIndex] : undefined;
+
+  const viewportLeftUnit =
+    visibleCount === 3 ? activeSlot.unitCenter - 1.5 : activeSlot.unitStart;
+  const viewportRightUnit = viewportLeftUnit + visibleCount;
+
+  const visibleEvents = events.filter((_, idx) => {
+    const slot = eventSlots[idx];
+    return (
+      slot.unitStart + slot.unitWidth > viewportLeftUnit + 0.05 &&
+      slot.unitStart < viewportRightUnit - 0.05
+    );
+  });
 
   const activePhase = centerEvent
     ? PHASES.find((p) => p.id === centerEvent.phaseId)
     : undefined;
 
-  const leftSlotMatch = LEFT_BOARD_PHOTOS.find(
-    (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
-  );
-  const rightSlotMatch = RIGHT_BOARD_PHOTOS.find(
-    (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
-  );
+  const leftSlotMatch = !isInConclusionZone
+    ? LEFT_BOARD_PHOTOS.find(
+        (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
+      )
+    : undefined;
+  const rightSlotMatch = !isInConclusionZone
+    ? RIGHT_BOARD_PHOTOS.find(
+        (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
+      )
+    : undefined;
 
   const leftSlotEvent =
-    visibleCount === 3 && startIndex >= 0 ? events[startIndex] : undefined;
+    visibleCount === 3 && centerIndex > 0 && centerIndex - 1 < events.length
+      ? events[centerIndex - 1]
+      : undefined;
   const rightSlotEvent =
-    visibleCount === 3 && startIndex + 2 < events.length
-      ? events[startIndex + 2]
+    visibleCount === 3 && centerIndex + 1 < events.length
+      ? events[centerIndex + 1]
       : undefined;
 
   const leftPhoto =
     showControls &&
+    !isInConclusionZone &&
     leftSlotMatch &&
     !(leftSlotEvent && expandedIds.includes(leftSlotEvent.id))
       ? leftSlotMatch.photo
@@ -140,19 +196,20 @@ export function TimelineAxis({
 
   const rightPhoto =
     showControls &&
+    !isInConclusionZone &&
     rightSlotMatch &&
     !(rightSlotEvent && expandedIds.includes(rightSlotEvent.id))
       ? rightSlotMatch.photo
       : null;
 
-  const hasPrev = startIndex > minStartIndex;
-  const hasNext = startIndex < maxStartIndex;
+  const hasPrev = centerIndex > minIndex;
+  const hasNext = centerIndex < maxIndex;
 
-  const totalCount = events.length;
-  const overviewScale = visibleCount / totalCount;
-  const trackWidthPercent = (totalCount / visibleCount) * 100;
+  const minViewportLeftUnit = visibleCount === 3 ? -1 : 0;
+  const overviewScale = visibleCount / totalUnits;
+  const trackWidthPercent = (totalUnits / visibleCount) * 100;
   const centerZoomXPercent =
-    -(((totalCount - visibleCount) / 2) / totalCount) * 100;
+    -(((totalUnits - visibleCount) / 2) / totalUnits) * 100;
 
   const trackTranslateXPercent =
     introStage === 'overview'
@@ -160,8 +217,8 @@ export function TimelineAxis({
       : introStage === 'zoomCenter'
       ? centerZoomXPercent
       : introStage === 'panToStart'
-      ? -(minStartIndex / totalCount) * 100
-      : -(startIndex / totalCount) * 100;
+      ? -(minViewportLeftUnit / totalUnits) * 100
+      : -(viewportLeftUnit / totalUnits) * 100;
 
   const xTransition =
     introStage === 'zoomCenter'
@@ -170,7 +227,11 @@ export function TimelineAxis({
       ? { duration: 1.35, ease: [0.32, 0.04, 0.24, 1] as const }
       : { type: 'spring' as const, stiffness: 250, damping: 30, mass: 0.9 };
 
-  const mainThreadPath = buildMainTimelineThreadPath(totalCount);
+  const pinCoords: PinCoord[] = allSlots.map((slot, idx) => ({
+    x: slot.unitCenter * 100,
+    y: (PIN_STAGGER_PX[idx % PIN_STAGGER_PX.length] ?? 4) + 10,
+  }));
+  const mainThreadPath = buildMainTimelineThreadPath(pinCoords);
 
   return (
     <section
@@ -207,20 +268,23 @@ export function TimelineAxis({
             Einrichtung und Sicherung der NS-Diktatur (1933–1934)
           </h1>
           <p className="mt-0.5 text-[11px] font-mono text-[#2C4E84] tabular-nums truncate">
-            {activePhase
-              ? `Phase ${activePhase.numberLabel}: ${activePhase.title}`
-              : ''}
-            {centerEvent ? ` · Fokus: ${centerEvent.dateLabel}` : ''}
+            {isInConclusionZone
+              ? `Abschluss (${conclusionOffset + 1}/3) · ${activeConclusionLabel}`
+              : `${
+                  activePhase
+                    ? `Phase ${activePhase.numberLabel}: ${activePhase.title}`
+                    : ''
+                }${centerEvent ? ` · Fokus: ${centerEvent.dateLabel}` : ''}`}
           </p>
         </div>
 
         <div
-          className="flex items-center gap-1.5 shrink-0 overflow-x-auto max-w-[55%]"
+          className="flex items-center gap-1.5 shrink-0 overflow-x-auto max-w-[60%]"
           role="navigation"
           aria-label="Phasen-Sprungmarken"
         >
           {PHASES.map((phase) => {
-            const isActive = activePhase?.id === phase.id;
+            const isActive = !isInConclusionZone && activePhase?.id === phase.id;
             return (
               <button
                 key={phase.id}
@@ -236,6 +300,17 @@ export function TimelineAxis({
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={onJumpToConclusion}
+            className={`px-2 sm:px-2.5 py-1.5 text-[11px] font-mono transition-colors cursor-pointer touch-manipulation whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424] ${
+              isInConclusionZone
+                ? 'bg-[#9E2424] text-[#FAF4E6] font-medium border border-[#681212] shadow-xs'
+                : 'notepaper-sheet text-[#173668] border border-[#B09B7C] hover:border-[#173668]'
+            }`}
+          >
+            Bilanz &amp; Check
+          </button>
         </div>
       </motion.div>
 
@@ -292,12 +367,15 @@ export function TimelineAxis({
           „{GUIDING_QUESTION}“
         </p>
         <span className="font-mono text-[11px] text-[#2C4E84] tabular-nums shrink-0">
-          Fokus: {centerEvent.indexNumber}/{events.length} (
-          {visibleEvents[0]?.shortDate}
-          {visibleEvents.length > 1
-            ? ` – ${visibleEvents[visibleEvents.length - 1]?.shortDate}`
-            : ''}
-          )
+          {isInConclusionZone || !centerEvent
+            ? `Abschluss: ${conclusionOffset + 1}/3 · ${activeConclusionLabel}`
+            : `Fokus: ${centerEvent.indexNumber}/${events.length} (${
+                visibleEvents[0]?.shortDate ?? ''
+              }${
+                visibleEvents.length > 1
+                  ? ` – ${visibleEvents[visibleEvents.length - 1]?.shortDate}`
+                  : ''
+              })`}
         </span>
       </motion.div>
 
@@ -310,7 +388,7 @@ export function TimelineAxis({
               aria-hidden="true"
               className="hidden min-[900px]:block w-[120px] lg:w-[132px] xl:w-[164px] shrink-0"
             />
-            {centerEvent && (
+            {centerEvent && !isInConclusionZone && (
               <InstitutionsMap
                 centerEvent={centerEvent}
                 isOverview={isOverview}
@@ -379,16 +457,16 @@ export function TimelineAxis({
               }}
               className="relative h-full flex items-stretch py-3 sm:py-5"
             >
-              {/* Main Red Thread Connecting the 22 Primary Note Pushpins (strictly behind z-10 cards & z-30 pins) */}
+              {/* Main Red Thread Connecting All Primary & Double-Wide Conclusion Pushpins */}
               <motion.div
                 aria-hidden="true"
                 initial={false}
-                animate={{ y: startIndex % 2 === 0 ? 0 : 2 }}
+                animate={{ y: centerIndex % 2 === 0 ? 0 : 2 }}
                 transition={{ type: 'spring', stiffness: 210, damping: 18 }}
                 className="absolute left-0 right-0 top-3 sm:top-5 h-[60px] pointer-events-none z-0 overflow-visible"
               >
                 <svg
-                  viewBox="0 0 2200 60"
+                  viewBox={`0 0 ${totalUnits * 100} 60`}
                   preserveAspectRatio="none"
                   className="w-full h-full overflow-visible"
                 >
@@ -413,8 +491,10 @@ export function TimelineAxis({
               {events.map((event, idx) => {
                 const isExpanded = expandedIds.includes(event.id);
                 const phase = PHASES.find((p) => p.id === event.phaseId);
+                const slot = eventSlots[idx];
                 const isCurrentlyVisible =
-                  idx >= sliceStart && idx < sliceEnd;
+                  slot.unitStart + slot.unitWidth > viewportLeftUnit + 0.05 &&
+                  slot.unitStart < viewportRightUnit - 0.05;
                 const isCenterStation = !isOverview && idx === centerIndex;
                 const pinStagger =
                   PIN_STAGGER_PX[idx % PIN_STAGGER_PX.length] ?? 4;
@@ -422,7 +502,7 @@ export function TimelineAxis({
                 return (
                   <div
                     key={event.id}
-                    style={{ width: `${100 / totalCount}%` }}
+                    style={{ width: `${(slot.unitWidth / totalUnits) * 100}%` }}
                     className={`relative shrink-0 h-full min-h-0 px-1 sm:px-1.5 lg:px-2 flex flex-col items-center ${
                       isExpanded ? 'z-20' : 'z-10'
                     }`}
@@ -457,6 +537,78 @@ export function TimelineAxis({
                       showControls={showControls}
                       isCurrentlyVisible={isCurrentlyVisible}
                       onToggleExpand={onToggleExpand}
+                    />
+                  </div>
+                );
+              })}
+
+              {/* Slots 23–25: Three Double-Wide Conclusion Notizzettel Connected by the Red Thread */}
+              {[
+                {
+                  key: 'conclusion-compare',
+                  offset: 0,
+                  title: 'Vorher / Nachher (1933)',
+                  Component: ConclusionCompareNote,
+                },
+                {
+                  key: 'conclusion-pillars',
+                  offset: 1,
+                  title: '3 Säulen & Fachbegriffe',
+                  Component: ConclusionPillarsNote,
+                },
+                {
+                  key: 'conclusion-check',
+                  offset: 2,
+                  title: 'Kurzer Ankreuz-Check',
+                  Component: ConclusionCheckNote,
+                },
+              ].map(({ key, offset, title, Component }) => {
+                const idx = conclusionStartIndex + offset;
+                const slot = conclusionSlots[offset];
+                const isSlotVisible =
+                  slot.unitStart + slot.unitWidth > viewportLeftUnit + 0.05 &&
+                  slot.unitStart < viewportRightUnit - 0.05;
+                const isSlotCentered = !isOverview && centerIndex === idx;
+                const pinStagger =
+                  PIN_STAGGER_PX[idx % PIN_STAGGER_PX.length] ?? 4;
+
+                return (
+                  <div
+                    key={key}
+                    style={{ width: `${(slot.unitWidth / totalUnits) * 100}%` }}
+                    className={`relative shrink-0 h-full min-h-0 px-1.5 sm:px-2.5 lg:px-3 flex flex-col items-center ${
+                      isInConclusionZone ? 'z-20' : 'z-10'
+                    }`}
+                  >
+                    <div
+                      style={{ paddingTop: `${pinStagger}px` }}
+                      className="shrink-0 flex flex-col items-center -mb-2.5 relative z-30"
+                    >
+                      <button
+                        type="button"
+                        disabled={!showControls}
+                        tabIndex={isSlotVisible && showControls ? 0 : -1}
+                        onClick={() => onCenterIndex(idx)}
+                        title={`${title} in den Fokus rücken`}
+                        aria-label={`${title} in die Mitte rücken`}
+                        className={`w-5 h-5 rounded-full bg-[#9E2424] border-2 flex items-center justify-center transition-transform cursor-pointer touch-manipulation ${
+                          isSlotCentered
+                            ? 'border-[#FAF4E6] ring-2 ring-[#9E2424] scale-125 shadow-[0_4px_10px_rgba(158,36,36,0.5)]'
+                            : 'border-[#681212] shadow-[0_3px_6px_rgba(30,15,5,0.4)] hover:scale-110'
+                        }`}
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#F5B7B7]/85 -translate-x-0.5 -translate-y-0.5" />
+                      </button>
+                    </div>
+
+                    <Component
+                      isExpandedArea={isInConclusionZone}
+                      isCentered={isSlotCentered}
+                      isOverview={isOverview}
+                      showControls={showControls}
+                      isCurrentlyVisible={isSlotVisible}
+                      onJumpToEvent={onJumpToEvent}
+                      onFocusSelf={() => onCenterIndex(idx)}
                     />
                   </div>
                 );

@@ -24,9 +24,7 @@ function useVisibleSlotCount(): number {
 
 export default function App() {
   const visibleCount = useVisibleSlotCount();
-  const [startIndex, setStartIndex] = useState(() =>
-    visibleCount === 3 ? -1 : 0
-  );
+  const [focusedIndex, setFocusedIndex] = useState(0);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [introStage, setIntroStage] = useState<IntroStage>(() => {
     if (
@@ -38,12 +36,8 @@ export default function App() {
     return 'overview';
   });
 
-  // Allow -1..length-2 when 3 slots are visible so every station 01..22 can sit in the middle
-  const minStartIndex = visibleCount === 3 ? -1 : 0;
-  const maxStartIndex =
-    visibleCount === 3
-      ? Math.max(0, TIMELINE_EVENTS.length - 2)
-      : Math.max(0, TIMELINE_EVENTS.length - 1);
+  const minIndex = 0;
+  const maxIndex = TIMELINE_EVENTS.length + 2;
 
   // Continuous intro sequence:
   // 1. overview (longer full-timeline view) -> 2. zoomCenter (zoom into middle) -> 3. panToStart (pan left to start) -> 4. ready
@@ -68,37 +62,39 @@ export default function App() {
 
   const handleGoToIndex = useCallback(
     (nextIndex: number) => {
-      const clamped = Math.max(
-        minStartIndex,
-        Math.min(maxStartIndex, nextIndex)
-      );
-      setStartIndex(clamped);
+      const clamped = Math.max(minIndex, Math.min(maxIndex, nextIndex));
+      setFocusedIndex(clamped);
     },
-    [minStartIndex, maxStartIndex]
-  );
-
-  const handleCenterIndex = useCallback(
-    (stationIndex: number) => {
-      const targetStart =
-        visibleCount === 3 ? stationIndex - 1 : stationIndex;
-      handleGoToIndex(targetStart);
-    },
-    [handleGoToIndex, visibleCount]
+    [minIndex, maxIndex]
   );
 
   const handleJumpToPhase = useCallback(
     (phaseId: PhaseId) => {
       const idx = TIMELINE_EVENTS.findIndex((ev) => ev.phaseId === phaseId);
       if (idx >= 0) {
-        handleCenterIndex(idx);
+        handleGoToIndex(idx);
       }
     },
-    [handleCenterIndex]
+    [handleGoToIndex]
   );
 
-  const clampedStartIndex = Math.max(
-    minStartIndex,
-    Math.min(maxStartIndex, startIndex)
+  const handleJumpToConclusion = useCallback(() => {
+    handleGoToIndex(TIMELINE_EVENTS.length);
+  }, [handleGoToIndex]);
+
+  const handleJumpToEvent = useCallback(
+    (eventId: string) => {
+      const idx = TIMELINE_EVENTS.findIndex((ev) => ev.id === eventId);
+      if (idx >= 0) {
+        handleGoToIndex(idx);
+      }
+    },
+    [handleGoToIndex]
+  );
+
+  const clampedFocusedIndex = Math.max(
+    minIndex,
+    Math.min(maxIndex, focusedIndex)
   );
 
   useEffect(() => {
@@ -106,15 +102,15 @@ export default function App() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
-        handleGoToIndex(clampedStartIndex - 1);
+        handleGoToIndex(clampedFocusedIndex - 1);
       } else if (e.key === 'ArrowRight') {
-        handleGoToIndex(clampedStartIndex + 1);
+        handleGoToIndex(clampedFocusedIndex + 1);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleGoToIndex, introStage, clampedStartIndex]);
+  }, [handleGoToIndex, introStage, clampedFocusedIndex]);
 
   const handleToggleExpand = (id: string) => {
     setExpandedIds((prev) =>
@@ -128,18 +124,20 @@ export default function App() {
         <main className="flex-1 min-h-0 flex flex-col w-full h-full wood-pinboard-frame p-1.5 sm:p-2.5">
           <TimelineAxis
             events={TIMELINE_EVENTS}
-            startIndex={clampedStartIndex}
-            minStartIndex={minStartIndex}
-            maxStartIndex={maxStartIndex}
+            focusedIndex={clampedFocusedIndex}
+            minIndex={minIndex}
+            maxIndex={maxIndex}
             visibleCount={visibleCount}
             expandedIds={expandedIds}
             introStage={introStage}
             onSkipIntro={() => setIntroStage('ready')}
             onToggleExpand={handleToggleExpand}
-            onPrev={() => handleGoToIndex(clampedStartIndex - 1)}
-            onNext={() => handleGoToIndex(clampedStartIndex + 1)}
-            onCenterIndex={handleCenterIndex}
+            onPrev={() => handleGoToIndex(clampedFocusedIndex - 1)}
+            onNext={() => handleGoToIndex(clampedFocusedIndex + 1)}
+            onCenterIndex={handleGoToIndex}
             onJumpToPhase={handleJumpToPhase}
+            onJumpToConclusion={handleJumpToConclusion}
+            onJumpToEvent={handleJumpToEvent}
           />
         </main>
       </div>
