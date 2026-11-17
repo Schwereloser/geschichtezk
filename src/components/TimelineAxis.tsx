@@ -114,6 +114,7 @@ export function TimelineAxis({
 
   const conclusionStartIndex = events.length;
   const conclusionUnitWidth = visibleCount === 3 ? 2 : 1;
+  const visibleUnits = visibleCount;
   const totalUnits = events.length + 3 * conclusionUnitWidth;
 
   const eventSlots = events.map((_, i) => ({
@@ -135,7 +136,16 @@ export function TimelineAxis({
   const centerIndex = Math.max(0, Math.min(allSlots.length - 1, focusedIndex));
   const activeSlot = allSlots[centerIndex] ?? allSlots[0];
 
+  const viewportLeftUnit =
+    visibleCount === 3
+      ? activeSlot.unitCenter - visibleUnits / 2
+      : activeSlot.unitStart;
+  const viewportRightUnit = viewportLeftUnit + visibleUnits;
+
   const isInConclusionZone = !isOverview && centerIndex >= conclusionStartIndex;
+  const isConclusionVisible =
+    !isOverview &&
+    (conclusionSlots[0]?.unitStart ?? events.length) < viewportRightUnit - 0.05;
   const conclusionLabels = [
     'Vorher / Nachher (1933)',
     '3 Säulen & Fachbegriffe',
@@ -150,10 +160,6 @@ export function TimelineAxis({
   const centerEvent =
     centerIndex < events.length ? events[centerIndex] : undefined;
 
-  const viewportLeftUnit =
-    visibleCount === 3 ? activeSlot.unitCenter - 1.5 : activeSlot.unitStart;
-  const viewportRightUnit = viewportLeftUnit + visibleCount;
-
   const visibleEvents = events.filter((_, idx) => {
     const slot = eventSlots[idx];
     return (
@@ -166,12 +172,12 @@ export function TimelineAxis({
     ? PHASES.find((p) => p.id === centerEvent.phaseId)
     : undefined;
 
-  const leftSlotMatch = !isInConclusionZone
+  const leftSlotMatch = !isConclusionVisible
     ? LEFT_BOARD_PHOTOS.find(
         (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
       )
     : undefined;
-  const rightSlotMatch = !isInConclusionZone
+  const rightSlotMatch = !isConclusionVisible
     ? RIGHT_BOARD_PHOTOS.find(
         (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
       )
@@ -188,7 +194,7 @@ export function TimelineAxis({
 
   const leftPhoto =
     showControls &&
-    !isInConclusionZone &&
+    !isConclusionVisible &&
     leftSlotMatch &&
     !(leftSlotEvent && expandedIds.includes(leftSlotEvent.id))
       ? leftSlotMatch.photo
@@ -196,7 +202,7 @@ export function TimelineAxis({
 
   const rightPhoto =
     showControls &&
-    !isInConclusionZone &&
+    !isConclusionVisible &&
     rightSlotMatch &&
     !(rightSlotEvent && expandedIds.includes(rightSlotEvent.id))
       ? rightSlotMatch.photo
@@ -205,11 +211,12 @@ export function TimelineAxis({
   const hasPrev = centerIndex > minIndex;
   const hasNext = centerIndex < maxIndex;
 
-  const minViewportLeftUnit = visibleCount === 3 ? -1 : 0;
-  const overviewScale = visibleCount / totalUnits;
-  const trackWidthPercent = (totalUnits / visibleCount) * 100;
+  const minViewportLeftUnit =
+    visibleCount === 3 ? 0.5 - visibleUnits / 2 : 0;
+  const overviewScale = visibleUnits / totalUnits;
+  const trackWidthPercent = (totalUnits / visibleUnits) * 100;
   const centerZoomXPercent =
-    -(((totalUnits - visibleCount) / 2) / totalUnits) * 100;
+    -(((totalUnits - visibleUnits) / 2) / totalUnits) * 100;
 
   const trackTranslateXPercent =
     introStage === 'overview'
@@ -314,7 +321,7 @@ export function TimelineAxis({
         </div>
       </motion.div>
 
-      {/* Clean, Unobtrusive Floating Edge Arrows (no bulky side panels) */}
+      {/* Floating Circular Edge Arrows in Tight Outer Margins (zero overlap with notes) */}
       <motion.button
         type="button"
         onClick={onPrev}
@@ -327,9 +334,9 @@ export function TimelineAxis({
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         style={{ pointerEvents: showControls && hasPrev ? 'auto' : 'none' }}
         aria-label="Ein Datum zurück"
-        className="absolute left-1.5 sm:left-2.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-[#FAF4E6]/65 hover:bg-[#FAF4E6]/95 active:scale-95 border border-[#A89274]/45 hover:border-[#9E2424]/70 text-[#173668] hover:text-[#9E2424] shadow-[0_2px_8px_rgba(38,20,6,0.14)] backdrop-blur-[2px] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424]"
+        className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-[#FAF4E6]/65 hover:bg-[#FAF4E6]/95 active:scale-95 border border-[#A89274]/45 hover:border-[#9E2424]/70 text-[#173668] hover:text-[#9E2424] shadow-[0_2px_8px_rgba(38,20,6,0.14)] backdrop-blur-[2px] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424]"
       >
-        <ArrowLeft className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+        <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
       </motion.button>
 
       <motion.button
@@ -344,12 +351,9 @@ export function TimelineAxis({
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         style={{ pointerEvents: showControls && hasNext ? 'auto' : 'none' }}
         aria-label="Ein Datum weiter"
-        className="absolute right-1.5 sm:right-2.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-[#FAF4E6]/65 hover:bg-[#FAF4E6]/95 active:scale-95 border border-[#A89274]/45 hover:border-[#9E2424]/70 text-[#173668] hover:text-[#9E2424] shadow-[0_2px_8px_rgba(38,20,6,0.14)] backdrop-blur-[2px] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424]"
+        className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-[#FAF4E6]/65 hover:bg-[#FAF4E6]/95 active:scale-95 border border-[#A89274]/45 hover:border-[#9E2424]/70 text-[#173668] hover:text-[#9E2424] shadow-[0_2px_8px_rgba(38,20,6,0.14)] backdrop-blur-[2px] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424]"
       >
-        <ArrowRight
-          className="w-4 h-4 sm:w-[18px] sm:h-[18px]"
-          strokeWidth={2}
-        />
+        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
       </motion.button>
 
       {/* Compact Bottom Pinboard Strip — slides up from behind bottom wooden frame */}
@@ -379,14 +383,14 @@ export function TimelineAxis({
         </span>
       </motion.div>
 
-      {/* Center Stage Viewport */}
-      <div className="relative z-10 flex-1 min-h-0 flex flex-col pt-[62px] pb-[38px] px-4 sm:px-6 md:px-7 overflow-hidden">
+      {/* Center Stage Viewport — snug 36/40px side clearance for the arrow circles, all 3 notes fit whole */}
+      <div className="relative z-10 flex-1 min-h-0 flex flex-col pt-[62px] pb-[38px] px-9 sm:px-10 overflow-hidden">
         <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
           {/* Bottom Layer (z-[5], below Track so unfolded center Notizzettel sit above InstitutionsMap) */}
-          <div className="pointer-events-none absolute inset-x-1 sm:inset-x-3 bottom-2.5 z-[5] flex items-end justify-center gap-2.5 xl:gap-5">
+          <div className="pointer-events-none absolute inset-x-1 sm:inset-x-2 bottom-2.5 z-[5] flex items-end justify-center gap-2 xl:gap-5">
             <div
               aria-hidden="true"
-              className="hidden min-[900px]:block w-[120px] lg:w-[132px] xl:w-[164px] shrink-0"
+              className="hidden min-[900px]:block w-[114px] lg:w-[124px] xl:w-[156px] shrink-0"
             />
             {centerEvent && !isInConclusionZone && (
               <InstitutionsMap
@@ -396,13 +400,13 @@ export function TimelineAxis({
             )}
             <div
               aria-hidden="true"
-              className="hidden min-[900px]:block w-[120px] lg:w-[132px] xl:w-[164px] shrink-0"
+              className="hidden min-[900px]:block w-[114px] lg:w-[124px] xl:w-[156px] shrink-0"
             />
           </div>
 
           {/* Flanking Pinboard Photo Wings (z-[15], clickable outside InstitutionsMap & automatically unpin if side note opens) */}
-          <div className="pointer-events-none absolute inset-x-1 sm:inset-x-3 bottom-2.5 z-[15] flex items-end justify-center gap-2.5 xl:gap-5">
-            <div className="hidden min-[900px]:flex w-[120px] lg:w-[132px] xl:w-[164px] shrink-0 justify-center pb-2">
+          <div className="pointer-events-none absolute inset-x-1 sm:inset-x-2 bottom-2.5 z-[15] flex items-end justify-center gap-2 xl:gap-5">
+            <div className="hidden min-[900px]:flex w-[114px] lg:w-[124px] xl:w-[156px] shrink-0 justify-center pb-2">
               <FlankingPinboardPhoto
                 photo={leftPhoto}
                 side="left"
@@ -415,7 +419,7 @@ export function TimelineAxis({
               className="w-full min-w-0 max-w-[630px] xl:max-w-[740px]"
             />
 
-            <div className="hidden min-[900px]:flex w-[120px] lg:w-[132px] xl:w-[164px] shrink-0 justify-center pb-2">
+            <div className="hidden min-[900px]:flex w-[114px] lg:w-[124px] xl:w-[156px] shrink-0 justify-center pb-2">
               <FlankingPinboardPhoto
                 photo={rightPhoto}
                 side="right"
@@ -503,7 +507,7 @@ export function TimelineAxis({
                   <div
                     key={event.id}
                     style={{ width: `${(slot.unitWidth / totalUnits) * 100}%` }}
-                    className={`relative shrink-0 h-full min-h-0 px-1 sm:px-1.5 lg:px-2 flex flex-col items-center ${
+                    className={`relative shrink-0 h-full min-h-0 px-0.5 sm:px-1 lg:px-1.5 flex flex-col items-center ${
                       isExpanded ? 'z-20' : 'z-10'
                     }`}
                   >
@@ -533,6 +537,7 @@ export function TimelineAxis({
                       event={event}
                       phase={phase}
                       isExpanded={isExpanded}
+                      isCenter={isCenterStation && visibleCount === 3}
                       isOverview={isOverview}
                       showControls={showControls}
                       isCurrentlyVisible={isCurrentlyVisible}
@@ -576,7 +581,7 @@ export function TimelineAxis({
                   <div
                     key={key}
                     style={{ width: `${(slot.unitWidth / totalUnits) * 100}%` }}
-                    className={`relative shrink-0 h-full min-h-0 px-1.5 sm:px-2.5 lg:px-3 flex flex-col items-center ${
+                    className={`relative shrink-0 h-full min-h-0 px-1 sm:px-1.5 lg:px-2 flex flex-col items-center ${
                       isInConclusionZone ? 'z-20' : 'z-10'
                     }`}
                   >

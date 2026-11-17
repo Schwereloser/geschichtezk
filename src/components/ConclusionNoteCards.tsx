@@ -95,7 +95,7 @@ function CollapsedConclusionCover({
 }) {
   return (
     <article
-      className={`relative w-[94%] flex flex-col notepaper-sheet border border-[#A69274] shadow-[0_10px_22px_-6px_rgba(45,28,10,0.34)] ${tiltClass}`}
+      className={`relative w-[97%] flex flex-col notepaper-sheet border border-[#A69274] shadow-[0_10px_22px_-6px_rgba(45,28,10,0.34)] ${tiltClass}`}
     >
       <span
         aria-hidden="true"
@@ -192,7 +192,7 @@ export function ConclusionCompareNote({
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       aria-label="Abschluss-Notizzettel 1: Vorher und Nachher 1933"
-      className={`relative w-[98%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
+      className={`relative w-[99%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
         isCentered
           ? 'border-[#9E2424]/75 shadow-[0_20px_42px_-10px_rgba(45,28,10,0.45)]'
           : 'border-[#A69274] shadow-[0_14px_30px_-8px_rgba(45,28,10,0.36)]'
@@ -362,7 +362,7 @@ export function ConclusionPillarsNote({
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       aria-label="Abschluss-Notizzettel 2: Die 3 Säulen und zentrale Fachbegriffe"
-      className={`relative w-[98%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
+      className={`relative w-[99%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
         isCentered
           ? 'border-[#9E2424]/75 shadow-[0_20px_42px_-10px_rgba(45,28,10,0.45)]'
           : 'border-[#A69274] shadow-[0_14px_30px_-8px_rgba(45,28,10,0.36)]'
@@ -592,7 +592,7 @@ export function ConclusionCheckNote({
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       aria-label="Abschluss-Notizzettel 3: Ankreuz-Check zur Selbstkontrolle"
-      className={`relative w-[98%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
+      className={`relative w-[99%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
         isCentered
           ? 'border-[#9E2424]/75 shadow-[0_20px_42px_-10px_rgba(45,28,10,0.45)]'
           : 'border-[#A69274] shadow-[0_14px_30px_-8px_rgba(45,28,10,0.36)]'

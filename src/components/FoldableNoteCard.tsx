@@ -8,6 +8,7 @@ interface FoldableNoteCardProps {
   event: TimelineEvent;
   phase: HistoricalPhase | undefined;
   isExpanded: boolean;
+  isCenter: boolean;
   isOverview: boolean;
   showControls: boolean;
   isCurrentlyVisible: boolean;
@@ -18,6 +19,7 @@ export function FoldableNoteCard({
   event,
   phase,
   isExpanded,
+  isCenter,
   isOverview,
   showControls,
   isCurrentlyVisible,
@@ -41,7 +43,12 @@ export function FoldableNoteCard({
     <motion.article
       initial={false}
       animate={{
-        width: isExpanded || isOverview ? '100%' : '94%',
+        width:
+          isExpanded && isCenter
+            ? '112%'
+            : isExpanded || isOverview
+            ? '100%'
+            : '98%',
         rotateZ: isExpanded || isOverview ? 0 : -0.9,
       }}
       transition={{
@@ -88,7 +95,7 @@ export function FoldableNoteCard({
           tabIndex={isCurrentlyVisible && showControls ? 0 : -1}
           onClick={() => onToggleExpand(event.id)}
           aria-expanded={isExpanded}
-          className="relative w-full text-left px-3.5 sm:px-4 py-2.5 cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424] group disabled:cursor-pointer"
+          className="relative w-full text-left px-3.5 sm:px-4 py-2 cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424] group disabled:cursor-pointer"
         >
           {/* Unified Header Content (always visible, scales smoothly during zoom) */}
           <div>
@@ -242,7 +249,7 @@ export function FoldableNoteCard({
                       transformStyle: 'preserve-3d',
                       backfaceVisibility: 'hidden',
                     }}
-                    className="relative notepaper-sheet border-x border-[#C2B6A2] px-4 sm:px-5 pt-3.5 pb-3.5 space-y-2.5 text-[#173668]"
+                    className="relative notepaper-sheet border-x border-[#C2B6A2] px-3.5 sm:px-4 pt-2.5 pb-2.5 space-y-1.5 text-[#173668]"
                   >
                     {/* Origami Facet Overlay 1 */}
                     <motion.svg
@@ -279,7 +286,7 @@ export function FoldableNoteCard({
                       className="pointer-events-none absolute top-0 left-0 right-0 h-7 bg-gradient-to-b from-[#4A3B28]/40 to-transparent"
                     />
 
-                    <div className="relative z-10 space-y-2.5">
+                    <div className="relative z-10 space-y-1.5">
                       <div className="text-[11px] font-mono text-[#2C4E84] flex flex-wrap gap-x-2 gap-y-0.5">
                         <span>{event.mechanismLabel}</span>
                         {event.location && <span>· {event.location}</span>}
@@ -373,7 +380,7 @@ export function FoldableNoteCard({
                       transformStyle: 'preserve-3d',
                       backfaceVisibility: 'hidden',
                     }}
-                    className="relative notepaper-sheet border-x border-[#C2B6A2] px-4 sm:px-5 pt-3.5 pb-3.5 space-y-3 text-[#173668]"
+                    className="relative notepaper-sheet border-x border-[#C2B6A2] px-3.5 sm:px-4 pt-2.5 pb-2.5 space-y-2 text-[#173668]"
                   >
                     {/* Origami Facet Overlay 2 */}
                     <motion.svg
@@ -410,7 +417,7 @@ export function FoldableNoteCard({
                       className="pointer-events-none absolute top-0 left-0 right-0 h-7 bg-gradient-to-b from-[#4A3B28]/35 to-transparent"
                     />
 
-                    <div className="relative z-10 space-y-3">
+                    <div className="relative z-10 space-y-2">
                       {/* Ablauf & Maßnahmen */}
                       <div>
                         <h3 className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#2C4E84] mb-1">
@@ -476,42 +483,46 @@ export function FoldableNoteCard({
 
                       {/* Reden (23. Mär) */}
                       {event.quotes && event.quotes.length > 0 && (
-                        <div className="pt-2.5 border-t border-[#D8CFC0] space-y-2">
+                        <div className="pt-2 border-t border-[#D8CFC0] space-y-1.5">
                           <h3 className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#2C4E84]">
                             Reden im Reichstag
                           </h3>
                           {event.quotes.map((q, i) => (
                             <blockquote
                               key={i}
-                              className="py-1.5 border-y border-[#D8CFC0]"
+                              className="py-1 border-y border-[#D8CFC0]"
                             >
                               <p className="font-serif italic text-xs text-[#173668] leading-snug">
                                 {q.text}
                               </p>
                             </blockquote>
                           ))}
-                          {event.welsSpeechPoints && (
-                            <div>
-                              <p className="text-[10px] font-mono uppercase tracking-wider text-[#2C4E84] mb-1">
-                                Otto Wels (SPD)
-                              </p>
-                              <ul className="space-y-0.5 text-[11px] text-[#284B82]">
-                                {event.welsSpeechPoints.map((pt, i) => (
-                                  <li key={i}>· {pt}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          {event.hitlerReplyPoints && (
-                            <div>
-                              <p className="text-[10px] font-mono uppercase tracking-wider text-[#2C4E84] mb-1">
-                                Antwort Adolf Hitlers
-                              </p>
-                              <ul className="space-y-0.5 text-[11px] text-[#284B82]">
-                                {event.hitlerReplyPoints.map((pt, i) => (
-                                  <li key={i}>· {pt}</li>
-                                ))}
-                              </ul>
+                          {(event.welsSpeechPoints || event.hitlerReplyPoints) && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {event.welsSpeechPoints && (
+                                <div>
+                                  <p className="text-[10px] font-mono uppercase tracking-wider text-[#2C4E84] mb-0.5">
+                                    Otto Wels (SPD)
+                                  </p>
+                                  <ul className="space-y-0.5 text-[11px] text-[#284B82]">
+                                    {event.welsSpeechPoints.map((pt, i) => (
+                                      <li key={i}>· {pt}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {event.hitlerReplyPoints && (
+                                <div>
+                                  <p className="text-[10px] font-mono uppercase tracking-wider text-[#2C4E84] mb-0.5">
+                                    Antwort Adolf Hitlers
+                                  </p>
+                                  <ul className="space-y-0.5 text-[11px] text-[#284B82]">
+                                    {event.hitlerReplyPoints.map((pt, i) => (
+                                      <li key={i}>· {pt}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
                             </div>
                           )}
                           {event.sourceWorkNote && (
@@ -592,7 +603,7 @@ export function FoldableNoteCard({
                       transformStyle: 'preserve-3d',
                       backfaceVisibility: 'hidden',
                     }}
-                    className="relative notepaper-sheet border-x border-b border-[#C2B6A2] px-4 sm:px-5 pt-3.5 pb-4 space-y-3 text-[#173668]"
+                    className="relative notepaper-sheet border-x border-b border-[#C2B6A2] px-3.5 sm:px-4 pt-2.5 pb-3 space-y-2 text-[#173668]"
                   >
                     {/* Origami Facet Overlay 3 */}
                     <motion.svg
@@ -629,11 +640,11 @@ export function FoldableNoteCard({
                       className="pointer-events-none absolute top-0 left-0 right-0 h-7 bg-gradient-to-b from-[#4A3B28]/35 to-transparent"
                     />
 
-                    <div className="relative z-10 space-y-3">
+                    <div className="relative z-10 space-y-2">
                       {/* Akteure (Klickbare Mini-Profile) */}
                       {event.actors.length > 0 && (
                         <div>
-                          <div className="flex items-baseline justify-between gap-2 mb-1.5">
+                          <div className="flex items-baseline justify-between gap-2 mb-1">
                             <h3 className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#2C4E84]">
                               Akteure
                             </h3>
@@ -641,7 +652,13 @@ export function FoldableNoteCard({
                               Profil antippen für Info
                             </span>
                           </div>
-                          <div className="grid grid-cols-3 gap-1.5">
+                          <div
+                            className={`grid gap-1.5 ${
+                              event.actors.length >= 4
+                                ? 'grid-cols-2 sm:grid-cols-4'
+                                : 'grid-cols-3'
+                            }`}
+                          >
                             {event.actors.map((a) => (
                               <ActorMiniProfile
                                 key={a.name}
