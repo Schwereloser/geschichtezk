@@ -128,9 +128,14 @@ export function OverviewPinboardDecor({
         <div className="masking-tape w-12 h-3 -rotate-12 absolute -top-1.5 -left-2" />
         <div className="w-3.5 h-3.5 rounded-full bg-[#9E2424] border-2 border-[#681212] mx-auto -mt-4 mb-1.5 shadow-[1px_2px_4px_rgba(38,20,6,0.45)]" />
         <img
-          src={ARCHIVAL_IMAGES.parliament}
-          alt=""
+          src="https://upload.wikimedia.org/wikipedia/commons/4/41/Bundesarchiv_Bild_102-14439%2C_Rede_Adolf_Hitlers_zum_Erm%C3%A4chtigungsgesetz.jpg"
+          alt="Rede Hitlers zum Ermächtigungsgesetz in der Krolloper, 23. März 1933"
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            if (e.currentTarget.src !== ARCHIVAL_IMAGES.parliament) {
+              e.currentTarget.src = ARCHIVAL_IMAGES.parliament;
+            }
+          }}
           className="w-full aspect-[4/3] object-cover sepia-[0.42] grayscale-[0.22] contrast-[1.06] border border-[#D4C7B2]"
         />
         <p className="mt-1.5 text-[10px] font-mono text-[#173668] text-center">
@@ -200,9 +205,14 @@ export function OverviewPinboardDecor({
         <div className="masking-tape w-12 h-3 rotate-12 absolute -top-1.5 -right-2" />
         <div className="w-3.5 h-3.5 rounded-full bg-[#9E2424] border-2 border-[#681212] mx-auto -mt-4 mb-1.5 shadow-[1px_2px_4px_rgba(38,20,6,0.45)]" />
         <img
-          src={ARCHIVAL_IMAGES.library}
-          alt=""
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Bundesarchiv_Bild_102-14597%2C_Berlin%2C_Opernplatz%2C_B%C3%BCcherverbrennung.jpg/960px-Bundesarchiv_Bild_102-14597%2C_Berlin%2C_Opernplatz%2C_B%C3%BCcherverbrennung.jpg"
+          alt="Bücherverbrennung auf dem Berliner Opernplatz, 10. Mai 1933"
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            if (e.currentTarget.src !== ARCHIVAL_IMAGES.library) {
+              e.currentTarget.src = ARCHIVAL_IMAGES.library;
+            }
+          }}
           className="w-full aspect-[4/3] object-cover sepia-[0.42] grayscale-[0.22] contrast-[1.06] border border-[#D4C7B2]"
         />
         <p className="mt-1.5 text-[10px] font-mono text-[#173668] text-center">

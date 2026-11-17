@@ -644,7 +644,7 @@ export function TimelineAxis({
               exit={{ opacity: 0, scale: 0.9, rotate: 1, y: 8 }}
               transition={{ type: 'spring', stiffness: 280, damping: 24 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative notepaper-sheet border border-[#A69070] max-w-lg w-full p-3.5 sm:p-5 shadow-[0_24px_56px_-10px_rgba(20,10,2,0.7)]"
+              className="relative notepaper-sheet border border-[#A69070] max-w-lg w-full px-3.5 pb-3.5 pt-11 sm:px-5 sm:pb-5 sm:pt-12 shadow-[0_24px_56px_-10px_rgba(20,10,2,0.7)]"
             >
               {selectedPhoto.fastener === 'pin' ? (
                 <span
@@ -668,7 +668,7 @@ export function TimelineAxis({
                 type="button"
                 onClick={() => setSelectedPhoto(null)}
                 aria-label="Bild schließen"
-                className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center bg-[#FAF4E6]/85 border border-[#B8A58B] text-[#173668] hover:text-[#9E2424] hover:border-[#9E2424] cursor-pointer touch-manipulation"
+                className="absolute top-2.5 right-3.5 z-20 w-7 h-7 rounded-full flex items-center justify-center bg-[#FAF4E6]/95 border border-[#B8A58B] text-[#173668] hover:text-[#9E2424] hover:border-[#9E2424] cursor-pointer touch-manipulation"
               >
                 <X className="w-4 h-4" />
               </button>
