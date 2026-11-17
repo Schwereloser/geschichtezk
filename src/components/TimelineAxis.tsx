@@ -1,13 +1,17 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import corkTextureImg from '../assets/images/cork_board_texture_1794846395588.jpg';
 import {
-  ARCHIVAL_IMAGES,
+  ContextualBoardPhoto,
   GUIDING_QUESTION,
+  LEFT_BOARD_PHOTOS,
   PHASES,
   PhaseId,
+  RIGHT_BOARD_PHOTOS,
   TimelineEvent,
 } from '../data/timelineData';
+import { FlankingPinboardPhoto } from './FlankingPinboardPhoto';
 import { FoldableNoteCard } from './FoldableNoteCard';
 import { InstitutionsMap } from './InstitutionsMap';
 import { OverviewPinboardDecor } from './OverviewPinboardDecor';
@@ -29,40 +33,6 @@ interface TimelineAxisProps {
   onCenterIndex: (index: number) => void;
   onJumpToPhase: (phaseId: PhaseId) => void;
 }
-
-interface PinnedPhotoPair {
-  leftSrc: string;
-  leftCaption: string;
-  rightSrc: string;
-  rightCaption: string;
-}
-
-const PHASE_PINNED_PHOTOS: Record<PhaseId, PinnedPhotoPair> = {
-  'phase-1': {
-    leftSrc: ARCHIVAL_IMAGES.reichstag,
-    leftCaption: 'Berlin · Reichstag, Jan/Feb 1933',
-    rightSrc: ARCHIVAL_IMAGES.decree,
-    rightCaption: 'Notverordnungen · Feb 1933',
-  },
-  'phase-2': {
-    leftSrc: ARCHIVAL_IMAGES.parliament,
-    leftCaption: 'Krolloper · Ermächtigung, Mär 1933',
-    rightSrc: ARCHIVAL_IMAGES.decree,
-    rightCaption: 'Gleichschaltung · Apr 1933',
-  },
-  'phase-3': {
-    leftSrc: ARCHIVAL_IMAGES.library,
-    leftCaption: 'Bücherverbrennung · Mai 1933',
-    rightSrc: ARCHIVAL_IMAGES.parliament,
-    rightCaption: 'Parteiverbote · Jun/Jul 1933',
-  },
-  'phase-4': {
-    leftSrc: ARCHIVAL_IMAGES.decree,
-    leftCaption: 'Reichskonkordat · Jul 1933',
-    rightSrc: ARCHIVAL_IMAGES.reichstag,
-    rightCaption: 'Führerstaat · Ab Jul 1933',
-  },
-};
 
 // Subtle vertical pin stagger (in px) so Notizzettel feel naturally pinned by hand
 const PIN_STAGGER_PX = [
@@ -113,6 +83,20 @@ export function TimelineAxis({
   onCenterIndex,
   onJumpToPhase,
 }: TimelineAxisProps) {
+  const [selectedPhoto, setSelectedPhoto] =
+    useState<ContextualBoardPhoto | null>(null);
+
+  useEffect(() => {
+    if (!selectedPhoto) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedPhoto(null);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [selectedPhoto]);
+
   const isOverview = introStage === 'overview';
   const showControls = introStage === 'ready';
 
@@ -133,9 +117,33 @@ export function TimelineAxis({
     ? PHASES.find((p) => p.id === centerEvent.phaseId)
     : undefined;
 
-  const pinnedPhotos =
-    PHASE_PINNED_PHOTOS[centerEvent?.phaseId ?? 'phase-1'] ??
-    PHASE_PINNED_PHOTOS['phase-1'];
+  const leftSlotMatch = LEFT_BOARD_PHOTOS.find(
+    (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
+  );
+  const rightSlotMatch = RIGHT_BOARD_PHOTOS.find(
+    (slot) => centerIndex >= slot.minIndex && centerIndex <= slot.maxIndex
+  );
+
+  const leftSlotEvent =
+    visibleCount === 3 && startIndex >= 0 ? events[startIndex] : undefined;
+  const rightSlotEvent =
+    visibleCount === 3 && startIndex + 2 < events.length
+      ? events[startIndex + 2]
+      : undefined;
+
+  const leftPhoto =
+    showControls &&
+    leftSlotMatch &&
+    !(leftSlotEvent && expandedIds.includes(leftSlotEvent.id))
+      ? leftSlotMatch.photo
+      : null;
+
+  const rightPhoto =
+    showControls &&
+    rightSlotMatch &&
+    !(rightSlotEvent && expandedIds.includes(rightSlotEvent.id))
+      ? rightSlotMatch.photo
+      : null;
 
   const hasPrev = startIndex > minStartIndex;
   const hasNext = startIndex < maxStartIndex;
@@ -152,7 +160,7 @@ export function TimelineAxis({
       : introStage === 'zoomCenter'
       ? centerZoomXPercent
       : introStage === 'panToStart'
-      ? 0
+      ? -(minStartIndex / totalCount) * 100
       : -(startIndex / totalCount) * 100;
 
   const xTransition =
@@ -231,43 +239,41 @@ export function TimelineAxis({
         </div>
       </motion.div>
 
-      {/* Left Side Arrow Button — slides in from behind left wooden frame */}
+      {/* Clean, Unobtrusive Floating Edge Arrows (no bulky side panels) */}
       <motion.button
         type="button"
         onClick={onPrev}
         disabled={!hasPrev || !showControls}
         initial={false}
-        animate={{ x: showControls ? '0%' : '-110%' }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        style={{ pointerEvents: showControls ? 'auto' : 'none' }}
+        animate={{
+          x: showControls ? 0 : -48,
+          opacity: !showControls ? 0 : hasPrev ? 0.92 : 0.22,
+        }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{ pointerEvents: showControls && hasPrev ? 'auto' : 'none' }}
         aria-label="Ein Datum zurück"
-        className="absolute left-0 top-[62px] bottom-[38px] z-30 w-7 sm:w-9 md:w-10 flex items-center justify-center border-r border-[#8F6840]/85 bg-[#C59D72]/80 hover:bg-[#DFCAA6]/95 active:bg-[#DFCAA6] text-[#173668] disabled:cursor-not-allowed transition-colors cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424]"
+        className="absolute left-1.5 sm:left-2.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-[#FAF4E6]/65 hover:bg-[#FAF4E6]/95 active:scale-95 border border-[#A89274]/45 hover:border-[#9E2424]/70 text-[#173668] hover:text-[#9E2424] shadow-[0_2px_8px_rgba(38,20,6,0.14)] backdrop-blur-[2px] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424]"
       >
-        <ChevronLeft
-          className={`w-6 h-6 sm:w-7 sm:h-7 transition-opacity ${
-            hasPrev ? 'opacity-100' : 'opacity-30'
-          }`}
-          strokeWidth={2.2}
-        />
+        <ArrowLeft className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
       </motion.button>
 
-      {/* Right Side Arrow Button — slides in from behind right wooden frame */}
       <motion.button
         type="button"
         onClick={onNext}
         disabled={!hasNext || !showControls}
         initial={false}
-        animate={{ x: showControls ? '0%' : '110%' }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        style={{ pointerEvents: showControls ? 'auto' : 'none' }}
+        animate={{
+          x: showControls ? 0 : 48,
+          opacity: !showControls ? 0 : hasNext ? 0.92 : 0.22,
+        }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{ pointerEvents: showControls && hasNext ? 'auto' : 'none' }}
         aria-label="Ein Datum weiter"
-        className="absolute right-0 top-[62px] bottom-[38px] z-30 w-7 sm:w-9 md:w-10 flex items-center justify-center border-l border-[#8F6840]/85 bg-[#C59D72]/80 hover:bg-[#DFCAA6]/95 active:bg-[#DFCAA6] text-[#173668] disabled:cursor-not-allowed transition-colors cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424]"
+        className="absolute right-1.5 sm:right-2.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-[#FAF4E6]/65 hover:bg-[#FAF4E6]/95 active:scale-95 border border-[#A89274]/45 hover:border-[#9E2424]/70 text-[#173668] hover:text-[#9E2424] shadow-[0_2px_8px_rgba(38,20,6,0.14)] backdrop-blur-[2px] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E2424]"
       >
-        <ChevronRight
-          className={`w-6 h-6 sm:w-7 sm:h-7 transition-opacity ${
-            hasNext ? 'opacity-100' : 'opacity-30'
-          }`}
-          strokeWidth={2.2}
+        <ArrowRight
+          className="w-4 h-4 sm:w-[18px] sm:h-[18px]"
+          strokeWidth={2}
         />
       </motion.button>
 
@@ -295,76 +301,50 @@ export function TimelineAxis({
         </span>
       </motion.div>
 
-      {/* Center Stage Viewport (reserves steady safe margins for perimeter bars without layout jump) */}
-      <div className="relative z-10 flex-1 min-h-0 flex flex-col pt-[62px] pb-[38px] px-7 sm:px-9 md:px-10 overflow-hidden">
+      {/* Center Stage Viewport */}
+      <div className="relative z-10 flex-1 min-h-0 flex flex-col pt-[62px] pb-[38px] px-4 sm:px-6 md:px-7 overflow-hidden">
         <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
-          {/* Two Persistent Pinned Archival Photos — continuously visible, resize & reposition during zoom */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none select-none absolute inset-0 z-[4]"
-          >
-            {/* Left Pinned Archival Photo */}
-            <motion.div
-              initial={false}
-              animate={{
-                scale: isOverview ? 1.24 : 1,
-                x: isOverview ? 52 : 0,
-                y: isOverview ? -65 : 0,
-                rotate: isOverview ? -5.5 : -3,
-              }}
-              transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
-              className="hidden lg:block absolute left-3 xl:left-4 bottom-5 w-28 xl:w-40 bg-[#FAF6EC] p-1.5 pb-2.5 border border-[#B8A58B] shadow-[4px_8px_16px_rgba(38,20,6,0.38)]"
-            >
-              <div className="masking-tape w-10 h-3 -rotate-12 absolute -top-1.5 -left-2" />
-              <div className="w-3.5 h-3.5 rounded-full bg-[#9E2424] border-2 border-[#681212] mx-auto -mt-3.5 mb-1.5 shadow-[2px_3px_4px_rgba(35,16,5,0.45)] flex items-center justify-center">
-                <div className="w-1 h-1 rounded-full bg-[#F5B7B7]/85 -translate-x-0.5 -translate-y-0.5" />
-              </div>
-              <img
-                src={pinnedPhotos.leftSrc}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="w-full aspect-[4/3] object-cover sepia-[0.42] grayscale-[0.25] contrast-[1.06] border border-[#D4C7B2]"
+          {/* Bottom Layer (z-[5], below Track so unfolded center Notizzettel sit above InstitutionsMap) */}
+          <div className="pointer-events-none absolute inset-x-1 sm:inset-x-3 bottom-2.5 z-[5] flex items-end justify-center gap-2.5 xl:gap-5">
+            <div
+              aria-hidden="true"
+              className="hidden min-[900px]:block w-[120px] lg:w-[132px] xl:w-[164px] shrink-0"
+            />
+            {centerEvent && (
+              <InstitutionsMap
+                centerEvent={centerEvent}
+                isOverview={isOverview}
               />
-              <p className="mt-1 text-[9px] xl:text-[10px] font-mono text-[#173668] leading-tight text-center truncate">
-                {pinnedPhotos.leftCaption}
-              </p>
-            </motion.div>
-
-            {/* Right Pinned Archival Photo */}
-            <motion.div
-              initial={false}
-              animate={{
-                scale: isOverview ? 1.24 : 1,
-                x: isOverview ? -52 : 0,
-                y: isOverview ? -60 : 0,
-                rotate: isOverview ? 5 : 2.8,
-              }}
-              transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
-              className="hidden lg:block absolute right-3 xl:right-4 bottom-6 w-28 xl:w-40 bg-[#FAF6EC] p-1.5 pb-2.5 border border-[#B8A58B] shadow-[4px_8px_16px_rgba(38,20,6,0.38)]"
-            >
-              <div className="masking-tape w-10 h-3 rotate-12 absolute -top-1.5 -right-2" />
-              <div className="w-3.5 h-3.5 rounded-full bg-[#9E2424] border-2 border-[#681212] mx-auto -mt-3.5 mb-1.5 shadow-[2px_3px_4px_rgba(35,16,5,0.45)] flex items-center justify-center">
-                <div className="w-1 h-1 rounded-full bg-[#F5B7B7]/85 -translate-x-0.5 -translate-y-0.5" />
-              </div>
-              <img
-                src={pinnedPhotos.rightSrc}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="w-full aspect-[4/3] object-cover sepia-[0.42] grayscale-[0.25] contrast-[1.06] border border-[#D4C7B2]"
-              />
-              <p className="mt-1 text-[9px] xl:text-[10px] font-mono text-[#173668] leading-tight text-center truncate">
-                {pinnedPhotos.rightCaption}
-              </p>
-            </motion.div>
+            )}
+            <div
+              aria-hidden="true"
+              className="hidden min-[900px]:block w-[120px] lg:w-[132px] xl:w-[164px] shrink-0"
+            />
           </div>
 
-          {/* Persistent Pinned Paper Institutions Graphic (always visible, transforms scale & y) */}
-          {centerEvent && (
-            <InstitutionsMap
-              centerEvent={centerEvent}
-              isOverview={isOverview}
+          {/* Flanking Pinboard Photo Wings (z-[15], clickable outside InstitutionsMap & automatically unpin if side note opens) */}
+          <div className="pointer-events-none absolute inset-x-1 sm:inset-x-3 bottom-2.5 z-[15] flex items-end justify-center gap-2.5 xl:gap-5">
+            <div className="hidden min-[900px]:flex w-[120px] lg:w-[132px] xl:w-[164px] shrink-0 justify-center pb-2">
+              <FlankingPinboardPhoto
+                photo={leftPhoto}
+                side="left"
+                onSelect={setSelectedPhoto}
+              />
+            </div>
+
+            <div
+              aria-hidden="true"
+              className="w-full min-w-0 max-w-[630px] xl:max-w-[740px]"
             />
-          )}
+
+            <div className="hidden min-[900px]:flex w-[120px] lg:w-[132px] xl:w-[164px] shrink-0 justify-center pb-2">
+              <FlankingPinboardPhoto
+                photo={rightPhoto}
+                side="right"
+                onSelect={setSelectedPhoto}
+              />
+            </div>
+          </div>
 
           {/* Continuous 22-Station Track */}
           <motion.div
@@ -443,7 +423,9 @@ export function TimelineAxis({
                   <div
                     key={event.id}
                     style={{ width: `${100 / totalCount}%` }}
-                    className="relative z-10 shrink-0 h-full min-h-0 px-1 sm:px-1.5 lg:px-2 flex flex-col items-center"
+                    className={`relative shrink-0 h-full min-h-0 px-1 sm:px-1.5 lg:px-2 flex flex-col items-center ${
+                      isExpanded ? 'z-20' : 'z-10'
+                    }`}
                   >
                     {/* Red Pushpin Directly Pinned onto Top Edge of Notizzettel */}
                     <div
@@ -483,6 +465,95 @@ export function TimelineAxis({
           </motion.div>
         </div>
       </div>
+
+      {/* Enlarged Photo Lightbox with Historical Subtitle on Click */}
+      <AnimatePresence>
+        {selectedPhoto && (
+          <motion.div
+            key={selectedPhoto.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={() => setSelectedPhoto(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={selectedPhoto.caption}
+            className="fixed inset-0 z-50 bg-[#231407]/60 backdrop-blur-[2px] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, rotate: -1.5, y: 12 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, rotate: 1, y: 8 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative notepaper-sheet border border-[#A69070] max-w-lg w-full p-3.5 sm:p-5 shadow-[0_24px_56px_-10px_rgba(20,10,2,0.7)]"
+            >
+              {selectedPhoto.fastener === 'pin' ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#9E2424] border-2 border-[#681212] shadow-sm"
+                />
+              ) : (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="masking-tape w-14 h-3.5 -rotate-12 absolute -top-2 -left-3"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="masking-tape w-14 h-3.5 rotate-12 absolute -top-2 -right-3"
+                  />
+                </>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSelectedPhoto(null)}
+                aria-label="Bild schließen"
+                className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center bg-[#FAF4E6]/85 border border-[#B8A58B] text-[#173668] hover:text-[#9E2424] hover:border-[#9E2424] cursor-pointer touch-manipulation"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <img
+                src={selectedPhoto.src}
+                alt={selectedPhoto.caption}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (
+                    selectedPhoto.fallbackSrc &&
+                    img.src !== selectedPhoto.fallbackSrc
+                  ) {
+                    img.src = selectedPhoto.fallbackSrc;
+                  }
+                }}
+                className="w-full max-h-[55vh] aspect-[4/3] object-cover sepia-[0.28] grayscale-[0.15] contrast-[1.05] border border-[#D4C7B2]"
+              />
+
+              <div className="mt-3 pt-2.5 border-t border-[#D6CBBA]">
+                <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                  <p className="font-mono text-[11px] uppercase tracking-wider text-[#9E2424] font-semibold">
+                    {selectedPhoto.dateLabel}
+                  </p>
+                  {selectedPhoto.sourceCredit && (
+                    <span className="font-mono text-[10px] text-[#2C4E84]">
+                      {selectedPhoto.sourceCredit}
+                    </span>
+                  )}
+                </div>
+                <h3 className="mt-0.5 font-serif text-base sm:text-lg font-bold text-[#173668] leading-snug">
+                  {selectedPhoto.caption}
+                </h3>
+                <p className="mt-1.5 text-xs sm:text-sm text-[#173668] leading-relaxed">
+                  {selectedPhoto.subtitle}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

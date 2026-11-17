@@ -24,7 +24,9 @@ function useVisibleSlotCount(): number {
 
 export default function App() {
   const visibleCount = useVisibleSlotCount();
-  const [startIndex, setStartIndex] = useState(0);
+  const [startIndex, setStartIndex] = useState(() =>
+    visibleCount === 3 ? -1 : 0
+  );
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [introStage, setIntroStage] = useState<IntroStage>(() => {
     if (

@@ -120,10 +120,10 @@ export function InstitutionsMap({
       transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
       style={{ transformOrigin: 'bottom center' }}
       aria-label="Pinwand: Zustand der Institutionen und neue NS-Organe"
-      className="pointer-events-none absolute inset-x-2 sm:inset-x-4 top-[182px] sm:top-[200px] bottom-2.5 z-[5] flex flex-col justify-end"
+      className="pointer-events-none relative w-full min-w-0 max-w-[630px] xl:max-w-[740px] z-[5] flex flex-col justify-end"
     >
       {/* Pinned Paper Sheet Backdrop on the Cork Pinboard */}
-      <div className="relative w-full max-w-[700px] lg:max-w-[740px] xl:max-w-[880px] mx-auto notepaper-sheet border border-[#A69274] shadow-[4px_12px_28px_-6px_rgba(38,20,6,0.45)] px-3 sm:px-5 pt-3 pb-2.5">
+      <div className="relative w-full mx-auto notepaper-sheet border border-[#A69274] shadow-[4px_12px_28px_-6px_rgba(38,20,6,0.45)] px-3 sm:px-5 pt-2.5 pb-2">
         {/* Corner Masking Tape & Red Pinboard Tacks */}
         <span
           aria-hidden="true"
@@ -143,7 +143,7 @@ export function InstitutionsMap({
         />
 
         {/* Header Strip: Centered Date & Summary Note */}
-        <div className="relative z-10 pb-2 mb-2.5 pl-4 pr-4 border-b border-[#C6B8A1]">
+        <div className="relative z-10 pb-1.5 mb-2 pl-4 pr-4 border-b border-[#C6B8A1]">
           <span className="block font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-[#9E2424] font-semibold">
             Institutionen · {centerEvent.dateLabel}
           </span>
@@ -154,7 +154,7 @@ export function InstitutionsMap({
 
         {/* Weimar & Societal Institutions */}
         <div className="relative">
-          <div className="relative z-10 space-y-2">
+          <div className="relative z-10 space-y-1.5">
             {TIERS.map((tier, tierIdx) => (
               <div key={tierIdx} className="grid grid-cols-3 gap-2 sm:gap-3">
                 {tier.map((id, colIdx) => {
@@ -206,8 +206,8 @@ export function InstitutionsMap({
         </div>
 
         {/* New NS Organs Added Over Time ("Neue NS-Organe") */}
-        <div className="relative z-10 mt-2.5 pt-2 border-t border-dashed border-[#B29E7F]">
-          <div className="flex items-center justify-between gap-2 mb-1.5">
+        <div className="relative z-10 mt-2 pt-1.5 border-t border-dashed border-[#B29E7F]">
+          <div className="flex items-center justify-between gap-2 mb-1">
             <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[#9E2424] font-semibold">
               <Plus className="w-3 h-3" />
               <span>Neu geschaffene NS-Organe</span>

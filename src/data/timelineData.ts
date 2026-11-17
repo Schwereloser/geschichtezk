@@ -1,7 +1,14 @@
+import berlinStreetImg from '../assets/images/berlin_government_street_1794906912515.jpg';
+import unionHouseImg from '../assets/images/berlin_union_house_1794907867054.jpg';
+import dachauImg from '../assets/images/dachau_mist_memorial_1794907866226.jpg';
 import reichstagImg from '../assets/images/hero_weimar_reichstag_1794822380073.jpg';
 import decreeImg from '../assets/images/phase_archival_decree_1794822382633.jpg';
 import libraryImg from '../assets/images/phase_memorial_library_1794822382260.jpg';
 import parliamentImg from '../assets/images/phase_parliament_chamber_1794822380719.jpg';
+import potsdamImg from '../assets/images/potsdam_garrison_church_1794907864151.jpg';
+import vaticanImg from '../assets/images/vatican_diplomatic_courtyard_1794907866490.jpg';
+import ballotBoxImg from '../assets/images/weimar_ballot_box_1794907865268.jpg';
+import printingPressImg from '../assets/images/weimar_printing_press_1794906914540.jpg';
 
 export type PhaseId = 'phase-1' | 'phase-2' | 'phase-3' | 'phase-4';
 
@@ -152,7 +159,320 @@ export const ARCHIVAL_IMAGES = {
   parliament: parliamentImg,
   decree: decreeImg,
   library: libraryImg,
+  berlinStreet: berlinStreetImg,
+  printingPress: printingPressImg,
+  potsdam: potsdamImg,
+  ballotBox: ballotBoxImg,
+  dachau: dachauImg,
+  unionHouse: unionHouseImg,
+  vatican: vaticanImg,
 } as const;
+
+export type BoardPhotoFastener = 'pin' | 'tape';
+
+export interface ContextualBoardPhoto {
+  id: string;
+  src: string;
+  fallbackSrc?: string;
+  sourceCredit?: string;
+  dateLabel: string;
+  caption: string;
+  subtitle: string;
+  fastener: BoardPhotoFastener;
+  tiltDeg: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+export interface BoardPhotoSlot {
+  minIndex: number;
+  maxIndex: number;
+  photo: ContextualBoardPhoto;
+}
+
+// Independent left-side photos (mix of real Bundesarchiv photos & archival visuals, varied heights incl. slightly above InstitutionsMap)
+export const LEFT_BOARD_PHOTOS: BoardPhotoSlot[] = [
+  {
+    minIndex: 0,
+    maxIndex: 2,
+    photo: {
+      id: 'left-ernennung',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Bundesarchiv_Bild_102-02985A%2C_Berlin%2C_Fackelzug_zur_Machtergreifung_Hitlers.jpg',
+      fallbackSrc: berlinStreetImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 102-02985A',
+      dateLabel: '30. Januar 1933',
+      caption: 'Wilhelmstraße · Fackelzug zur Machtübertragung',
+      subtitle:
+        'Am Abend der Ernennung Adolf Hitlers zum Reichskanzler ziehen SA-, SS- und Stahlhelm-Formationen mit Fackeln durch die Berliner Wilhelmstraße.',
+      fastener: 'pin',
+      tiltDeg: -4.2,
+      offsetX: -4,
+      offsetY: -158,
+    },
+  },
+  {
+    minIndex: 3,
+    maxIndex: 4,
+    photo: {
+      id: 'left-pressezensur',
+      src: printingPressImg,
+      dateLabel: '4. Februar 1933',
+      caption: 'Presse unter Zensur',
+      subtitle:
+        'Die „Verordnung zum Schutz des Deutschen Volkes“ erlaubt Verbote oppositioneller Zeitungen wie des SPD-„Vorwärts“ und politischer Versammlungen.',
+      fastener: 'tape',
+      tiltDeg: 2.6,
+      offsetX: 6,
+      offsetY: -28,
+    },
+  },
+  {
+    minIndex: 5,
+    maxIndex: 7,
+    photo: {
+      id: 'left-reichstagsbrand',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Bundesarchiv_Bild_183-R99859%2C_Berlin%2C_brennender_Reichstag_%28Reichstagsbrand%29.jpg',
+      fallbackSrc: reichstagImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 183-R99859',
+      dateLabel: '27. Februar 1933',
+      caption: 'Brennender Reichstag',
+      subtitle:
+        'Der Brand des Reichstagsgebäudes liefert der NS-Führung den Vorwand für Massenverhaftungen und die Ausschaltung politischer Gegner.',
+      fastener: 'pin',
+      tiltDeg: -4.6,
+      offsetX: -4,
+      offsetY: -168,
+    },
+  },
+  {
+    minIndex: 8,
+    maxIndex: 9,
+    photo: {
+      id: 'left-potsdam',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Bundesarchiv_Bild_183-S38324%2C_Tag_von_Potsdam%2C_Adolf_Hitler%2C_Paul_v._Hindenburg.jpg/960px-Bundesarchiv_Bild_183-S38324%2C_Tag_von_Potsdam%2C_Adolf_Hitler%2C_Paul_v._Hindenburg.jpg',
+      fallbackSrc: potsdamImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 183-S38324',
+      dateLabel: '21. März 1933',
+      caption: 'Garnisonkirche · Tag von Potsdam',
+      subtitle:
+        'Bei der feierlichen Eröffnung des neuen Reichstags inszeniert Hitler mit Hindenburg den Schulterschluss zwischen NS-Regime und altem Preußentum.',
+      fastener: 'pin',
+      tiltDeg: -2.4,
+      offsetX: 7,
+      offsetY: -18,
+    },
+  },
+  {
+    minIndex: 10,
+    maxIndex: 12,
+    photo: {
+      id: 'left-dachau',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Bundesarchiv_Bild_152-01-14%2C_Dachau%2C_Konzentrationslager_1933.jpg',
+      fallbackSrc: dachauImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 152-01-14',
+      dateLabel: 'Ab 22. März 1933',
+      caption: 'KZ Dachau · Frühe Häftlinge 1933',
+      subtitle:
+        'Unmittelbar nach der Errichtung des Lagers Dachau werden politische Gegner ohne Gerichtsurteil in „Schutzhaft“ verschleppt.',
+      fastener: 'pin',
+      tiltDeg: -3.4,
+      offsetX: -4,
+      offsetY: -148,
+    },
+  },
+  // Index 13 intentionally has NO left photo (only right stays pinned)
+  {
+    minIndex: 14,
+    maxIndex: 16,
+    photo: {
+      id: 'left-gewerkschaften',
+      src: unionHouseImg,
+      dateLabel: '2. Mai 1933',
+      caption: 'Gewerkschaftshaus Berlin',
+      subtitle:
+        'Einen Tag nach dem propagandistischen „Tag der nationalen Arbeit“ besetzen SA und SS die Gewerkschaftshäuser im ganzen Reich.',
+      fastener: 'pin',
+      tiltDeg: 3.1,
+      offsetX: 5,
+      offsetY: -52,
+    },
+  },
+  {
+    minIndex: 17,
+    maxIndex: 19,
+    photo: {
+      id: 'left-buecher',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Bundesarchiv_Bild_102-14597%2C_Berlin%2C_Opernplatz%2C_B%C3%BCcherverbrennung.jpg/960px-Bundesarchiv_Bild_102-14597%2C_Berlin%2C_Opernplatz%2C_B%C3%BCcherverbrennung.jpg',
+      fallbackSrc: libraryImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 102-14597',
+      dateLabel: '10. Mai 1933',
+      caption: 'Opernplatz · Bücherverbrennungen',
+      subtitle:
+        'NS-Studentenverbände verbrennen öffentlich Werke jüdischer, sozialistischer und demokratischer Autorinnen und Autoren als „undeutsch“.',
+      fastener: 'pin',
+      tiltDeg: -4.1,
+      offsetX: -5,
+      offsetY: -164,
+    },
+  },
+  {
+    minIndex: 20,
+    maxIndex: 21,
+    photo: {
+      id: 'left-einparteienstaat',
+      src: berlinStreetImg,
+      dateLabel: '14. Juli 1933',
+      caption: 'NSDAP-Einparteienstaat',
+      subtitle:
+        'Nach dem Verbot der SPD und der Selbstauflösung der übrigen Parteien bleibt allein die NSDAP als Staatspartei zugelassen.',
+      fastener: 'pin',
+      tiltDeg: -2.2,
+      offsetX: 6,
+      offsetY: -16,
+    },
+  },
+];
+
+// Independent right-side photos (shifted timing + intentional empty slots + mixed heights incl. slightly above InstitutionsMap)
+export const RIGHT_BOARD_PHOTOS: BoardPhotoSlot[] = [
+  // Index 0 intentionally has NO right photo yet
+  {
+    minIndex: 1,
+    maxIndex: 3,
+    photo: {
+      id: 'right-neuwahlen',
+      src: parliamentImg,
+      dateLabel: '1. Februar 1933',
+      caption: 'Reichstag · Auflösung & Neuwahlen',
+      subtitle:
+        'Unmittelbar nach Amtsantritt wird der Reichstag aufgelöst, um Neuwahlen unter zunehmendem Druck von Regierung und SA abzuhalten.',
+      fastener: 'tape',
+      tiltDeg: 3.4,
+      offsetX: 5,
+      offsetY: -18,
+    },
+  },
+  // Index 4 intentionally empty after Neuwahlen drops off
+  {
+    minIndex: 5,
+    maxIndex: 6,
+    photo: {
+      id: 'right-brandverordnung',
+      src: decreeImg,
+      dateLabel: '28. Februar 1933',
+      caption: 'Notverordnung Art. 48 WRV',
+      subtitle:
+        'Grundrechte wie Meinungs-, Presse- und Versammlungsfreiheit werden „bis auf Weiteres“ ausgesetzt – Basis für die „Schutzhaft“.',
+      fastener: 'tape',
+      tiltDeg: -2.7,
+      offsetX: -6,
+      offsetY: -34,
+    },
+  },
+  {
+    minIndex: 7,
+    maxIndex: 9,
+    photo: {
+      id: 'right-reichstagswahl',
+      src: ballotBoxImg,
+      dateLabel: '5. März 1933',
+      caption: 'Reichstagswahl unter Druck',
+      subtitle:
+        'Trotz massiver Einschüchterung durch SA-Hilfspolizei und Presseverbot verfehlt die NSDAP mit 43,9 % die absolute Mehrheit.',
+      fastener: 'pin',
+      tiltDeg: 4.3,
+      offsetX: 4,
+      offsetY: -156,
+    },
+  },
+  {
+    minIndex: 10,
+    maxIndex: 11,
+    photo: {
+      id: 'right-ermaechtigung',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Bundesarchiv_Bild_102-14439%2C_Rede_Adolf_Hitlers_zum_Erm%C3%A4chtigungsgesetz.jpg',
+      fallbackSrc: parliamentImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 102-14439',
+      dateLabel: '23. März 1933',
+      caption: 'Krolloper · Ermächtigungsgesetz',
+      subtitle:
+        'Hitler spricht in der von SA und SS bewachten Krolloper für das Ermächtigungsgesetz – der Reichstag stimmt seiner Selbstentmachtung zu.',
+      fastener: 'pin',
+      tiltDeg: 3.1,
+      offsetX: -5,
+      offsetY: -14,
+    },
+  },
+  {
+    minIndex: 12,
+    maxIndex: 13,
+    photo: {
+      id: 'right-statthalter',
+      src: decreeImg,
+      dateLabel: '31. Mär / 7. Apr 1933',
+      caption: 'Gleichschaltungsgesetze & Statthalter',
+      subtitle:
+        'Länderparlamente werden aufgelöst, NS-Reichsstatthalter eingesetzt und jüdische sowie kritische Beamtinnen und Beamte entlassen.',
+      fastener: 'tape',
+      tiltDeg: 3.8,
+      offsetX: 4,
+      offsetY: -162,
+    },
+  },
+  // Index 14 empty on right while left Gewerkschaftshaus hangs up
+  {
+    minIndex: 15,
+    maxIndex: 16,
+    photo: {
+      id: 'right-daf-presse',
+      src: printingPressImg,
+      dateLabel: '10. Mai 1933',
+      caption: 'Übernahme in die DAF',
+      subtitle:
+        'Beschlagnahmte Gewerkschaftsvermögen und Druckereien gehen in die nationalsozialistische Deutsche Arbeitsfront (DAF) über.',
+      fastener: 'tape',
+      tiltDeg: -3.2,
+      offsetX: 6,
+      offsetY: -22,
+    },
+  },
+  // Index 17 empty on right while Bücherverbrennung hangs up on left
+  {
+    minIndex: 18,
+    maxIndex: 19,
+    photo: {
+      id: 'right-spd-verbot',
+      src: unionHouseImg,
+      dateLabel: '22. Juni 1933',
+      caption: 'Verbot der SPD',
+      subtitle:
+        'Die SPD wird als „staatsfeindlich“ verboten, ihre Reichstagsmandate annulliert und verbliebene Parteihäuser beschlagnahmt.',
+      fastener: 'tape',
+      tiltDeg: 2.8,
+      offsetX: -5,
+      offsetY: -66,
+    },
+  },
+  // Index 20 empty on right while Einparteienstaat hangs on left
+  {
+    minIndex: 21,
+    maxIndex: 21,
+    photo: {
+      id: 'right-konkordat',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Bundesarchiv_Bild_183-R24391%2C_Konkordatsunterzeichnung_in_Rom.jpg',
+      fallbackSrc: vaticanImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 183-R24391',
+      dateLabel: '20. Juli 1933',
+      caption: 'Unterzeichnung des Reichskonkordats',
+      subtitle:
+        'Kardinalstaatssekretär Pacelli und Vizekanzler von Papen unterzeichnen in Rom das Reichskonkordat zwischen Heiligem Stuhl und Deutschem Reich.',
+      fastener: 'tape',
+      tiltDeg: 3.4,
+      offsetX: -4,
+      offsetY: -158,
+    },
+  },
+];
 
 export const PHASES: HistoricalPhase[] = [
   {

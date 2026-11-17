@@ -258,7 +258,7 @@ function renderPortraitGlyph(name: string) {
 }
 
 export function ActorAvatar({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) {
-  const dims = size === 'md' ? 'w-9 h-9' : 'w-8 h-8';
+  const dims = size === 'md' ? 'w-9 h-9' : 'w-6 h-6 sm:w-7 sm:h-7';
   return (
     <div
       className={`${dims} rounded-full bg-[#EFE7D6] border border-[#B8A890] overflow-hidden shrink-0 flex items-center justify-center`}
@@ -282,7 +282,7 @@ export function ActorMiniProfile({
       onClick={onSelect}
       aria-pressed={isSelected}
       title={`${actor.name} – Klicken für Info`}
-      className={`group relative inline-flex items-center gap-2 px-2 py-1.5 text-left transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#9E2424] ${
+      className={`group relative flex flex-col items-center justify-start gap-1 px-1.5 py-1.5 text-center transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#9E2424] ${
         isSelected
           ? 'bg-[#FAF4E6] border border-[#9E2424] shadow-[0_3px_8px_rgba(158,36,36,0.22)] -translate-y-0.5'
           : 'bg-[#FAF4E6]/85 border border-[#C6B9A4] shadow-[0_1px_3px_rgba(45,28,10,0.12)] hover:border-[#173668] hover:bg-[#FAF4E6]'
@@ -296,7 +296,7 @@ export function ActorMiniProfile({
         />
       )}
       <ActorAvatar name={actor.name} size="sm" />
-      <span className="text-xs font-semibold text-[#173668] leading-tight">
+      <span className="text-[9.5px] sm:text-[10px] font-medium text-[#173668] leading-[1.15] break-words w-full">
         {actor.name}
       </span>
     </button>
