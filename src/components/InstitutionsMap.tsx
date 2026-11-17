@@ -120,10 +120,10 @@ export function InstitutionsMap({
       transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
       style={{ transformOrigin: 'bottom center' }}
       aria-label="Pinwand: Zustand der Institutionen und neue NS-Organe"
-      className="pointer-events-none absolute inset-x-3 sm:inset-x-6 top-[182px] sm:top-[200px] bottom-2.5 z-[5] flex flex-col justify-end"
+      className="pointer-events-none absolute inset-x-2 sm:inset-x-4 top-[182px] sm:top-[200px] bottom-2.5 z-[5] flex flex-col justify-end"
     >
       {/* Pinned Paper Sheet Backdrop on the Cork Pinboard */}
-      <div className="relative w-full max-w-[580px] xl:max-w-[740px] mx-auto notepaper-sheet border border-[#A69274] shadow-[4px_12px_28px_-6px_rgba(38,20,6,0.45)] px-3 sm:px-5 pt-3 pb-2.5">
+      <div className="relative w-full max-w-[700px] lg:max-w-[740px] xl:max-w-[880px] mx-auto notepaper-sheet border border-[#A69274] shadow-[4px_12px_28px_-6px_rgba(38,20,6,0.45)] px-3 sm:px-5 pt-3 pb-2.5">
         {/* Corner Masking Tape & Red Pinboard Tacks */}
         <span
           aria-hidden="true"
@@ -147,7 +147,7 @@ export function InstitutionsMap({
           <span className="block font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-[#9E2424] font-semibold">
             Institutionen · {centerEvent.dateLabel}
           </span>
-          <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-[#173668] leading-snug truncate">
+          <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-[#173668] leading-snug">
             {centerEvent.institutionNote}
           </p>
         </div>
@@ -185,7 +185,7 @@ export function InstitutionsMap({
                           className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-colors duration-300 ${style.iconColor}`}
                         />
                         <p
-                          className={`text-[10px] sm:text-xs font-serif font-semibold leading-tight truncate transition-colors duration-300 ${style.title}`}
+                          className={`text-[10px] sm:text-[11px] font-serif font-semibold leading-tight transition-colors duration-300 ${style.title}`}
                         >
                           <span className="hidden xl:inline">{inst.label}</span>
                           <span className="xl:hidden">{inst.shortLabel}</span>
@@ -227,13 +227,16 @@ export function InstitutionsMap({
                 return (
                   <div
                     key={organ.id}
-                    className="border border-dashed border-[#BFB096] bg-[#EAE1CF]/45 px-2 py-1 flex items-center justify-between gap-1 opacity-55"
+                    className="border border-dashed border-[#BFB096] bg-[#EAE1CF]/45 px-2.5 py-1.5 flex flex-col justify-between gap-0.5 opacity-60"
                   >
-                    <span className="text-[10px] font-mono text-[#6F6351] truncate">
+                    <div className="flex items-center justify-between gap-1">
+                      <Icon className="w-3 h-3 text-[#7A6D58] shrink-0" />
+                      <span className="text-[9px] font-mono text-[#7A6D58] whitespace-nowrap">
+                        {organ.foundedLabel}
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-serif font-medium text-[#5E5343] leading-tight">
                       {organ.shortLabel}
-                    </span>
-                    <span className="text-[9px] font-mono text-[#8A7B64] shrink-0">
-                      {organ.foundedLabel}
                     </span>
                   </div>
                 );
@@ -255,7 +258,7 @@ export function InstitutionsMap({
                     stiffness: 280,
                     damping: 22,
                   }}
-                  className={`relative border px-2 py-1 flex items-center justify-between gap-1 ${tilt} ${
+                  className={`relative border px-2.5 py-1.5 flex flex-col justify-between gap-0.5 ${tilt} ${
                     isJustCreated
                       ? 'bg-[#9E2424] border-[#641010] text-[#FAF4E6] shadow-[2px_4px_12px_rgba(158,36,36,0.4)]'
                       : 'bg-[#EFE0CA] border-[#9E2424] text-[#173668] shadow-[1px_3px_6px_rgba(45,28,10,0.16)]'
@@ -269,24 +272,24 @@ export function InstitutionsMap({
                         : 'bg-[#9E2424] border-[#641010]'
                     }`}
                   />
-                  <div className="flex items-center gap-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1">
                     <Icon
                       className={`w-3 h-3 shrink-0 ${
                         isJustCreated ? 'text-[#FAF4E6]' : 'text-[#9E2424]'
                       }`}
                     />
-                    <span className="text-[10px] font-serif font-semibold truncate">
-                      {organ.shortLabel}
+                    <span
+                      className={`text-[8px] font-mono uppercase tracking-wider px-1 border shrink-0 ${
+                        isJustCreated
+                          ? 'border-[#FAF4E6]/50 bg-[#781515] text-[#FAF4E6]'
+                          : 'border-[#9E2424]/40 bg-[#FAF4E6]/70 text-[#9E2424]'
+                      }`}
+                    >
+                      {isJustCreated ? 'Neu' : 'Aktiv'}
                     </span>
                   </div>
-                  <span
-                    className={`text-[8px] font-mono uppercase tracking-wider px-1 border shrink-0 ${
-                      isJustCreated
-                        ? 'border-[#FAF4E6]/50 bg-[#781515] text-[#FAF4E6]'
-                        : 'border-[#9E2424]/40 bg-[#FAF4E6]/70 text-[#9E2424]'
-                    }`}
-                  >
-                    {isJustCreated ? 'Neu' : 'Aktiv'}
+                  <span className="text-[11px] font-serif font-semibold leading-tight">
+                    {organ.shortLabel}
                   </span>
                 </motion.div>
               );

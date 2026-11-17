@@ -87,3 +87,13 @@
   background-position: center, 50% 88%, center;
   background-repeat: no-repeat;
 }
+
+/* Smooth touch-momentum vertical scrolling inside unfolded Notizzettel on iPad/tablet */
+.ipad-note-scroll {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(158, 36, 36, 0.35) transparent;
+}
+

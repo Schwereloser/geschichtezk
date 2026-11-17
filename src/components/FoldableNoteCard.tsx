@@ -41,8 +41,8 @@ export function FoldableNoteCard({
     <motion.article
       initial={false}
       animate={{
-        width: isExpanded || isOverview ? '100%' : '80%',
-        rotateZ: isExpanded || isOverview ? 0 : -1.1,
+        width: isExpanded || isOverview ? '100%' : '94%',
+        rotateZ: isExpanded || isOverview ? 0 : -0.9,
       }}
       transition={{
         width: { type: 'spring', stiffness: 220, damping: 24 },
@@ -176,9 +176,11 @@ export function FoldableNoteCard({
             className="min-h-0 flex flex-col overflow-hidden"
           >
             <div
-              style={{ perspective: '1500px' }}
-              className="min-h-0 overflow-y-auto overscroll-contain flex flex-col"
+              onPointerDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className="min-h-0 overflow-y-auto ipad-note-scroll"
             >
+              <div style={{ perspective: '1500px' }} className="flex flex-col">
               {/* MOVEMENT 1 & 2: Upper Faceted Paper Sheet (Natural multi-axis bounce & settling) */}
               <motion.div
                 initial={{
@@ -589,6 +591,7 @@ export function FoldableNoteCard({
                   </button>
                 </div>
               </motion.div>
+              </div>
             </div>
           </motion.div>
         )}

@@ -241,21 +241,14 @@ export function TimelineAxis({
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         style={{ pointerEvents: showControls ? 'auto' : 'none' }}
         aria-label="Ein Datum zurück"
-        className="absolute left-0 top-[62px] bottom-[38px] z-30 w-12 sm:w-16 md:w-20 flex flex-col items-center justify-center border-r border-[#8F6840]/85 bg-[#C59D72]/80 hover:bg-[#DFCAA6]/95 active:bg-[#DFCAA6] text-[#173668] disabled:cursor-not-allowed transition-colors cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424]"
+        className="absolute left-0 top-[62px] bottom-[38px] z-30 w-7 sm:w-9 md:w-10 flex items-center justify-center border-r border-[#8F6840]/85 bg-[#C59D72]/80 hover:bg-[#DFCAA6]/95 active:bg-[#DFCAA6] text-[#173668] disabled:cursor-not-allowed transition-colors cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424]"
       >
         <ChevronLeft
-          className={`w-8 h-8 transition-opacity ${
+          className={`w-6 h-6 sm:w-7 sm:h-7 transition-opacity ${
             hasPrev ? 'opacity-100' : 'opacity-30'
           }`}
           strokeWidth={2.2}
         />
-        <span
-          className={`hidden md:block mt-1 text-[11px] font-mono uppercase tracking-wider transition-opacity ${
-            hasPrev ? 'opacity-100' : 'opacity-30'
-          }`}
-        >
-          Zurück
-        </span>
       </motion.button>
 
       {/* Right Side Arrow Button — slides in from behind right wooden frame */}
@@ -268,21 +261,14 @@ export function TimelineAxis({
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         style={{ pointerEvents: showControls ? 'auto' : 'none' }}
         aria-label="Ein Datum weiter"
-        className="absolute right-0 top-[62px] bottom-[38px] z-30 w-12 sm:w-16 md:w-20 flex flex-col items-center justify-center border-l border-[#8F6840]/85 bg-[#C59D72]/80 hover:bg-[#DFCAA6]/95 active:bg-[#DFCAA6] text-[#173668] disabled:cursor-not-allowed transition-colors cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424]"
+        className="absolute right-0 top-[62px] bottom-[38px] z-30 w-7 sm:w-9 md:w-10 flex items-center justify-center border-l border-[#8F6840]/85 bg-[#C59D72]/80 hover:bg-[#DFCAA6]/95 active:bg-[#DFCAA6] text-[#173668] disabled:cursor-not-allowed transition-colors cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424]"
       >
         <ChevronRight
-          className={`w-8 h-8 transition-opacity ${
+          className={`w-6 h-6 sm:w-7 sm:h-7 transition-opacity ${
             hasNext ? 'opacity-100' : 'opacity-30'
           }`}
           strokeWidth={2.2}
         />
-        <span
-          className={`hidden md:block mt-1 text-[11px] font-mono uppercase tracking-wider transition-opacity ${
-            hasNext ? 'opacity-100' : 'opacity-30'
-          }`}
-        >
-          Weiter
-        </span>
       </motion.button>
 
       {/* Compact Bottom Pinboard Strip — slides up from behind bottom wooden frame */}
@@ -310,7 +296,7 @@ export function TimelineAxis({
       </motion.div>
 
       {/* Center Stage Viewport (reserves steady safe margins for perimeter bars without layout jump) */}
-      <div className="relative z-10 flex-1 min-h-0 flex flex-col pt-[62px] pb-[38px] px-12 sm:px-16 md:px-20 overflow-hidden">
+      <div className="relative z-10 flex-1 min-h-0 flex flex-col pt-[62px] pb-[38px] px-7 sm:px-9 md:px-10 overflow-hidden">
         <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
           {/* Two Persistent Pinned Archival Photos — continuously visible, resize & reposition during zoom */}
           <div
@@ -457,7 +443,7 @@ export function TimelineAxis({
                   <div
                     key={event.id}
                     style={{ width: `${100 / totalCount}%` }}
-                    className="relative z-10 shrink-0 h-full min-h-0 px-2 sm:px-3 lg:px-4 flex flex-col items-center"
+                    className="relative z-10 shrink-0 h-full min-h-0 px-1 sm:px-1.5 lg:px-2 flex flex-col items-center"
                   >
                     {/* Red Pushpin Directly Pinned onto Top Edge of Notizzettel */}
                     <div
