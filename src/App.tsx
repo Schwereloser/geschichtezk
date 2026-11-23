@@ -26,6 +26,15 @@ export default function App() {
   const visibleCount = useVisibleSlotCount();
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [autoIntroActive, setAutoIntroActive] = useState(() => {
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return false;
+    }
+    return true;
+  });
   const [introStage, setIntroStage] = useState<IntroStage>(() => {
     if (
       typeof window !== 'undefined' &&
@@ -39,12 +48,12 @@ export default function App() {
   const minIndex = 0;
   const maxIndex = TIMELINE_EVENTS.length + 2;
 
-  // Continuous intro sequence:
-  // 1. overview (longer full-timeline view) -> 2. zoomCenter (zoom into middle) -> 3. panToStart (pan left to start) -> 4. ready
+  // Continuous intro sequence on initial load + short zoom-in transition from manual overview
   useEffect(() => {
     if (introStage === 'ready') return;
 
     if (introStage === 'overview') {
+      if (!autoIntroActive) return;
       const t = window.setTimeout(() => setIntroStage('zoomCenter'), 2400);
       return () => window.clearTimeout(t);
     }
@@ -55,10 +64,18 @@ export default function App() {
     }
 
     if (introStage === 'panToStart') {
-      const t = window.setTimeout(() => setIntroStage('ready'), 1350);
+      const t = window.setTimeout(() => {
+        setAutoIntroActive(false);
+        setIntroStage('ready');
+      }, 1350);
       return () => window.clearTimeout(t);
     }
-  }, [introStage]);
+
+    if (introStage === 'zoomTarget') {
+      const t = window.setTimeout(() => setIntroStage('ready'), 800);
+      return () => window.clearTimeout(t);
+    }
+  }, [introStage, autoIntroActive]);
 
   const handleGoToIndex = useCallback(
     (nextIndex: number) => {
@@ -87,10 +104,46 @@ export default function App() {
       const idx = TIMELINE_EVENTS.findIndex((ev) => ev.id === eventId);
       if (idx >= 0) {
         handleGoToIndex(idx);
+        setExpandedIds((prev) =>
+          prev.includes(eventId) ? prev : [...prev, eventId]
+        );
       }
     },
     [handleGoToIndex]
   );
+
+  const handleOpenOverview = useCallback(() => {
+    setAutoIntroActive(false);
+    setIntroStage('overview');
+  }, []);
+
+  const handleSelectOverviewSlot = useCallback(
+    (slotIndex: number) => {
+      setAutoIntroActive(false);
+      handleGoToIndex(slotIndex);
+      if (
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        setIntroStage('ready');
+      } else {
+        setIntroStage('zoomTarget');
+      }
+    },
+    [handleGoToIndex]
+  );
+
+  const handleResumeFromOverview = useCallback(() => {
+    setAutoIntroActive(false);
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setIntroStage('ready');
+    } else {
+      setIntroStage('zoomTarget');
+    }
+  }, []);
 
   const clampedFocusedIndex = Math.max(
     minIndex,
@@ -130,7 +183,13 @@ export default function App() {
             visibleCount={visibleCount}
             expandedIds={expandedIds}
             introStage={introStage}
-            onSkipIntro={() => setIntroStage('ready')}
+            onSkipIntro={() => {
+              setAutoIntroActive(false);
+              setIntroStage('ready');
+            }}
+            onOpenOverview={handleOpenOverview}
+            onSelectOverviewSlot={handleSelectOverviewSlot}
+            onResumeFromOverview={handleResumeFromOverview}
             onToggleExpand={handleToggleExpand}
             onPrev={() => handleGoToIndex(clampedFocusedIndex - 1)}
             onNext={() => handleGoToIndex(clampedFocusedIndex + 1)}

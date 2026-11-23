@@ -16,7 +16,6 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import {
   CHECK_QUESTIONS,
-  GLOSSARY_TERMS,
   POWER_PILLARS,
   SNAPSHOT_STAGES,
   SnapshotStageId,
@@ -95,7 +94,11 @@ function CollapsedConclusionCover({
 }) {
   return (
     <article
-      className={`relative w-[97%] flex flex-col notepaper-sheet border border-[#A69274] shadow-[0_10px_22px_-6px_rgba(45,28,10,0.34)] ${tiltClass}`}
+      className={`relative w-full flex flex-col border transition-colors ${
+        isOverview
+          ? `flex-1 h-full bg-[#F3E7C2] border-[#9E2424]/60 hover:border-[#9E2424] shadow-[2px_5px_12px_rgba(38,20,6,0.3)] hover:shadow-[4px_10px_20px_rgba(38,20,6,0.42)]`
+          : `notepaper-sheet border-[#A69274] shadow-[0_10px_22px_-6px_rgba(45,28,10,0.34)] ${tiltClass}`
+      }`}
     >
       <span
         aria-hidden="true"
@@ -108,45 +111,67 @@ function CollapsedConclusionCover({
 
       <button
         type="button"
-        disabled={!showControls}
-        tabIndex={isCurrentlyVisible && showControls ? 0 : -1}
-        onClick={onFocusSelf}
-        className="w-full text-left px-3.5 py-2.5 cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424] group"
+        disabled={!isOverview && !showControls}
+        tabIndex={isOverview || (isCurrentlyVisible && showControls) ? 0 : -1}
+        onClick={(e) => {
+          e.stopPropagation();
+          onFocusSelf();
+        }}
+        className={`w-full text-left cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9E2424] group ${
+          isOverview
+            ? 'flex-1 flex flex-col justify-between px-2.5 py-2'
+            : 'px-3.5 py-2.5'
+        }`}
       >
-        <div className="flex items-center justify-between gap-2">
-          <motion.span
-            initial={false}
-            animate={{
-              scale: isOverview ? 2.15 : 1,
-              y: isOverview ? 6 : 0,
-            }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            style={{ transformOrigin: 'top left' }}
-            className="inline-block font-mono text-[11px] font-semibold text-[#9E2424]"
+        <div>
+          <div className="flex items-center justify-between gap-1.5">
+            <span
+              className={`inline-block font-mono font-semibold text-[#9E2424] truncate ${
+                isOverview
+                  ? 'text-[9.5px] xl:text-[10px] uppercase tracking-wider'
+                  : 'text-[11px]'
+              }`}
+            >
+              {isOverview ? overviewLabel : kicker}
+            </span>
+            <Icon
+              className={`text-[#2C4E84] group-hover:text-[#9E2424] transition-colors shrink-0 ${
+                isOverview ? 'w-3 h-3' : 'w-4 h-4'
+              }`}
+            />
+          </div>
+
+          <h2
+            className={`mt-1 font-serif font-semibold text-[#173668] leading-snug ${
+              isOverview
+                ? 'text-[11px] sm:text-xs xl:text-[13px] font-bold line-clamp-2'
+                : 'text-base sm:text-[17px] leading-tight'
+            }`}
           >
-            {isOverview ? overviewLabel : kicker}
-          </motion.span>
-          <Icon className="w-4 h-4 text-[#2C4E84] group-hover:text-[#9E2424] transition-colors shrink-0" />
+            {title}
+          </h2>
         </div>
 
-        <h2 className="mt-1 font-serif text-base sm:text-[17px] font-semibold text-[#173668] leading-tight">
-          {title}
-        </h2>
-
-        {!isOverview && (
-          <div className="mt-2 pt-1.5 border-t border-[#D6CBBA] flex items-center justify-between text-[10.5px] text-[#2C4E84]">
-            <span className="truncate">{subtitle}</span>
-            <span className="font-mono text-[#9E2424] shrink-0 ml-2">
-              Öffnen →
-            </span>
-          </div>
-        )}
+        <div
+          className={`mt-1.5 pt-1 border-t flex items-center justify-between text-[#2C4E84] ${
+            isOverview
+              ? 'border-[#D2BE92] text-[9.5px] font-mono'
+              : 'mt-2 pt-1.5 border-[#D6CBBA] text-[10.5px]'
+          }`}
+        >
+          <span className="truncate">{subtitle}</span>
+          <span className="font-mono text-[#9E2424] shrink-0 ml-2">
+            {isOverview ? '→' : 'Öffnen →'}
+          </span>
+        </div>
       </button>
 
-      <div
-        aria-hidden="true"
-        className="h-1.5 mx-1.5 -mb-1.5 bg-[#EAE3D5] border-x border-b border-[#C2B6A2]"
-      />
+      {!isOverview && (
+        <div
+          aria-hidden="true"
+          className="h-1.5 mx-1.5 -mb-1.5 bg-[#EAE3D5] border-x border-b border-[#C2B6A2]"
+        />
+      )}
     </article>
   );
 }
@@ -171,9 +196,9 @@ export function ConclusionCompareNote({
     return (
       <CollapsedConclusionCover
         kicker="Abschluss 1 · Vergleich"
-        overviewLabel="Vorher/Nachher"
+        overviewLabel="Bilanz 1 · Vergleich"
         title="Vorher / Nachher (1933)"
-        subtitle="Januar, März & Juli im Bild"
+        subtitle="Zustand Jan · Mär · Jul"
         tiltClass="rotate-[0.6deg]"
         Icon={Layers}
         isOverview={isOverview}
@@ -191,6 +216,7 @@ export function ConclusionCompareNote({
       transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
+      onWheel={(e) => e.stopPropagation()}
       aria-label="Abschluss-Notizzettel 1: Vorher und Nachher 1933"
       className={`relative w-[99%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
         isCentered
@@ -314,7 +340,7 @@ export function ConclusionCompareNote({
 }
 
 /* ============================================================================
- * 2. NOTIZZETTEL: 3 SÄULEN & FACHBEGRIFFE
+ * 2. NOTIZZETTEL: DIE 3 SÄULEN DER MACHT
  * ========================================================================== */
 export function ConclusionPillarsNote({
   isExpandedArea,
@@ -328,21 +354,16 @@ export function ConclusionPillarsNote({
   const [activePillarId, setActivePillarId] = useState<string>(
     POWER_PILLARS[0].id
   );
-  const [activeTermId, setActiveTermId] = useState<string>(
-    GLOSSARY_TERMS[0].id
-  );
 
   const activePillar =
     POWER_PILLARS.find((p) => p.id === activePillarId) ?? POWER_PILLARS[0];
-  const activeTerm =
-    GLOSSARY_TERMS.find((t) => t.id === activeTermId) ?? GLOSSARY_TERMS[0];
 
   if (!isExpandedArea || isOverview) {
     return (
       <CollapsedConclusionCover
         kicker="Abschluss 2 · Struktur"
-        overviewLabel="3 Säulen"
-        title="3 Säulen & Fachbegriffe"
+        overviewLabel="Bilanz 2 · Struktur"
+        title="Die 3 Säulen der Macht"
         subtitle="Recht, Terror & Propaganda"
         tiltClass="-rotate-[0.7deg]"
         Icon={BookOpen}
@@ -361,7 +382,8 @@ export function ConclusionPillarsNote({
       transition={{ duration: 0.34, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
-      aria-label="Abschluss-Notizzettel 2: Die 3 Säulen und zentrale Fachbegriffe"
+      onWheel={(e) => e.stopPropagation()}
+      aria-label="Abschluss-Notizzettel 2: Die 3 Säulen der NS-Herrschaft"
       className={`relative w-[99%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
         isCentered
           ? 'border-[#9E2424]/75 shadow-[0_20px_42px_-10px_rgba(45,28,10,0.45)]'
@@ -386,20 +408,20 @@ export function ConclusionPillarsNote({
           <BookOpen className="w-4 h-4 text-[#2C4E84] shrink-0" />
         </div>
         <h2 className="mt-0.5 font-serif text-lg sm:text-xl font-bold text-[#173668] leading-tight">
-          3 Säulen &amp; Fachbegriffe
+          Die 3 Säulen der Macht
         </h2>
       </div>
 
       {/* Scrollable Body — Two Side-by-Side Columns on Double-Wide Card */}
       <div className="flex-1 min-h-0 overflow-y-auto ipad-note-scroll px-4 sm:px-6 py-3.5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-          {/* Left Column: 3 Power Pillars */}
+          {/* Left Column: 3 Power Pillars Selector */}
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#2C4E84] mb-2">
               Zusammenspiel (Säule antippen)
             </p>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {POWER_PILLARS.map((pillar) => {
                 const isSelected = pillar.id === activePillar.id;
                 return (
@@ -407,7 +429,7 @@ export function ConclusionPillarsNote({
                     key={pillar.id}
                     type="button"
                     onClick={() => setActivePillarId(pillar.id)}
-                    className={`w-full min-h-[44px] text-left border px-3 py-2 transition-colors cursor-pointer touch-manipulation ${
+                    className={`w-full min-h-[52px] text-left border px-3.5 py-2.5 transition-colors cursor-pointer touch-manipulation ${
                       isSelected
                         ? 'bg-[#173668] border-[#10254A] text-[#FAF4E6] shadow-xs'
                         : 'bg-[#FAF6EC] border-[#C2B6A2] text-[#173668] hover:border-[#173668]'
@@ -429,18 +451,33 @@ export function ConclusionPillarsNote({
                 );
               })}
             </div>
+          </div>
 
-            <div className="mt-2.5 pt-2.5 border-t border-[#D6CBBA]">
-              <p className="text-xs sm:text-[12.5px] text-[#173668] leading-relaxed">
+          {/* Right Column: Detailed Explanation & Linked Events */}
+          <div className="pt-3 md:pt-0 border-t md:border-t-0 md:border-l border-dashed border-[#B29E7F] md:pl-5 flex flex-col justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#9E2424] font-semibold">
+                Säule {activePillar.numberLabel} · {activePillar.subtitle}
+              </p>
+              <h3 className="mt-0.5 font-serif text-base font-bold text-[#173668]">
+                {activePillar.title}
+              </h3>
+              <p className="mt-2 text-xs sm:text-[13px] text-[#173668] leading-relaxed bg-white/65 border border-[#C2B6A2] px-3.5 py-3">
                 {activePillar.explanation}
               </p>
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-[#D6CBBA]">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#2C4E84] mb-1.5">
+                Zentrale Stationen dazu
+              </p>
+              <div className="flex flex-wrap gap-1.5">
                 {activePillar.linkedEvents.map((ev) => (
                   <button
                     key={ev.eventId}
                     type="button"
                     onClick={() => onJumpToEvent(ev.eventId)}
-                    className="min-h-[36px] inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/75 border border-[#B8A58B] hover:border-[#9E2424] text-[11px] text-[#173668] hover:text-[#9E2424] transition-colors cursor-pointer touch-manipulation whitespace-nowrap"
+                    className="min-h-[36px] inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 border border-[#B8A58B] hover:border-[#9E2424] text-[11px] text-[#173668] hover:text-[#9E2424] transition-colors cursor-pointer touch-manipulation whitespace-nowrap"
                   >
                     <span className="font-mono text-[10px] text-[#9E2424] tabular-nums">
                       {ev.dateLabel}
@@ -450,55 +487,6 @@ export function ConclusionPillarsNote({
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Right Column: Glossary */}
-          <div className="pt-3 md:pt-0 border-t md:border-t-0 md:border-l border-dashed border-[#B29E7F] md:pl-5">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[#2C4E84] mb-2">
-              Wichtige Fachbegriffe
-            </p>
-
-            <div className="flex flex-wrap gap-1.5">
-              {GLOSSARY_TERMS.map((item) => {
-                const isSelected = item.id === activeTerm.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setActiveTermId(item.id)}
-                    className={`min-h-[36px] px-2.5 py-1 border text-xs font-serif font-semibold transition-colors cursor-pointer touch-manipulation whitespace-nowrap ${
-                      isSelected
-                        ? 'bg-[#9E2424] border-[#681212] text-[#FAF4E6]'
-                        : 'bg-[#FAF6EC] border-[#C2B6A2] text-[#173668] hover:border-[#173668]'
-                    }`}
-                  >
-                    {item.term}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-3 bg-white/70 border border-[#C2B6A2] px-3.5 py-3">
-              <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                <span className="font-serif text-sm font-semibold text-[#173668]">
-                  {activeTerm.term}
-                </span>
-                <span className="font-mono text-[10px] text-[#2C4E84]">
-                  {activeTerm.shortTag}
-                </span>
-              </div>
-              <p className="mt-1.5 text-xs sm:text-[12.5px] text-[#173668] leading-relaxed">
-                {activeTerm.definition}
-              </p>
-              <button
-                type="button"
-                onClick={() => onJumpToEvent(activeTerm.eventId)}
-                className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] text-[#9E2424] hover:underline cursor-pointer touch-manipulation"
-              >
-                <span>Auf Pinnwand ansehen ({activeTerm.eventLabel})</span>
-                <ArrowUpRight className="w-3 h-3" />
-              </button>
             </div>
           </div>
         </div>
@@ -571,7 +559,7 @@ export function ConclusionCheckNote({
     return (
       <CollapsedConclusionCover
         kicker="Abschluss 3 · Selbstcheck"
-        overviewLabel="Check"
+        overviewLabel="Bilanz 3 · Selbstcheck"
         title="Kurzer Ankreuz-Check"
         subtitle="5 Verständnisfragen"
         tiltClass="rotate-[0.9deg]"
@@ -591,6 +579,7 @@ export function ConclusionCheckNote({
       transition={{ duration: 0.34, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
+      onWheel={(e) => e.stopPropagation()}
       aria-label="Abschluss-Notizzettel 3: Ankreuz-Check zur Selbstkontrolle"
       className={`relative w-[99%] flex flex-col min-h-0 max-h-full notepaper-sheet border ${
         isCentered

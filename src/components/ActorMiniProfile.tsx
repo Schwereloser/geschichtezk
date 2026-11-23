@@ -1,10 +1,248 @@
-import { ActorEntry } from '../data/timelineData';
+import { useEffect, useState } from 'react';
+import { ActorEntry, ARCHIVAL_IMAGES } from '../data/timelineData';
 
 interface ActorMiniProfileProps {
   actor: ActorEntry;
   isSelected?: boolean;
   onSelect?: () => void;
 }
+
+type ActorVisual =
+  | {
+      kind: 'portrait';
+      src: string;
+      fallbackSrc?: string;
+      focal?: 'top' | 'center';
+    }
+  | {
+      kind: 'logo';
+      src: string;
+      fallbackSrc?: string;
+    }
+  | {
+      kind: 'dual-logo';
+      srcs: [string, string];
+      fallbackSrc?: string;
+    }
+  | {
+      kind: 'svg-emblem';
+      emblem: 'bvp' | 'adgb';
+    };
+
+// Verified Wikimedia Commons / Bundesarchiv historical portraits for individuals
+// and official historical party/organization/state logos & emblems for collective actors.
+const ACTOR_VISUALS: Record<string, ActorVisual> = {
+  'Adolf Hitler': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Bundesarchiv_Bild_183-H1216-0500-002%2C_Adolf_Hitler.jpg/330px-Bundesarchiv_Bild_183-H1216-0500-002%2C_Adolf_Hitler.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+    focal: 'top',
+  },
+  'Paul von Hindenburg': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Bundesarchiv_Bild_183-R17289%2C_Paul_v._Hindenburg.jpg/330px-Bundesarchiv_Bild_183-R17289%2C_Paul_v._Hindenburg.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.potsdam,
+    focal: 'top',
+  },
+  'Franz von Papen': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Bundesarchiv_Bild_183-1988-0113-500%2C_Franz_v._Papen_%28cropped%29.jpg/330px-Bundesarchiv_Bild_183-1988-0113-500%2C_Franz_v._Papen_%28cropped%29.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.decree,
+    focal: 'top',
+  },
+  'Alfred Hugenberg': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Bundesarchiv_Bild_183-2005-0621-500%2C_Reichsminister_Alfred_Hugenberg.jpg/330px-Bundesarchiv_Bild_183-2005-0621-500%2C_Reichsminister_Alfred_Hugenberg.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.printingPress,
+    focal: 'top',
+  },
+  'Wilhelm Frick': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Frick_912_%283x4_cropped%29_%282%29.jpg/330px-Frick_912_%283x4_cropped%29_%282%29.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.decree,
+    focal: 'top',
+  },
+  'Hermann Göring': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Bundesarchiv_Bild_102-13805%2C_Hermann_G%C3%B6ring.jpg/330px-Bundesarchiv_Bild_102-13805%2C_Hermann_G%C3%B6ring.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.reichstag,
+    focal: 'top',
+  },
+  'Gustav Krupp': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Bundesarchiv_Bild_102-12331%2C_Gustav_Krupp_von_Bohlen_und_Halbach.jpg/330px-Bundesarchiv_Bild_102-12331%2C_Gustav_Krupp_von_Bohlen_und_Halbach.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+    focal: 'top',
+  },
+  'Albert Vögler': {
+    kind: 'portrait',
+    src: 'https://upload.wikimedia.org/wikipedia/commons/4/40/VoglerAlbert_Blitz.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+    focal: 'top',
+  },
+  'Hjalmar Schacht': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Bundesarchiv_Bild_102-12733%2C_Hjalmar_Schacht.jpg/330px-Bundesarchiv_Bild_102-12733%2C_Hjalmar_Schacht.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+    focal: 'top',
+  },
+  'Kurt von Schröder': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/K%C3%B6ln-Lindenthal_Stadtwaldg%C3%BCrtel_35.jpg/330px-K%C3%B6ln-Lindenthal_Stadtwaldg%C3%BCrtel_35.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+    focal: 'center',
+  },
+  'Marinus van der Lubbe': {
+    kind: 'portrait',
+    src: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/MarinusvanderLubbe1.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.reichstag,
+    focal: 'top',
+  },
+  'Heinrich Himmler': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Bundesarchiv_Bild_183-S72707%2C_Heinrich_Himmler.jpg/330px-Bundesarchiv_Bild_183-S72707%2C_Heinrich_Himmler.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.dachau,
+    focal: 'top',
+  },
+  'Otto Wels': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Bundesarchiv_Bild_102-13200%2C_Otto_Wels.jpg/330px-Bundesarchiv_Bild_102-13200%2C_Otto_Wels.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.parliament,
+    focal: 'top',
+  },
+  'Eugenio Pacelli': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Pius_XII%2C_Papst.jpg/330px-Pius_XII%2C_Papst.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.vatican,
+    focal: 'top',
+  },
+  'Ludwig Kaas': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Ludwig_Kaas_1928.jpg/330px-Ludwig_Kaas_1928.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.vatican,
+    focal: 'top',
+  },
+  'Robert Ley': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Bundesarchiv_Bild_183-2008-0922-501%2C_Robert_Ley.jpg/330px-Bundesarchiv_Bild_183-2008-0922-501%2C_Robert_Ley.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.unionHouse,
+    focal: 'top',
+  },
+  'Erich Kästner': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Erich_K%C3%A4stner_1961.jpg/330px-Erich_K%C3%A4stner_1961.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.library,
+    focal: 'top',
+  },
+  'Heinrich Mann': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Heinrich_Mann_in_seinen_M%C3%BCnchner_Jahren.png/330px-Heinrich_Mann_in_seinen_M%C3%BCnchner_Jahren.png',
+    fallbackSrc: ARCHIVAL_IMAGES.library,
+    focal: 'top',
+  },
+  'Erich Maria Remarque': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Bundesarchiv_Bild_183-R04034%2C_Erich_Maria_Remarque_%28cropped%29.jpg/330px-Bundesarchiv_Bild_183-R04034%2C_Erich_Maria_Remarque_%28cropped%29.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.library,
+    focal: 'top',
+  },
+  'Bertolt Brecht': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Bundesarchiv_Bild_183-W0409-300%2C_Bertolt_Brecht.jpg/330px-Bundesarchiv_Bild_183-W0409-300%2C_Bertolt_Brecht.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.library,
+    focal: 'top',
+  },
+  'Papst Pius XI.': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Pius_XI%2C_by_Nicola_Perscheid_%28retouched%29.jpg/330px-Pius_XI%2C_by_Nicola_Perscheid_%28retouched%29.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.vatican,
+    focal: 'top',
+  },
+  'Erich Klausener': {
+    kind: 'portrait',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/E.Klausener0002.jpg/330px-E.Klausener0002.jpg',
+    fallbackSrc: ARCHIVAL_IMAGES.vatican,
+    focal: 'top',
+  },
+
+  // Official Party, Organization & State Institution Logos / Crests
+  NSDAP: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/NSDAP-Logo.svg/330px-NSDAP-Logo.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.ballotBox,
+  },
+  Reichsregierung: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Wappen_Deutsches_Reich_%28Weimarer_Republik%29.svg/330px-Wappen_Deutsches_Reich_%28Weimarer_Republik%29.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.parliament,
+  },
+  SA: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/SA-Logo.svg/330px-SA-Logo.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+  },
+  SS: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Schutzstaffel_Abzeichen.svg/330px-Schutzstaffel_Abzeichen.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.dachau,
+  },
+  'Preußische Polizei': {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Coat_of_arms_of_Prussia_%281918%E2%80%931933%29.svg/330px-Coat_of_arms_of_Prussia_%281918%E2%80%931933%29.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+  },
+  'Bayerische Polizei': {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Coat_of_arms_of_Bavaria.svg/330px-Coat_of_arms_of_Bavaria.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.berlinStreet,
+  },
+  DNVP: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/DNVP_logo_%28basic%29.svg/330px-DNVP_logo_%28basic%29.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.parliament,
+  },
+  'KPD & SPD': {
+    kind: 'dual-logo',
+    srcs: [
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Kommunistische_Partei_Deutschlands%2C_Logo_um_1920.svg/330px-Kommunistische_Partei_Deutschlands%2C_Logo_um_1920.svg.png',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Flag_of_the_Social_Democratic_Party_of_Germany.svg/330px-Flag_of_the_Social_Democratic_Party_of_Germany.svg.png',
+    ],
+    fallbackSrc: ARCHIVAL_IMAGES.printingPress,
+  },
+  SPD: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Flag_of_the_Social_Democratic_Party_of_Germany.svg/330px-Flag_of_the_Social_Democratic_Party_of_Germany.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.parliament,
+  },
+  Zentrumspartei: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Logo_of_the_German_Centre_Party.svg/330px-Logo_of_the_German_Centre_Party.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.vatican,
+  },
+  'Bayerische Volkspartei': {
+    kind: 'svg-emblem',
+    emblem: 'bvp',
+  },
+  Gewerkschaften: {
+    kind: 'svg-emblem',
+    emblem: 'adgb',
+  },
+  NSBO: {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/NSBO.svg/330px-NSBO.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.unionHouse,
+  },
+  'Deutsche Arbeitsfront (DAF)': {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Deutsche_Arbeitsfront.svg/330px-Deutsche_Arbeitsfront.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.unionHouse,
+  },
+  'NS-Studentenverbände': {
+    kind: 'logo',
+    src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Nationalsozialistischer_Deutscher_Studentenbund.svg/330px-Nationalsozialistischer_Deutscher_Studentenbund.svg.png',
+    fallbackSrc: ARCHIVAL_IMAGES.library,
+  },
+};
 
 function getInitials(name: string): string {
   const cleaned = name
@@ -14,259 +252,194 @@ function getInitials(name: string): string {
   const parts = cleaned.split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  const first = parts[0][0] ?? '';
-  const last = parts[parts.length - 1][0] ?? '';
-  return `${first}${last}`.toUpperCase();
+  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase();
 }
 
-function renderPortraitGlyph(name: string) {
-  switch (name) {
-    case 'Adolf Hitler':
-      return (
-        <g>
-          <path d="M10 38 C10 30, 30 30, 30 38 Z" fill="#173668" />
-          <path d="M16 31 L20 36 L24 31" fill="#FAF4E6" />
-          <circle cx="20" cy="19" r="7.5" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M12.5 17 C13 11, 22 9.5, 27.5 14 C25 12.5, 17 13, 12.5 17 Z" fill="#173668" />
-          <rect x="18.2" y="21.5" width="3.6" height="1.8" rx="0.5" fill="#173668" />
-          <circle cx="17.5" cy="18.5" r="0.8" fill="#173668" />
-          <circle cx="22.5" cy="18.5" r="0.8" fill="#173668" />
+function HistoricalOrgEmblem({ emblem }: { emblem: 'bvp' | 'adgb' }) {
+  if (emblem === 'bvp') {
+    return (
+      <svg
+        viewBox="0 0 64 64"
+        aria-hidden="true"
+        className="w-full h-full p-1"
+      >
+        <path
+          d="M10 10 H54 V34 C54 47 32 56 32 56 C32 56 10 47 10 34 Z"
+          fill="#FAF6EC"
+          stroke="#173668"
+          strokeWidth="3"
+        />
+        <clipPath id="bvp-shield">
+          <path d="M12 12 H52 V34 C52 45 32 53 32 53 C32 53 12 45 12 34 Z" />
+        </clipPath>
+        <g clipPath="url(#bvp-shield)" opacity="0.26">
+          <polygon points="10,12 26,12 10,28" fill="#173668" />
+          <polygon points="34,12 52,12 22,42 10,30" fill="#173668" />
+          <polygon points="52,20 52,38 30,54 18,48" fill="#173668" />
         </g>
-      );
-
-    case 'Paul von Hindenburg':
-      return (
-        <g>
-          <path d="M8 38 C9 29.5, 31 29.5, 32 38 Z" fill="#173668" />
-          <rect x="17" y="29.5" width="6" height="2" fill="#9E2424" />
-          <rect x="12.5" y="11" width="15" height="16.5" rx="6" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13 14.5 L14.5 10.5 L25.5 10.5 L27 14.5 Z" fill="#173668" />
-          <path d="M14.5 22.5 Q17.5 20.5 20 22 Q22.5 20.5 25.5 22.5 Q22.5 24 20 23 Q17.5 24 14.5 22.5 Z" fill="#173668" />
-          <circle cx="17" cy="18" r="0.8" fill="#173668" />
-          <circle cx="23" cy="18" r="0.8" fill="#173668" />
-        </g>
-      );
-
-    case 'Franz von Papen':
-      return (
-        <g>
-          <path d="M10 38 C11 30, 29 30, 30 38 Z" fill="#173668" />
-          <path d="M16.5 30.5 L20 35.5 L23.5 30.5 Z" fill="#FAF4E6" />
-          <ellipse cx="20" cy="18.5" rx="6.5" ry="7.8" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13.5 16 C14.5 11, 25.5 11, 26.5 16 C23 13.5, 17 13.5, 13.5 16 Z" fill="#173668" />
-          <circle cx="22.8" cy="18" r="2.2" fill="none" stroke="#9E2424" strokeWidth="1" />
-          <line x1="25" y1="19" x2="26.5" y2="26" stroke="#9E2424" strokeWidth="0.7" />
-          <path d="M17.2 21.8 Q20 21 22.8 21.8" stroke="#173668" strokeWidth="1.3" fill="none" />
-        </g>
-      );
-
-    case 'Hermann Göring':
-      return (
-        <g>
-          <path d="M7.5 38 C8.5 29, 31.5 29, 32.5 38 Z" fill="#173668" />
-          <polygon points="15,30 20,34.5 25,30 23,28.5 17,28.5" fill="#FAF4E6" />
-          <ellipse cx="20" cy="18.5" rx="8" ry="7.8" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M12.5 16 C14 10.8, 26 10.8, 27.5 16 C24 13, 16 13, 12.5 16 Z" fill="#173668" />
-          <circle cx="17.2" cy="18" r="0.8" fill="#173668" />
-          <circle cx="22.8" cy="18" r="0.8" fill="#173668" />
-          <line x1="17.5" y1="22.2" x2="22.5" y2="22.2" stroke="#173668" strokeWidth="1.2" />
-        </g>
-      );
-
-    case 'Heinrich Himmler':
-      return (
-        <g>
-          <path d="M10 38 C10.5 30, 29.5 30, 30 38 Z" fill="#173668" />
-          <circle cx="20" cy="18.5" r="7" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13 16 C14 11.2, 26 11.2, 27 16 Z" fill="#173668" />
-          <circle cx="17.2" cy="18.5" r="2.2" fill="none" stroke="#173668" strokeWidth="1.1" />
-          <circle cx="22.8" cy="18.5" r="2.2" fill="none" stroke="#173668" strokeWidth="1.1" />
-          <line x1="19.4" y1="18.5" x2="20.6" y2="18.5" stroke="#173668" strokeWidth="1" />
-          <rect x="18.5" y="22" width="3" height="1.2" fill="#173668" />
-        </g>
-      );
-
-    case 'Wilhelm Frick':
-    case 'Hjalmar Schacht':
-    case 'Alfred Hugenberg':
-      return (
-        <g>
-          <path d="M10 38 C11 30, 29 30, 30 38 Z" fill="#173668" />
-          <path d="M16.5 29.5 L20 35 L23.5 29.5 Z" fill="#FAF4E6" />
-          <circle cx="20" cy="18.5" r="7" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13.5 15.5 C15 11.5, 25 11.5, 26.5 15.5 C23.5 13.5, 16.5 13.5, 13.5 15.5 Z" fill="#173668" />
-          <circle cx="17.2" cy="18.5" r="2.1" fill="none" stroke="#173668" strokeWidth="1" />
-          <circle cx="22.8" cy="18.5" r="2.1" fill="none" stroke="#173668" strokeWidth="1" />
-          <line x1="19.3" y1="18.5" x2="20.7" y2="18.5" stroke="#173668" strokeWidth="1" />
-          <line x1="17" y1="22.4" x2="23" y2="22.4" stroke="#173668" strokeWidth="1.2" />
-        </g>
-      );
-
-    case 'Otto Wels':
-      return (
-        <g>
-          <path d="M10 38 C10.5 30, 29.5 30, 30 38 Z" fill="#173668" />
-          <path d="M17 30.5 L20 35 L23 30.5 Z" fill="#FAF4E6" />
-          <circle cx="20" cy="18.5" r="7.2" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13.5 15.5 C15 11.5, 25 11.5, 26.5 15.5 C23 13.5, 17 13.5, 13.5 15.5 Z" fill="#173668" />
-          <circle cx="17.2" cy="18.2" r="2" fill="none" stroke="#173668" strokeWidth="1" />
-          <circle cx="22.8" cy="18.2" r="2" fill="none" stroke="#173668" strokeWidth="1" />
-          <path d="M15.5 22 Q20 26.5 24.5 22 L23 25 Q20 27 17 25 Z" fill="#173668" />
-        </g>
-      );
-
-    case 'Gustav Krupp':
-    case 'Albert Vögler':
-    case 'Kurt von Schröder':
-    case 'Robert Ley':
-      return (
-        <g>
-          <path d="M9.5 38 C10.5 30, 29.5 30, 30.5 38 Z" fill="#173668" />
-          <path d="M16.5 30.5 L20 36 L23.5 30.5 Z" fill="#FAF4E6" />
-          <line x1="20" y1="31.5" x2="20" y2="36" stroke="#9E2424" strokeWidth="1.3" />
-          <circle cx="20" cy="18.5" r="7.2" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13 16.5 C14 11, 26 11, 27 16.5 C23.5 13.5, 16.5 13.5, 13 16.5 Z" fill="#173668" />
-          <circle cx="17.4" cy="18.2" r="0.8" fill="#173668" />
-          <circle cx="22.6" cy="18.2" r="0.8" fill="#173668" />
-          <line x1="17.5" y1="22.3" x2="22.5" y2="22.3" stroke="#173668" strokeWidth="1.2" />
-        </g>
-      );
-
-    case 'Erich Kästner':
-    case 'Heinrich Mann':
-    case 'Erich Maria Remarque':
-    case 'Bertolt Brecht':
-      return (
-        <g>
-          <path d="M10 38 C11 30, 29 30, 30 38 Z" fill="#284B82" />
-          <circle cx="20" cy="18" r="7" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M13 16 C14.5 10.5, 25.5 10.5, 27 16 C23 13, 17 13, 13 16 Z" fill="#173668" />
-          <circle cx="17.5" cy="18" r="0.8" fill="#173668" />
-          <circle cx="22.5" cy="18" r="0.8" fill="#173668" />
-          <path d="M18 21.8 Q20 23 22 21.8" stroke="#173668" strokeWidth="1.1" fill="none" />
-          <rect x="26" y="26.5" width="7" height="8" rx="1" fill="#FAF4E6" stroke="#9E2424" strokeWidth="1.1" />
-          <line x1="29.5" y1="27" x2="29.5" y2="34" stroke="#9E2424" strokeWidth="0.9" />
-        </g>
-      );
-
-    case 'Marinus van der Lubbe':
-      return (
-        <g>
-          <path d="M10.5 38 C11.5 30.5, 28.5 30.5, 29.5 38 Z" fill="#284B82" />
-          <circle cx="20" cy="19" r="7" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M12.5 17 C12 11.5, 18 9, 24 10.5 C27 11.5, 28 15, 27 17 C24 14, 16 14, 12.5 17 Z" fill="#173668" />
-          <circle cx="17.5" cy="19" r="0.8" fill="#173668" />
-          <circle cx="22.5" cy="19" r="0.8" fill="#173668" />
-        </g>
-      );
-
-    case 'Eugenio Pacelli':
-    case 'Papst Pius XI.':
-      return (
-        <g>
-          <path d="M9.5 38 C10.5 29.5, 29.5 29.5, 30.5 38 Z" fill="#9E2424" />
-          <line x1="20" y1="30.5" x2="20" y2="36" stroke="#FAF4E6" strokeWidth="1.3" />
-          <line x1="17.8" y1="32.5" x2="22.2" y2="32.5" stroke="#FAF4E6" strokeWidth="1.3" />
-          <circle cx="20" cy="18.5" r="6.8" fill="#F2E7CF" stroke="#173668" strokeWidth="1.4" />
-          <path d="M14.5 13.5 Q20 9.5 25.5 13.5 Z" fill="#FAF4E6" stroke="#173668" strokeWidth="1.1" />
-          <circle cx="17.6" cy="18.5" r="0.8" fill="#173668" />
-          <circle cx="22.4" cy="18.5" r="0.8" fill="#173668" />
-        </g>
-      );
-
-    case 'Reichsregierung':
-      return (
-        <g>
-          <polygon points="9,16 20,10 31,16" fill="#173668" />
-          <rect x="10" y="16.5" width="20" height="2" fill="#9E2424" />
-          <rect x="11.5" y="19" width="2.8" height="10" fill="#173668" />
-          <rect x="18.6" y="19" width="2.8" height="10" fill="#173668" />
-          <rect x="25.7" y="19" width="2.8" height="10" fill="#173668" />
-          <rect x="9" y="29" width="22" height="2.5" fill="#173668" />
-        </g>
-      );
-
-    case 'Preußische Polizei':
-    case 'Bayerische Polizei':
-      return (
-        <g>
-          <path
-            d="M11.5 12.5 L20 10 L28.5 12.5 L28.5 21.5 C28.5 26.5, 20 31, 20 31 C20 31, 11.5 26.5, 11.5 21.5 Z"
-            fill="#173668"
-          />
-          <circle cx="20" cy="20" r="4.2" fill="#FAF4E6" />
-          <circle cx="20" cy="20" r="1.8" fill="#9E2424" />
-        </g>
-      );
-
-    case 'Gewerkschaften':
-    case 'Deutsche Arbeitsfront (DAF)':
-      return (
-        <g>
-          <circle cx="20" cy="20" r="6.5" fill="none" stroke="#173668" strokeWidth="3.2" strokeDasharray="3 2.1" />
-          <circle cx="20" cy="20" r="4.2" fill="#FAF4E6" stroke="#9E2424" strokeWidth="1.4" />
-          <circle cx="20" cy="20" r="1.5" fill="#173668" />
-        </g>
-      );
-
-    case 'SA':
-    case 'SS':
-    case 'NSBO':
-    case 'NS-Studentenverbände':
-      return (
-        <g>
-          <rect x="11" y="11" width="18" height="18" rx="2" fill="#9E2424" />
-          <circle cx="20" cy="20" r="5.5" fill="#FAF4E6" />
-          <text
-            x="20"
-            y="22.3"
-            textAnchor="middle"
-            fontSize="6.8"
-            fontWeight="700"
-            fontFamily="monospace"
-            fill="#173668"
-          >
-            {name === 'SA' || name === 'SS' ? name : name === 'NSBO' ? 'NS' : 'ST'}
-          </text>
-        </g>
-      );
-
-    default:
-      return (
-        <g>
-          <circle cx="20" cy="20" r="9.5" fill="#FAF4E6" stroke="#173668" strokeWidth="1.5" />
-          <circle
-            cx="20"
-            cy="20"
-            r="7"
-            fill={name === 'NSDAP' ? '#9E2424' : '#173668'}
-          />
-          <text
-            x="20"
-            y="22.3"
-            textAnchor="middle"
-            fontSize="6.5"
-            fontWeight="700"
-            fontFamily="monospace"
-            fill="#FAF4E6"
-          >
-            {getInitials(name)}
-          </text>
-        </g>
-      );
+        <rect
+          x="13"
+          y="23"
+          width="38"
+          height="18"
+          fill="#173668"
+          stroke="#FAF6EC"
+          strokeWidth="1.5"
+        />
+        <text
+          x="32"
+          y="36"
+          textAnchor="middle"
+          fill="#FAF6EC"
+          fontSize="12"
+          fontWeight="bold"
+          fontFamily="Georgia, serif"
+          letterSpacing="1"
+        >
+          BVP
+        </text>
+      </svg>
+    );
   }
+
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      aria-hidden="true"
+      className="w-full h-full p-1"
+    >
+      <circle
+        cx="32"
+        cy="32"
+        r="24"
+        fill="#FAF6EC"
+        stroke="#9E2424"
+        strokeWidth="3"
+        strokeDasharray="6 3"
+      />
+      <circle
+        cx="32"
+        cy="32"
+        r="19"
+        fill="#9E2424"
+        stroke="#681212"
+        strokeWidth="1.5"
+      />
+      <text
+        x="32"
+        y="36"
+        textAnchor="middle"
+        fill="#FAF6EC"
+        fontSize="11.5"
+        fontWeight="bold"
+        fontFamily="ui-monospace, monospace"
+        letterSpacing="0.5"
+      >
+        ADGB
+      </text>
+    </svg>
+  );
 }
 
-export function ActorAvatar({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) {
-  const dims = size === 'md' ? 'w-9 h-9' : 'w-6 h-6 sm:w-7 sm:h-7';
+export function ActorAvatar({
+  name,
+  size = 'sm',
+}: {
+  name: string;
+  size?: 'sm' | 'md';
+}) {
+  const visual = ACTOR_VISUALS[name];
+  const initialSrc =
+    visual?.kind === 'portrait' || visual?.kind === 'logo' ? visual.src : null;
+
+  const [currentSrc, setCurrentSrc] = useState<string | null>(initialSrc);
+  const [failedAll, setFailedAll] = useState(false);
+
+  useEffect(() => {
+    const nextSrc =
+      visual?.kind === 'portrait' || visual?.kind === 'logo'
+        ? visual.src
+        : null;
+    setCurrentSrc(nextSrc);
+    setFailedAll(false);
+  }, [name, visual]);
+
+  const dims =
+    size === 'md'
+      ? 'w-12 h-13 p-0.5'
+      : 'w-9 h-10 sm:w-10 sm:h-11 p-[2px]';
+
+  if (visual?.kind === 'svg-emblem') {
+    return (
+      <div
+        className={`${dims} relative bg-[#FAF6EC] border border-[#A69274] shadow-[1px_2px_4px_rgba(38,20,6,0.22)] shrink-0 overflow-hidden flex items-center justify-center`}
+      >
+        <HistoricalOrgEmblem emblem={visual.emblem} />
+      </div>
+    );
+  }
+
+  if (visual?.kind === 'dual-logo') {
+    return (
+      <div
+        className={`${dims} relative bg-[#FAF6EC] border border-[#A69274] shadow-[1px_2px_4px_rgba(38,20,6,0.22)] shrink-0 overflow-hidden grid grid-cols-2 gap-[1px] items-center justify-items-center p-0.5`}
+      >
+        {visual.srcs.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt={i === 0 ? 'KPD Logo' : 'SPD Logo'}
+            referrerPolicy="no-referrer"
+            loading="lazy"
+            className="w-full h-full object-contain contrast-[1.08]"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  const isLogo = visual?.kind === 'logo';
+  const fallback =
+    visual && 'fallbackSrc' in visual ? visual.fallbackSrc : undefined;
+
   return (
     <div
-      className={`${dims} rounded-full bg-[#EFE7D6] border border-[#B8A890] overflow-hidden shrink-0 flex items-center justify-center`}
+      className={`${dims} relative bg-[#FAF6EC] border border-[#A69274] shadow-[1px_2px_4px_rgba(38,20,6,0.22)] shrink-0 overflow-hidden flex items-center justify-center`}
     >
-      <svg viewBox="0 0 40 40" className="w-full h-full" aria-hidden="true">
-        <circle cx="20" cy="20" r="18.5" fill="#F5EFE1" stroke="#CBBBA0" strokeWidth="1" />
-        {renderPortraitGlyph(name)}
-      </svg>
+      {!failedAll && currentSrc ? (
+        <img
+          src={currentSrc}
+          alt={name}
+          referrerPolicy="no-referrer"
+          loading="lazy"
+          onError={() => {
+            if (fallback && currentSrc !== fallback) {
+              setCurrentSrc(fallback);
+            } else {
+              setFailedAll(true);
+            }
+          }}
+          className={
+            isLogo
+              ? 'w-full h-full object-contain p-0.5 contrast-[1.08]'
+              : `w-full h-full object-cover ${
+                  visual?.kind === 'portrait' && visual.focal === 'center'
+                    ? 'object-center'
+                    : 'object-top'
+                } grayscale contrast-[1.12] sepia-[0.24] brightness-[0.98]`
+          }
+        />
+      ) : (
+        <div className="w-full h-full bg-[#E8DEC8] flex items-center justify-center font-mono text-[10px] font-bold text-[#173668]">
+          {getInitials(name)}
+        </div>
+      )}
+      {!isLogo && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 shadow-[inset_0_0_8px_rgba(32,18,6,0.22)]"
+        />
+      )}
     </div>
   );
 }
@@ -282,7 +455,7 @@ export function ActorMiniProfile({
       onClick={onSelect}
       aria-pressed={isSelected}
       title={`${actor.name} – Klicken für Info`}
-      className={`group relative flex flex-col items-center justify-start gap-1 px-1.5 py-1.5 text-center transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#9E2424] ${
+      className={`group relative flex flex-col items-center justify-start gap-1.5 px-1.5 py-1.5 text-center transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#9E2424] ${
         isSelected
           ? 'bg-[#FAF4E6] border border-[#9E2424] shadow-[0_3px_8px_rgba(158,36,36,0.22)] -translate-y-0.5'
           : 'bg-[#FAF4E6]/85 border border-[#C6B9A4] shadow-[0_1px_3px_rgba(45,28,10,0.12)] hover:border-[#173668] hover:bg-[#FAF4E6]'
@@ -292,7 +465,7 @@ export function ActorMiniProfile({
       {isSelected && (
         <span
           aria-hidden="true"
-          className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-[#9E2424] border border-[#681212] shadow-xs"
+          className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-[#9E2424] border border-[#681212] shadow-xs z-10"
         />
       )}
       <ActorAvatar name={actor.name} size="sm" />

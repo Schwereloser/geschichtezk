@@ -16,4 +16,4 @@ Zum Stoppen und Entfernen des Containers:
 docker compose down
 ```
 
-Die Anwendung wird beim Image-Build als statische Website erstellt und anschließend von Nginx ausgeliefert. Für den Betrieb ist kein API-Schlüssel erforderlich.
+Die Anwendung wird beim Image-Build erstellt und anschließend über den Node.js/Express-Server ausgeliefert. Für den integrierten **KI-Erklärer** wird die Umgebungsvariable `GEMINI_API_KEY` benötigt (z. B. `GEMINI_API_KEY=... docker compose up --build -d`).

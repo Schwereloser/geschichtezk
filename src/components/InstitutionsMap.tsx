@@ -23,7 +23,6 @@ import {
 
 interface InstitutionsMapProps {
   centerEvent: TimelineEvent;
-  isOverview: boolean;
 }
 
 const INSTITUTION_ICONS: Record<InstitutionId, typeof Scale> = {
@@ -103,7 +102,6 @@ const STATUS_STYLE: Record<
 
 export function InstitutionsMap({
   centerEvent,
-  isOverview,
 }: InstitutionsMapProps) {
   const institutionById = new Map(INSTITUTIONS.map((inst) => [inst.id, inst]));
 
@@ -111,14 +109,10 @@ export function InstitutionsMap({
 
   return (
     <motion.div
-      initial={false}
-      animate={{
-        scale: isOverview ? 0.64 : 1,
-        y: isOverview ? 16 : 0,
-        rotate: isOverview ? -0.9 : 0,
+      layoutId="institutions-board"
+      transition={{
+        layout: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
       }}
-      transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
-      style={{ transformOrigin: 'bottom center' }}
       aria-label="Pinwand: Zustand der Institutionen und neue NS-Organe"
       className="pointer-events-none relative w-full min-w-0 max-w-[630px] xl:max-w-[740px] z-[5] flex flex-col justify-end"
     >

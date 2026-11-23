@@ -3,4 +3,6 @@ services:
     build: .
     ports:
       - "${PORT:-8080}:80"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     restart: unless-stopped

@@ -56,7 +56,17 @@ export const SNAPSHOT_STAGES: SnapshotStage[] = [
         status: 'attacked',
         statusLabel: 'Druck wächst',
         visualSummary:
-          'Göring übernimmt die Polizeiführung in Preußen; SA-Straßenaufmärsche nehmen zu.',
+          'Göring übernimmt als kommissarischer Innenminister die Polizeiführung in Preußen.',
+        eventId: 'ernennung-hitler',
+        eventDateLabel: '30. Jan 1933',
+      },
+      {
+        id: 'laender-verwaltung',
+        domain: 'Länder & Beamtentum',
+        status: 'intact',
+        statusLabel: 'Föderal',
+        visualSummary:
+          'Länder besitzen eigene Regierungen und Parlamente; das Berufsbeamtentum besteht fort.',
         eventId: 'ernennung-hitler',
         eventDateLabel: '30. Jan 1933',
       },
@@ -66,17 +76,17 @@ export const SNAPSHOT_STAGES: SnapshotStage[] = [
         status: 'intact',
         statusLabel: 'Eigenständig',
         visualSummary:
-          'SPD, KPD, Zentrum und freie Gewerkschaften arbeiten noch legal.',
+          'SPD, KPD, Zentrum und freie Gewerkschaften arbeiten noch legal und eigenständig.',
         eventId: 'ernennung-hitler',
         eventDateLabel: '30. Jan 1933',
       },
       {
-        id: 'laender-kultur',
-        domain: 'Länder & Kultur',
+        id: 'kultur-kirche',
+        domain: 'Kultur & Kirche',
         status: 'intact',
-        statusLabel: 'Föderal',
+        statusLabel: 'Pluralistisch',
         visualSummary:
-          'Länder besitzen eigene Parlamente; Wissenschaft, Kunst und Literatur sind noch pluralistisch.',
+          'Wissenschaft, Literatur und kirchliche Verbände wirken noch vielfältig und ungebunden.',
         eventId: 'ernennung-hitler',
         eventDateLabel: '30. Jan 1933',
       },
@@ -112,17 +122,27 @@ export const SNAPSHOT_STAGES: SnapshotStage[] = [
       },
       {
         id: 'gewalt',
-        domain: 'Polizei, SA & Terror',
+        domain: 'Polizei, „Schutzhaft“ & KZ',
         status: 'controlled',
         statusLabel: 'Entfesselt',
         visualSummary:
-          'SA/SS handeln als Hilfspolizei; in Dachau beginnt das Konzentrationslagersystem.',
+          'Erste politische Häftlinge werden ohne Gerichtsurteil ins neue KZ Dachau verschleppt.',
         eventId: 'kz-dachau',
         eventDateLabel: '22. Mär 1933',
       },
       {
+        id: 'laender-verwaltung',
+        domain: 'Länder & Eliten',
+        status: 'attacked',
+        statusLabel: 'Im Umbruch',
+        visualSummary:
+          'Am „Tag von Potsdam“ bindet Hitler traditionelle Eliten ein; der Zugriff auf die Länder naht.',
+        eventId: 'tag-von-potsdam',
+        eventDateLabel: '21. Mär 1933',
+      },
+      {
         id: 'organisationen',
-        domain: 'Parteien & Gewerkschaften',
+        domain: 'Parteien & Opposition',
         status: 'attacked',
         statusLabel: 'Verfolgt',
         visualSummary:
@@ -131,14 +151,14 @@ export const SNAPSHOT_STAGES: SnapshotStage[] = [
         eventDateLabel: '23. Mär 1933',
       },
       {
-        id: 'laender-kultur',
-        domain: 'Länder & Kultur',
+        id: 'kultur-kirche',
+        domain: 'Kirche & Zentrum',
         status: 'attacked',
-        statusLabel: 'Im Umbruch',
+        statusLabel: 'Umworben',
         visualSummary:
-          'Der „Tag von Potsdam“ bindet konservative Eliten; der Zugriff auf die Länder steht bevor.',
-        eventId: 'tag-von-potsdam',
-        eventDateLabel: '21. Mär 1933',
+          'Mit Zusagen zum Schutz der Kirchen gewinnt Hitler die Zustimmung der Zentrumspartei.',
+        eventId: 'ermaechtigungsgesetz',
+        eventDateLabel: '23. Mär 1933',
       },
     ],
   },
@@ -166,18 +186,28 @@ export const SNAPSHOT_STAGES: SnapshotStage[] = [
         status: 'controlled',
         statusLabel: 'Ausgeschaltet',
         visualSummary:
-          'Gewaltenteilung ist aufgehoben; Hitler regiert per Regierungsgesetz ohne Opposition.',
-        eventId: 'einparteienstaat-gesetz',
-        eventDateLabel: '14. Jul 1933',
+          'Gewaltenteilung ist seit dem Ermächtigungsgesetz aufgehoben; Hitler regiert ohne Parlament.',
+        eventId: 'ermaechtigungsgesetz',
+        eventDateLabel: '23. Mär 1933',
       },
       {
         id: 'gewalt',
-        domain: 'Polizei, SA & Terror',
+        domain: 'Polizei, „Schutzhaft“ & KZ',
         status: 'controlled',
         statusLabel: 'Systematisch',
         visualSummary:
-          '„Schutzhaft“ ohne Gerichtsurteil, KZ Dachau und gesäuberte Verwaltung sichern Kontrolle.',
-        eventId: 'berufsbeamtentum',
+          '„Schutzhaft“ ohne Gerichtsurteil und das KZ Dachau sichern die Ausschaltung von Gegnern.',
+        eventId: 'kz-dachau',
+        eventDateLabel: '22. Mär 1933',
+      },
+      {
+        id: 'laender-verwaltung',
+        domain: 'Länder & Reichsstatthalter',
+        status: 'controlled',
+        statusLabel: 'Gleichgeschaltet',
+        visualSummary:
+          'Reichsstatthalter kontrollieren Landesregierungen und Landtage – der Föderalismus fällt.',
+        eventId: 'gleichschaltung-laender-2',
         eventDateLabel: '07. Apr 1933',
       },
       {
@@ -186,17 +216,17 @@ export const SNAPSHOT_STAGES: SnapshotStage[] = [
         status: 'controlled',
         statusLabel: 'Zerschlagen',
         visualSummary:
-          'Gewerkschaften ersetzt durch die DAF; SPD verboten; NSDAP gesetzlich einzige Partei.',
+          'SPD verboten, andere Parteien aufgelöst – die NSDAP ist gesetzlich einzige Partei.',
         eventId: 'einparteienstaat-gesetz',
         eventDateLabel: '14. Jul 1933',
       },
       {
-        id: 'laender-kultur',
-        domain: 'Länder & Kultur',
+        id: 'kultur-kirche',
+        domain: 'Kirche & Vatikan',
         status: 'controlled',
-        statusLabel: 'Gleichgeschaltet',
+        statusLabel: 'Vertraglich gebunden',
         visualSummary:
-          'Reichsstatthalter lenken Länder; Bücherverbrennungen & Reichskonkordat festigen das System.',
+          'Das Reichskonkordat entpolitisiert Geistliche und legitimiert das NS-Regime nach außen.',
         eventId: 'reichskonkordat',
         eventDateLabel: '20. Jul 1933',
       },
@@ -291,63 +321,6 @@ export const POWER_PILLARS: PowerPillar[] = [
   },
 ];
 
-export interface GlossaryTerm {
-  id: string;
-  term: string;
-  shortTag: string;
-  definition: string;
-  eventId: string;
-  eventLabel: string;
-}
-
-export const GLOSSARY_TERMS: GlossaryTerm[] = [
-  {
-    id: 'art-48',
-    term: 'Art. 48 WRV',
-    shortTag: 'Notverordnungen',
-    definition:
-      'Artikel 48 der Weimarer Reichsverfassung erlaubte dem Reichspräsidenten im Notfall Notverordnungen und die Aussetzung von Grundrechten – 1933 dauerhaft missbraucht.',
-    eventId: 'reichstagsbrandverordnung',
-    eventLabel: '28. Feb 1933',
-  },
-  {
-    id: 'scheinlegalitaet',
-    term: 'Scheinlegalität',
-    shortTag: 'Taktik der NSDAP',
-    definition:
-      'Vorgehen, bei dem die Diktatur über formale Ernennungen, Abstimmungen und Gesetze errichtet wird, während gleichzeitig Terror und Einschüchterung freie Entscheidungen verhindern.',
-    eventId: 'ermaechtigungsgesetz',
-    eventLabel: '23. Mär 1933',
-  },
-  {
-    id: 'schutzhaft',
-    term: '„Schutzhaft“',
-    shortTag: 'Willkürliche Haft',
-    definition:
-      'Festnahme politischer Gegner durch Polizei, SA oder SS ohne richterlichen Haftbefehl und ohne zeitliche Begrenzung – Grundlage für das KZ-System.',
-    eventId: 'kz-dachau',
-    eventLabel: '22. Mär 1933',
-  },
-  {
-    id: 'gleichschaltung',
-    term: 'Gleichschaltung',
-    shortTag: 'Umbau von Staat & Kultur',
-    definition:
-      'Unterordnung aller staatlichen und gesellschaftlichen Bereiche (Länder, Verwaltung, Gewerkschaften, Kultur) unter Führung und Ideologie der NSDAP.',
-    eventId: 'gleichschaltung-laender-2',
-    eventLabel: '07. Apr 1933',
-  },
-  {
-    id: 'einparteienstaat',
-    term: 'Einparteienstaat',
-    shortTag: 'Monopol der NSDAP',
-    definition:
-      'Politisches System ohne Pluralismus und Opposition: Ab 14. Juli 1933 war allein die NSDAP als Partei gesetzlich zugelassen.',
-    eventId: 'einparteienstaat-gesetz',
-    eventLabel: '14. Jul 1933',
-  },
-];
-
 export interface CheckQuestion {
   id: string;
   prompt: string;
@@ -430,12 +403,13 @@ export const CHECK_QUESTIONS: CheckQuestion[] = [
       },
       {
         id: 'd',
-        label: 'Freie Volksabstimmungen über jedes neue Gesetz im gesamten Jahr 1933',
+        label:
+          'Formale Abschaffung des Reichspräsidentenamtes und neue Verfassung im März 1933',
       },
     ],
     correctOptionIds: ['a', 'b', 'c'],
     explanation:
-      'Entscheidend war die Kombination aller drei Säulen: Scheinlegale Gesetze, Straßenterror gegen Gegner und gezielte Propaganda zur Einbindung oder Täuschung.',
+      'Entscheidend war die Kombination aus scheinlegalen Gesetzen, Straßenterror und Propaganda. Die Weimarer Verfassung und das Amt des Reichspräsidenten (Hindenburg) blieben formal zunächst bestehen und wurden gezielt ausgehöhlt.',
     referenceEventId: 'tag-von-potsdam',
     referenceLabel: '21. Mär · Tag von Potsdam',
   },
@@ -447,27 +421,30 @@ export const CHECK_QUESTIONS: CheckQuestion[] = [
     options: [
       {
         id: 'a',
-        label: 'Am 1. Mai feierte das Regime die Arbeiter – am 2. Mai zerschlug die SA die Gewerkschaften.',
+        label:
+          'Am 1. Mai feierte die NS-Führung die Arbeiter mit einem bezahlten Feiertag – am 2. Mai ließ sie SA und NSBO die Gewerkschaftshäuser stürmen.',
       },
       {
         id: 'b',
-        label: 'Die Gewerkschaften erhielten am 2. Mai mehr Streikrechte durch die DAF.',
+        label:
+          'Am 1. Mai unterstellte das Regime die Betriebe dem Arbeitsministerium – am 2. Mai erhielten Belegschaften im Gegenzug ein erweitertes Streikrecht.',
       },
       {
         id: 'c',
-        label: 'Der 1. Mai wurde abgeschafft und durch Betriebsschließungen ersetzt.',
+        label:
+          'Am 1. Mai verbot die Regierung alle Arbeiterkundgebungen – am 2. Mai gründeten die freien Gewerkschaften selbst eine unpolitische Einheitsfront.',
       },
     ],
     correctOptionIds: ['a'],
     explanation:
-      'Mit dem „Tag der nationalen Arbeit“ umwarb die NSDAP die Arbeiterschaft propagandistisch, um am nächsten Morgen die Gewerkschaftshäuser zu besetzen und freie Vertretungen durch die DAF zu ersetzen.',
+      'Mit dem „Tag der nationalen Arbeit“ am 1. Mai umwarb die NSDAP die Arbeiterschaft propagandistisch, um am nächsten Morgen die Gewerkschaftshäuser zu besetzen und freie Vertretungen durch die DAF zu ersetzen.',
     referenceEventId: 'zerschlagung-gewerkschaften',
     referenceLabel: '02. Mai · Gewerkschaften',
   },
   {
     id: 'q5-ende-pluralismus',
     prompt:
-      'Woran lässt sich erkennen, dass bis Juli 1933 keine legale politische Opposition mehr bestand?',
+      'Woran lässt sich erkennen, dass bis Juli 1933 keine legale politische Opposition mehr bestand? (Mehrfachauswahl)',
     mode: 'multi',
     options: [
       {
@@ -480,12 +457,17 @@ export const CHECK_QUESTIONS: CheckQuestion[] = [
       },
       {
         id: 'c',
-        label: 'Länderregierungen behielten volle Eigenständigkeit gegenüber Berlin.',
+        label: 'Länderregierungen und Landtage behielten volle Eigenständigkeit gegenüber Berlin.',
+      },
+      {
+        id: 'd',
+        label:
+          'Unabhängige freie Gewerkschaften blieben in den Betrieben als Gegenmacht weiterhin zugelassen.',
       },
     ],
     correctOptionIds: ['a', 'b'],
     explanation:
-      'Nach dem SPD-Verbot und den Selbstauflösungen verbot das Gesetz vom 14. Juli 1933 jede Neubildung von Parteien. Gleichzeitig kontrollierten Reichsstatthalter längst die Länder.',
+      'Nach dem SPD-Verbot und den Selbstauflösungen verbot das Gesetz vom 14. Juli 1933 jede Neubildung von Parteien. Gleichzeitig kontrollierten Reichsstatthalter die Länder und die DAF ersetzte die freien Gewerkschaften.',
     referenceEventId: 'einparteienstaat-gesetz',
     referenceLabel: '14. Jul · Einparteienstaat',
   },

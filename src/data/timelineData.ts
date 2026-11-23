@@ -303,7 +303,25 @@ export const LEFT_BOARD_PHOTOS: BoardPhotoSlot[] = [
   // Index 13 intentionally has NO left photo (only right stays pinned)
   {
     minIndex: 14,
-    maxIndex: 15,
+    maxIndex: 14,
+    photo: {
+      id: 'left-pacelli-rom',
+      src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Pius_XII%2C_Papst.jpg/960px-Pius_XII%2C_Papst.jpg',
+      fallbackSrc: vaticanImg,
+      sourceCredit: 'Foto: Wikimedia Commons (Eugenio Pacelli)',
+      dateLabel: 'Ab April 1933',
+      caption: 'Kardinalstaatssekretär Eugenio Pacelli (Vatikan)',
+      subtitle:
+        'Pacelli führt für den Vatikan ab April 1933 die Konkordatsverhandlungen mit Papen und Prälat Kaas – Schutzgarantien für die Kirche gegen Rückzug aus der Parteipolitik.',
+      fastener: 'pin',
+      tiltDeg: -2.8,
+      offsetX: 5,
+      offsetY: -18,
+    },
+  },
+  {
+    minIndex: 15,
+    maxIndex: 16,
     photo: {
       id: 'left-lustgarten-mai',
       src: 'https://upload.wikimedia.org/wikipedia/commons/3/39/Bundesarchiv_Bild_102-15783%2C_Berlin%2C_Lustgarten%2C_Maikundgebung.jpg',
@@ -320,8 +338,8 @@ export const LEFT_BOARD_PHOTOS: BoardPhotoSlot[] = [
     },
   },
   {
-    minIndex: 16,
-    maxIndex: 18,
+    minIndex: 17,
+    maxIndex: 19,
     photo: {
       id: 'left-buecher',
       src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Bundesarchiv_Bild_102-14597%2C_Berlin%2C_Opernplatz%2C_B%C3%BCcherverbrennung.jpg/960px-Bundesarchiv_Bild_102-14597%2C_Berlin%2C_Opernplatz%2C_B%C3%BCcherverbrennung.jpg',
@@ -338,8 +356,8 @@ export const LEFT_BOARD_PHOTOS: BoardPhotoSlot[] = [
     },
   },
   {
-    minIndex: 19,
-    maxIndex: 20,
+    minIndex: 20,
+    maxIndex: 21,
     photo: {
       id: 'left-einparteienstaat',
       src: 'https://upload.wikimedia.org/wikipedia/commons/3/31/Bundesarchiv_Bild_102-00800%2C_Berlin%2C_Reichstag%2C_Er%C3%B6ffnungssitzung.jpg',
@@ -353,6 +371,25 @@ export const LEFT_BOARD_PHOTOS: BoardPhotoSlot[] = [
       tiltDeg: -2.2,
       offsetX: 6,
       offsetY: -18,
+    },
+  },
+  // Index 22 intentionally has NO left photo so the Konkordat signing photo stands out on the right
+  {
+    minIndex: 23,
+    maxIndex: 23,
+    photo: {
+      id: 'left-klausener-1934',
+      src: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Bundesarchiv_Bild_102-14315%2C_Erich_Klausener.jpg',
+      fallbackSrc: vaticanImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 102-14315',
+      dateLabel: '1933 / 30. Juni 1934',
+      caption: 'Erich Klausener · Leiter der Katholischen Aktion',
+      subtitle:
+        'Trotz des Reichskonkordats werden katholische Verbände ab 1933/34 massiv unter Druck gesetzt; Erich Klausener wird am 30. Juni 1934 ermordet.',
+      fastener: 'pin',
+      tiltDeg: -3.0,
+      offsetX: 5,
+      offsetY: -24,
     },
   },
 ];
@@ -506,7 +543,25 @@ export const RIGHT_BOARD_PHOTOS: BoardPhotoSlot[] = [
   },
   {
     minIndex: 14,
-    maxIndex: 15,
+    maxIndex: 14,
+    photo: {
+      id: 'right-papen-rom',
+      src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Bundesarchiv_Bild_183-1988-0113-500%2C_Franz_v._Papen_%28cropped%29.jpg/960px-Bundesarchiv_Bild_183-1988-0113-500%2C_Franz_v._Papen_%28cropped%29.jpg',
+      fallbackSrc: decreeImg,
+      sourceCredit: 'Foto: Bundesarchiv, Bild 183-1988-0113-500',
+      dateLabel: '8.–18. April 1933',
+      caption: 'Franz von Papen · Verhandlungsführer in Rom',
+      subtitle:
+        'Als katholischer Vizekanzler handelt Papen im Vatikan das Konkordat aus – das Regime sucht außenpolitische Anerkennung und die Ausschaltung des politischen Katholizismus.',
+      fastener: 'tape',
+      tiltDeg: 3.1,
+      offsetX: -4,
+      offsetY: -152,
+    },
+  },
+  {
+    minIndex: 15,
+    maxIndex: 16,
     photo: {
       id: 'right-mai-hindenburg-hitler',
       src: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/3_1_0_17_12495_3_1_34564_Erster_Mai_Der_Feiertag_der_nationalen_Arbeit_May_Day_Celebrations_Berlin_Nazi_Germany_1933-05-01_President_von_Hindenburg%2C_Reich_Chancellor_Hitler_in_car_arrive_to_ceremony_%28R_Sennecke%29_NAC_Public_domain.jpg/960px-thumbnail.jpg',
@@ -523,8 +578,8 @@ export const RIGHT_BOARD_PHOTOS: BoardPhotoSlot[] = [
     },
   },
   {
-    minIndex: 16,
-    maxIndex: 17,
+    minIndex: 17,
+    maxIndex: 18,
     photo: {
       id: 'right-ley-daf',
       src: 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Bundesarchiv_Bild_183-2008-0922-501%2C_Robert_Ley.jpg',
@@ -541,8 +596,8 @@ export const RIGHT_BOARD_PHOTOS: BoardPhotoSlot[] = [
     },
   },
   {
-    minIndex: 18,
-    maxIndex: 19,
+    minIndex: 19,
+    maxIndex: 20,
     photo: {
       id: 'right-wels-spd',
       src: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Bundesarchiv_Bild_102-13200%2C_Otto_Wels.jpg',
@@ -558,10 +613,10 @@ export const RIGHT_BOARD_PHOTOS: BoardPhotoSlot[] = [
       offsetY: -64,
     },
   },
-  // Index 20 empty on right while Einparteien-Reichstag hangs on left
+  // Index 21 empty on right while Einparteien-Reichstag hangs on left
   {
-    minIndex: 21,
-    maxIndex: 21,
+    minIndex: 22,
+    maxIndex: 22,
     photo: {
       id: 'right-konkordat',
       src: 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Bundesarchiv_Bild_183-R24391%2C_Konkordatsunterzeichnung_in_Rom.jpg',
@@ -570,11 +625,171 @@ export const RIGHT_BOARD_PHOTOS: BoardPhotoSlot[] = [
       dateLabel: '20. Juli 1933',
       caption: 'Unterzeichnung des Reichskonkordats',
       subtitle:
-        'Kardinalstaatssekretär Pacelli und Vizekanzler von Papen unterzeichnen in Rom das Reichskonkordat zwischen Heiligem Stuhl und Deutschem Reich.',
+        'Kardinalstaatssekretär Pacelli und Vizekanzler von Papen unterzeichnen in Rom das Reichskonkordat – ein diplomatischer Erfolg für das NS-Regime bei gleichzeitiger Entpolitisierung des Klerus.',
       fastener: 'tape',
       tiltDeg: 3.4,
       offsetX: -4,
       offsetY: -158,
+    },
+  },
+];
+
+export interface ContextualGlossaryNote {
+  id: string;
+  term: string;
+  shortTag: string;
+  definition: string;
+  eventLabel: string;
+  fastener: BoardPhotoFastener;
+  tiltDeg: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+export interface BoardGlossarySlot {
+  side: 'left' | 'right';
+  minIndex: number;
+  maxIndex: number;
+  note: ContextualGlossaryNote;
+}
+
+// Contextual term sticky-notes pinned directly beside relevant timeline stations
+// offsetY values are calibrated to avoid colliding with FlankingPinboardPhoto on the same wing
+export const BOARD_GLOSSARY_NOTES: BoardGlossarySlot[] = [
+  {
+    side: 'left',
+    minIndex: 2,
+    maxIndex: 2,
+    note: {
+      id: 'term-notverordnung',
+      term: 'Notverordnung',
+      shortTag: 'Verfassungsrecht',
+      eventLabel: '04. Februar 1933 · Einschränkung von Presse & Versammlung',
+      definition:
+        'Eine vom Reichspräsidenten ohne vorherigen Parlamentsbeschluss erlassene Verordnung. Hitler nutzte Notverordnungen Hindenburgs ab Februar 1933, um Grundrechte und Opposition noch vor den Wahlen zu beschneiden.',
+      fastener: 'tape',
+      tiltDeg: -3.2,
+      offsetX: -3,
+      offsetY: -188,
+    },
+  },
+  {
+    side: 'right',
+    minIndex: 6,
+    maxIndex: 6,
+    note: {
+      id: 'term-art48',
+      term: 'Art. 48 WRV',
+      shortTag: 'Weimarer Reichsverfassung',
+      eventLabel: '28. Februar 1933 · Reichstagsbrandverordnung',
+      definition:
+        'Der „Diktaturartikel“ der Weimarer Verfassung erlaubte dem Reichspräsidenten im Notfall Grundrechte auszusetzen. Die NS-Führung nutzte ihn als Hebel, um den Ausnahmezustand auf Dauer zu stellen.',
+      fastener: 'pin',
+      tiltDeg: 3.4,
+      offsetX: 4,
+      offsetY: -14,
+    },
+  },
+  {
+    side: 'right',
+    minIndex: 9,
+    maxIndex: 9,
+    note: {
+      id: 'term-schutzhaft',
+      term: '„Schutzhaft“',
+      shortTag: 'Willkürterror',
+      eventLabel: '22. März 1933 · Erste Häftlinge im KZ Dachau',
+      definition:
+        'Beschönigender NS-Begriff für unbefristete Festnahmen und Verschleppung ins Konzentrationslager durch Polizei, SA oder SS – ohne Haftbefehl, ohne Anklage und ohne richterliche Kontrolle.',
+      fastener: 'pin',
+      tiltDeg: -3.1,
+      offsetX: 3,
+      offsetY: -214,
+    },
+  },
+  {
+    side: 'left',
+    minIndex: 10,
+    maxIndex: 10,
+    note: {
+      id: 'term-scheinlegalitaet',
+      term: 'Scheinlegalität',
+      shortTag: 'Machtstrategie',
+      eventLabel: '23. März 1933 · Ermächtigungsgesetz',
+      definition:
+        'Das NS-Regime kleidete den Sturz der Demokratie bewusst in formale Gesetze und Verordnungen. So blieben viele Beamte, Richter und konservative Eliten loyal – obwohl vorher Terror und Einschüchterung das Ergebnis erzwangen.',
+      fastener: 'tape',
+      tiltDeg: 2.8,
+      offsetX: 3,
+      offsetY: -14,
+    },
+  },
+  {
+    side: 'left',
+    minIndex: 11,
+    maxIndex: 12,
+    note: {
+      id: 'term-gleichschaltung',
+      term: 'Gleichschaltung',
+      shortTag: 'Herrschaftsprinzip',
+      eventLabel: 'März / April 1933 · Entmachtung der Länder',
+      definition:
+        'Die systematische Unterwerfung von Ländern, Verbänden, Justiz, Kultur und Gesellschaft unter die Kontrolle der NSDAP. Eigenständige Gegenkräfte wurden aufgelöst oder durch NS-Organisationen ersetzt.',
+      fastener: 'pin',
+      tiltDeg: -2.9,
+      offsetX: 2,
+      offsetY: -14,
+    },
+  },
+  {
+    side: 'left',
+    minIndex: 13,
+    maxIndex: 13,
+    note: {
+      id: 'term-arierparagraph',
+      term: '„Arierparagraph“',
+      shortTag: 'Rassistischer Ausschluss',
+      eventLabel: '07. April 1933 · Berufsbeamtengesetz',
+      definition:
+        'Gesetzliche Klausel, mit der jüdische sowie politisch missliebige Beamtinnen und Beamte aus dem öffentlichen Dienst entlassen wurden – der Beginn staatlich verordneter Ausgrenzung im Berufsleben.',
+      fastener: 'tape',
+      tiltDeg: -2.6,
+      offsetX: 2,
+      offsetY: -86,
+    },
+  },
+  {
+    side: 'right',
+    minIndex: 21,
+    maxIndex: 21,
+    note: {
+      id: 'term-einparteienstaat',
+      term: 'Einparteienstaat',
+      shortTag: 'Diktatursicherung',
+      eventLabel: '14. Juli 1933 · Gesetz gegen Neubildung von Parteien',
+      definition:
+        'Politische Ordnung, in der nur noch eine einzige Partei zugelassen ist. Ab dem 14. Juli 1933 war die NSDAP die einzige erlaubte Partei; jede andere politische Organisation wurde unter Strafe gestellt.',
+      fastener: 'pin',
+      tiltDeg: 3.1,
+      offsetX: -2,
+      offsetY: -92,
+    },
+  },
+  {
+    side: 'left',
+    minIndex: 22,
+    maxIndex: 22,
+    note: {
+      id: 'term-reichskonkordat',
+      term: 'Reichskonkordat',
+      shortTag: 'Kirchenpolitik & Vatikan',
+      eventLabel: '20. Juli 1933 · Vertrag mit dem Vatikan',
+      definition:
+        'Völkerrechtlicher Vertrag zwischen dem Deutschen Reich und dem Heiligen Stuhl: Der Vatikan erhielt Zusagen für katholische Schulen und Seelsorge, während Geistliche aus Parteipolitik ausschieden und das NS-Regime internationale Anerkennung gewann.',
+      fastener: 'tape',
+      tiltDeg: -2.4,
+      offsetX: 2,
+      offsetY: -92,
     },
   },
 ];
@@ -1195,7 +1410,10 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       yes: 444,
       no: 94,
       note: 'SPD stimmt geschlossen dagegen.',
-      details: ['KPD ausgeschlossen; SPD-Abgeordnete teilweise inhaftiert.'],
+      details: [
+        'KPD ausgeschlossen; SPD-Abgeordnete teilweise inhaftiert.',
+        'Bürgerliche Parteien wie das katholische Zentrum stimmen nach Hitlers Zusagen (u. a. zum Schutz der Kirchen) zu.',
+      ],
     },
     quotes: [
       {
@@ -1209,6 +1427,9 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     ],
     hitlerReplyPoints: [
       'Weist Kritik zurück und kündigt Politik unabhängig vom Parlament an.',
+    ],
+    contextNotes: [
+      'Hitlers Versprechen in der Reichstagsrede, Rechte der Kirchen zu achten, trägt zur Zustimmung der Zentrumspartei bei – kurz darauf beginnen die Konkordatsgespräche in Rom.',
     ],
     sourceWorkNote:
       'Vollständige Redetexte aus dem stenografischen Reichstagsprotokoll (23. März 1933).',
@@ -1350,8 +1571,71 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     institutionNote: 'Föderalismus zerstört; Verwaltung und Beamtentum werden im NS-Sinn gesäubert.',
   },
   {
-    id: 'tag-der-nationalen-arbeit',
+    id: 'konkordatsverhandlungen-rom',
     indexNumber: '15',
+    dateLabel: '8.–18. April 1933',
+    shortDate: '08.–18. Apr',
+    dayOfYear: 98,
+    title: 'Konkordatsgespräche im Vatikan',
+    location: 'Vatikan / Rom',
+    phaseId: 'phase-2',
+    mechanism: 'staat-recht',
+    mechanismLabel: MECHANISM_LABELS['staat-recht'],
+    summary:
+      'Vizekanzler von Papen und Zentrumschef Ludwig Kaas verhandeln im Vatikan über ein Reichskonkordat – Schutz für die Kirche gegen Rückzug aus der Politik.',
+    actors: [
+      {
+        name: 'Eugenio Pacelli',
+        role: 'Kardinalstaatssekretär',
+        action:
+          'Führt die Gespräche für den Vatikan und verlangt rechtliche Garantien für Seelsorge, Orden und katholische Bekenntnisschulen.',
+      },
+      {
+        name: 'Franz von Papen',
+        role: 'Vizekanzler',
+        action:
+          'Reist nach Rom, um dem NS-Regime außenpolitische Anerkennung zu sichern und den politischen Katholizismus auszuschalten.',
+      },
+      {
+        name: 'Ludwig Kaas',
+        role: 'Zentrumspartei / Prälat',
+        action:
+          'Wirkt als ehemaliger Zentrumsvorsitzender in Rom am Vertragsentwurf mit – seine Partei verliert dadurch ihren politischen Rückhalt.',
+      },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Nutzt die Verhandlungen gezielt, um katholischen Widerstand zu neutralisieren und internationale Akzeptanz zu gewinnen.',
+      },
+    ],
+    eventsAndMeasures: [
+      'Vatikan will kirchliche Institutionen und Schulen vor Gleichschaltung schützen.',
+      'NS-Regime fordert im Gegenzug ein Verbot parteipolitischer Betätigung für Geistliche (später Art. 32).',
+    ],
+    contextNotes: [
+      'Bezug zur Leitfrage: Durch das Einbinden des Vatikans entzieht die NS-Führung der demokratischen Zentrumspartei die kirchliche Stütze und ebnet deren Selbstauflösung (5. Juli) den Weg.',
+    ],
+    institutionStates: {
+      ...ALL_NORMAL,
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'attacked',
+      parteien: 'attacked',
+      gewerkschaften: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+    },
+    institutionNote: 'Geheimverhandlungen in Rom: Kirchliche Zusagen sollen mit politischer Zurückhaltung bezahlt werden.',
+  },
+  {
+    id: 'tag-der-nationalen-arbeit',
+    indexNumber: '16',
     dateLabel: '1. Mai 1933',
     shortDate: '01. Mai',
     dayOfYear: 121,
@@ -1398,7 +1682,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
   {
     id: 'zerschlagung-gewerkschaften',
-    indexNumber: '16',
+    indexNumber: '17',
     dateLabel: '2. Mai 1933',
     shortDate: '02. Mai',
     dayOfYear: 122,
@@ -1451,7 +1735,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
   {
     id: 'gruendung-daf',
-    indexNumber: '17',
+    indexNumber: '18',
     dateLabel: '10. Mai 1933',
     shortDate: '10. Mai',
     dayOfYear: 130,
@@ -1499,7 +1783,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
   {
     id: 'buecherverbrennungen',
-    indexNumber: '18',
+    indexNumber: '19',
     dateLabel: '10. Mai 1933',
     shortDate: '10. Mai',
     dayOfYear: 130,
@@ -1566,7 +1850,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
   {
     id: 'verbot-spd',
-    indexNumber: '19',
+    indexNumber: '20',
     dateLabel: '22. Juni 1933',
     shortDate: '22. Jun',
     dayOfYear: 173,
@@ -1615,7 +1899,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
   {
     id: 'selbstaufloesung-parteien',
-    indexNumber: '20',
+    indexNumber: '21',
     dateLabel: 'Juni–Juli 1933',
     shortDate: 'Jun–Jul',
     dayOfYear: 186,
@@ -1630,7 +1914,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
         name: 'Zentrumspartei',
         role: 'Aufgelöst 5. Juli',
         action:
-          'Löst sich am 5. Juli 1933 als letzte bürgerliche Partei unter Druck und im Zuge der Konkordatsverhandlungen selbst auf.',
+          'Löst sich am 5. Juli 1933 als letzte bürgerliche Partei unter Druck und im Zuge der Konkordatsverhandlungen mit dem Vatikan selbst auf.',
       },
       {
         name: 'Bayerische Volkspartei',
@@ -1649,6 +1933,9 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Zentrumspartei und Bayerische Volkspartei geben auf.',
       'Die NSDAP bleibt als einzige politische Kraft übrig.',
     ],
+    contextNotes: [
+      'Direkte Verbindung zum Vatikan: Erst die Aussicht auf das Reichskonkordat (inkl. Verbot parteipolitischer Arbeit für Geistliche) bewegt die Zentrumspartei am 5. Juli zur endgültigen Aufgabe.',
+    ],
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1666,11 +1953,11 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       reichsstatthalter: 'active',
       daf: 'active',
     },
-    institutionNote: 'Bürgerliche Parteien lösen sich unter Druck selbst auf.',
+    institutionNote: 'Bürgerliche Parteien lösen sich unter Druck und Konkordats-Verhandlungen selbst auf.',
   },
   {
     id: 'einparteienstaat-gesetz',
-    indexNumber: '21',
+    indexNumber: '22',
     dateLabel: '14. Juli 1933',
     shortDate: '14. Jul',
     dayOfYear: 195,
@@ -1720,39 +2007,50 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
   {
     id: 'reichskonkordat',
-    indexNumber: '22',
+    indexNumber: '23',
     dateLabel: '20. Juli 1933',
     shortDate: '20. Jul',
     dayOfYear: 201,
     title: 'Reichskonkordat mit dem Vatikan',
+    location: 'Vatikan / Rom',
     phaseId: 'phase-4',
-    mechanism: 'staat-recht',
-    mechanismLabel: MECHANISM_LABELS['staat-recht'],
+    mechanism: 'gesellschaft-propaganda',
+    mechanismLabel: MECHANISM_LABELS['gesellschaft-propaganda'],
     summary:
-      'Vertrag zwischen Deutschem Reich und Vatikan regelt das Verhältnis zur katholischen Kirche.',
+      'Der erste völkerrechtliche Vertrag des NS-Regimes bringt internationale Anerkennung und besiegelt die politische Entmachtung des deutschen Katholizismus.',
     actors: [
       {
         name: 'Adolf Hitler',
         role: 'Reichskanzler',
         action:
-          'Gewinnt durch den Vertrag mit dem Vatikan internationale Anerkennung und drängt den politischen Katholizismus zurück.',
+          'Gewinnt durch das Konkordat erstmals internationale Vertragsfähigkeit und neutralisiert katholische Opposition im Innern.',
       },
       {
         name: 'Eugenio Pacelli',
         role: 'Kardinalstaatssekretär',
         action:
-          'Unterzeichnet das Konkordat für den Vatikan in Rom – im Gegenzug für kirchliche Schutzgarantien verzichtet der Klerus auf Parteipolitik.',
+          'Unterzeichnet den Vertrag für den Vatikan – er hofft auf Rechtssicherheit für Kirche, Orden und Schulen, akzeptiert aber das Politikverbot für Geistliche.',
+      },
+      {
+        name: 'Franz von Papen',
+        role: 'Vizekanzler',
+        action:
+          'Setzt seine Unterschrift für das Deutsche Reich neben Pacelli und feiert das Abkommen als Erfolg der Regierung.',
       },
       {
         name: 'Papst Pius XI.',
         role: 'Vatikan',
         action:
-          'Genehmigt den völkerrechtlichen Vertrag, um katholische Schulen und Seelsorge in Deutschland rechtlich abzusichern.',
+          'Genehmigt den völkerrechtlichen Vertrag zur Absicherung von Seelsorge und Konfessionsschulen in Deutschland.',
       },
     ],
     eventsAndMeasures: [
-      'Staatsvertrag zwischen dem Deutschen Reich und dem Vatikan.',
-      'Regelungen zum Verhältnis zwischen Staat und katholischer Kirche.',
+      'Außenpolitische Aufwertung: Erster bilateraler Staatsvertrag Hitlers durchbricht die internationale Isolation nach Terror und Parteiverboten.',
+      'Artikel 32 („Entpolitisierung“): Verbietet Geistlichen und Ordensleuten jede parteipolitische Betätigung.',
+      'Schein-Garantien für katholische Vereine und Schulen sollen gläubige Katholiken an den neuen Staat binden.',
+    ],
+    contextNotes: [
+      'Bezug zur Leitfrage: Während Parlament, Parteien und Gewerkschaften ausgeschaltet sind, sichert der Vertrag mit dem Vatikan die Diktatur diplomatisch nach außen und befriedet kirchliche Gegenkräfte im Innern.',
     ],
     institutionStates: {
       grundrechte: 'destroyed',
@@ -1772,6 +2070,73 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       daf: 'active',
       einparteienstaat: 'active',
     },
-    institutionNote: 'Alle politischen Gegenkräfte sind zerstört; neue NS-Organe beherrschen Staat und Gesellschaft.',
+    institutionNote: 'Politischer Katholizismus ist neutralisiert; das Konkordat legitimiert das Regime nach außen.',
+  },
+  {
+    id: 'konkordatsbruch-1934',
+    indexNumber: '24',
+    dateLabel: 'Herbst 1933 – 30. Juni 1934',
+    shortDate: '1933–34',
+    dayOfYear: 365,
+    title: 'Konkordatsbruch & Druck auf katholische Verbände',
+    location: 'Deutsches Reich / Vatikan',
+    phaseId: 'phase-4',
+    mechanism: 'terror-verfolgung',
+    mechanismLabel: MECHANISM_LABELS['terror-verfolgung'],
+    summary:
+      'Nach der Herrschaftssicherung bricht das NS-Regime zentrale Zusagen des Reichskonkordats und geht mit Gleichschaltungsdruck und Terror gegen katholische Organisationen vor.',
+    actors: [
+      {
+        name: 'Erich Klausener',
+        role: 'Katholische Aktion',
+        action:
+          'Leitet die Katholische Aktion in Berlin und hält an eigenständigem Verbandsleben fest – am 30. Juni 1934 wird er im „Röhm-Putsch“ von der SS ermordet.',
+      },
+      {
+        name: 'Eugenio Pacelli',
+        role: 'Vatikan / Proteste',
+        action:
+          'Legt in zahlreichen diplomatischen Protestnoten vergeblich Widerspruch gegen Vertragsbrüche, Presseverbote und Verhaftungen von Geistlichen ein.',
+      },
+      {
+        name: 'Adolf Hitler',
+        role: 'Reichskanzler',
+        action:
+          'Hält Konkordatsversprechen nur so lange ein, wie es der Machtfestigung dient, und beansprucht danach das Monopol über Jugend und Gesellschaft.',
+      },
+      {
+        name: 'SS',
+        role: 'Verfolgung 1934',
+        action:
+          'Schüchtert katholische Vereine und Verlage ein und ermordet am 30. Juni 1934 auch prominente katholische Laienführer (Erich Klausener, Adalbert Probst).',
+      },
+    ],
+    eventsAndMeasures: [
+      'Aushöhlung des Konkordats: Beschränkung katholischer Jugendverbände (Verbot von Doppelmitgliedschaften zur HJ), Zensur der Kirchenpresse und Druck auf Bekenntnisschulen.',
+      'Am 30. Juni 1934 („Röhm-Putsch“) werden neben SA-Führern auch führende Katholiken wie Erich Klausener und Adalbert Probst ermordet.',
+      'Vatikanische Protestnoten bleiben wirkungslos (1937 folgt die kritische Enzyklika „Mit brennender Sorge“).',
+    ],
+    contextNotes: [
+      'Bezug zur Leitfrage: Das Beispiel des Vatikans zeigt das doppelte Muster der NS-Herrschaftssicherung – 1933 Legitimation und Täuschung per Vertrag, 1933/34 schrittweiser Bruch der Zusagen nach innen.',
+    ],
+    institutionStates: {
+      grundrechte: 'destroyed',
+      reichstag: 'destroyed',
+      regierung: 'destroyed',
+      laender: 'destroyed',
+      polizei: 'destroyed',
+      gewerkschaften: 'destroyed',
+      kultur: 'destroyed',
+      parteien: 'destroyed',
+      kirche: 'attacked',
+    },
+    newOrgans: {
+      hilfspolizei: 'active',
+      'kz-system': 'active',
+      reichsstatthalter: 'active',
+      daf: 'active',
+      einparteienstaat: 'active',
+    },
+    institutionNote: 'Alle demokratischen Gegenkräfte sind zerstört; selbst Konkordatsgarantien für die Kirche werden ab 1933/34 gebrochen.',
   },
 ];
