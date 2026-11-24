@@ -1,12 +1,23 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronUp,
+  GitBranch,
+  X,
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { HistoricalPhase, TimelineEvent } from '../data/timelineData';
 import { ActorAvatar, ActorMiniProfile } from './ActorMiniProfile';
 
+export type CausalRole = 'focus' | 'cause' | 'effect' | 'muted' | null;
+
 interface FoldableNoteCardProps {
   event: TimelineEvent;
   phase: HistoricalPhase | undefined;
+  eventById: Map<string, TimelineEvent>;
   isExpanded: boolean;
   isCenter: boolean;
   isOverview: boolean;
@@ -14,13 +25,20 @@ interface FoldableNoteCardProps {
   isCurrentlyVisible: boolean;
   maxCardHeight?: number;
   overviewHint?: string;
+  causalRole?: CausalRole;
+  isCausalHighlighted?: boolean;
+  causalReturnEvent?: TimelineEvent | null;
   onToggleExpand: (id: string) => void;
   onOverviewSelect?: () => void;
+  onJumpCausal?: (fromEventId: string, targetEventId: string) => void;
+  onReturnCausal?: () => void;
+  onToggleCausalHighlight?: (eventId: string, openOverview?: boolean) => void;
 }
 
 export function FoldableNoteCard({
   event,
   phase,
+  eventById,
   isExpanded,
   isCenter,
   isOverview,
@@ -28,8 +46,14 @@ export function FoldableNoteCard({
   isCurrentlyVisible,
   maxCardHeight = 480,
   overviewHint,
+  causalRole = null,
+  isCausalHighlighted = false,
+  causalReturnEvent = null,
   onToggleExpand,
   onOverviewSelect,
+  onJumpCausal,
+  onReturnCausal,
+  onToggleCausalHighlight,
 }: FoldableNoteCardProps) {
   const [selectedActorName, setSelectedActorName] = useState<string | null>(
     null
@@ -46,6 +70,34 @@ export function FoldableNoteCard({
     : null;
 
   const maxScrollBodyHeight = Math.max(150, maxCardHeight - 96);
+  const hasCauses = event.causalLinks.causes.length > 0;
+  const hasEffects = event.causalLinks.effects.length > 0;
+  const hasCausalLinks = hasCauses || hasEffects;
+
+  const causalSurfaceTone =
+    causalRole === 'muted'
+      ? 'opacity-35 hover:opacity-90'
+      : 'opacity-100';
+
+  const causalBorderClass =
+    causalRole === 'focus'
+      ? 'border-[#9E2424] ring-1 ring-[#9E2424]'
+      : causalRole === 'cause'
+      ? 'border-[#2C4E84] ring-1 ring-[#2C4E84]/55'
+      : causalRole === 'effect'
+      ? 'border-[#9E2424] ring-1 ring-[#9E2424]/45'
+      : isOverview
+      ? 'border-[#B8A58B] hover:border-[#9E2424]'
+      : 'border-[#C2B6A2]';
+
+  const causalTagText =
+    causalRole === 'focus'
+      ? 'Kausalfokus'
+      : causalRole === 'cause'
+      ? '← Ursache'
+      : causalRole === 'effect'
+      ? 'Folge →'
+      : null;
 
   return (
     <motion.article
@@ -57,34 +109,30 @@ export function FoldableNoteCard({
             : isExpanded || isOverview
             ? '100%'
             : '98%',
-        rotateZ: isExpanded || isOverview ? 0 : -0.9,
+        rotateZ: isExpanded || isOverview ? 0 : -0.45,
       }}
       transition={{
         width: { type: 'spring', stiffness: 220, damping: 24 },
-        rotateZ: { type: 'spring', stiffness: 200, damping: 20 },
+        rotateZ: { type: 'spring', stiffness: 200, damping: 22 },
       }}
       style={{
         maxHeight: isOverview ? undefined : maxCardHeight,
       }}
-      className={`relative flex flex-col min-h-0 transition-shadow duration-300 ${
+      className={`relative flex flex-col min-h-0 transition-[box-shadow,opacity] duration-300 ${causalSurfaceTone} ${
         isOverview ? 'flex-1 h-full' : ''
       } ${
         isExpanded && !isOverview
           ? 'shadow-[0_20px_42px_-10px_rgba(45,28,10,0.45)]'
           : isOverview
           ? 'shadow-[2px_5px_12px_rgba(38,20,6,0.28)] hover:shadow-[4px_10px_20px_rgba(38,20,6,0.4)]'
-          : 'shadow-[0_10px_22px_-6px_rgba(45,28,10,0.32)]'
+          : 'shadow-[0_8px_18px_-6px_rgba(45,28,10,0.28)]'
       }`}
     >
       {/* Top Pinned Paper Packet (Always Visible & Morphs Between Overview Tile and Timeline Note) */}
       <div
         className={`${
           isOverview ? 'flex-1 flex flex-col' : 'shrink-0'
-        } notepaper-sheet border relative z-20 overflow-hidden transition-colors ${
-          isOverview
-            ? 'border-[#B8A58B] hover:border-[#9E2424]'
-            : 'border-[#C2B6A2]'
-        }`}
+        } notepaper-sheet border relative z-20 overflow-hidden transition-colors ${causalBorderClass}`}
       >
         {/* Subtle Origami Facet Overlay on Header */}
         <svg
@@ -171,8 +219,18 @@ export function FoldableNoteCard({
 
             {isOverview ? (
               <div className="mt-1.5 pt-1 border-t border-[#D8CFC0] flex items-center justify-between gap-1 text-[9.5px] font-mono text-[#2C4E84]">
-                <span className="truncate">
-                  {overviewHint ?? event.mechanismLabel.split(',')[0]}
+                <span
+                  className={`truncate ${
+                    causalRole === 'focus' || causalRole === 'effect'
+                      ? 'text-[#9E2424] font-semibold'
+                      : causalRole === 'cause'
+                      ? 'text-[#2C4E84] font-semibold'
+                      : ''
+                  }`}
+                >
+                  {causalTagText ??
+                    overviewHint ??
+                    event.mechanismLabel.split(',')[0]}
                 </span>
                 <span className="text-[#9E2424] opacity-75 group-hover:opacity-100 shrink-0">
                   →
@@ -181,26 +239,31 @@ export function FoldableNoteCard({
             ) : (
               !isExpanded &&
               phase && (
-                <div className="mt-2 pt-1.5 border-t border-[#D6CBBA] text-[10.5px] text-[#2C4E84]">
+                <div className="mt-2 pt-1.5 border-t border-[#D6CBBA] flex items-center justify-between gap-2 text-[10.5px] text-[#2C4E84]">
                   <span>Phase {phase.numberLabel}</span>
+                  {causalTagText && (
+                    <span
+                      className={`font-mono text-[10px] font-semibold ${
+                        causalRole === 'cause'
+                          ? 'text-[#2C4E84]'
+                          : 'text-[#9E2424]'
+                      }`}
+                    >
+                      {causalTagText}
+                    </span>
+                  )}
                 </div>
               )
             )}
           </div>
         </button>
 
-        {/* Stacked Folded Paper Thickness Layers when collapsed in timeline */}
+        {/* Subtle Single Folded Paper Edge when collapsed in timeline */}
         {!isExpanded && !isOverview && (
-          <>
-            <div
-              aria-hidden="true"
-              className="h-1.5 mx-1 -mb-1.5 bg-[#EAE3D5] border-x border-b border-[#C2B6A2]"
-            />
-            <div
-              aria-hidden="true"
-              className="h-1.5 mx-2.5 -mb-1.5 bg-[#DFD6C4] border-x border-b border-[#C2B6A2] shadow-[0_3px_5px_rgba(45,28,10,0.16)]"
-            />
-          </>
+          <div
+            aria-hidden="true"
+            className="h-1.5 mx-1.5 -mb-1.5 bg-[#EAE3D5] border-x border-b border-[#C2B6A2] shadow-[0_2px_4px_rgba(45,28,10,0.14)]"
+          />
         )}
       </div>
 
@@ -232,6 +295,26 @@ export function FoldableNoteCard({
               aria-hidden="true"
               className="pointer-events-none absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-[#4A3B28]/12 to-transparent"
             />
+
+            {/* Optional Return Breadcrumb after jumping via a Cause/Effect link */}
+            {causalReturnEvent && onReturnCausal && (
+              <button
+                type="button"
+                onClick={onReturnCausal}
+                className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 bg-[#F3E7C2]/85 hover:bg-[#F3E7C2] border border-[#BFA878] text-[11px] font-mono text-[#173668] hover:text-[#9E2424] transition-colors cursor-pointer touch-manipulation"
+              >
+                <span className="inline-flex items-center gap-1.5 min-w-0 truncate">
+                  <ArrowLeft className="w-3.5 h-3.5 shrink-0 text-[#9E2424]" />
+                  <span className="truncate">
+                    Zurück zu {causalReturnEvent.shortDate} ·{' '}
+                    {causalReturnEvent.title}
+                  </span>
+                </span>
+                <span className="shrink-0 text-[10px] uppercase tracking-wider">
+                  Rücksprung
+                </span>
+              </button>
+            )}
 
             {/* Kurzüberblick */}
             <div className="space-y-1.5">
@@ -366,6 +449,129 @@ export function FoldableNoteCard({
                     {event.sourceWorkNote}
                   </p>
                 )}
+              </div>
+            )}
+
+            {/* Ursache & Wirkung (Direkte Verknüpfungen zu anderen Stationen) */}
+            {hasCausalLinks && (
+              <div className="pt-2.5 border-t border-[#D8CFC0] space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <h3 className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#9E2424] font-semibold">
+                    Ursache &amp; Wirkung
+                  </h3>
+                  {onToggleCausalHighlight && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => onToggleCausalHighlight(event.id, false)}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono border transition-colors cursor-pointer touch-manipulation whitespace-nowrap ${
+                          isCausalHighlighted
+                            ? 'bg-[#9E2424] border-[#681212] text-[#FAF4E6]'
+                            : 'bg-white/65 border-[#C2B6A2] text-[#173668] hover:border-[#9E2424] hover:text-[#9E2424]'
+                        }`}
+                      >
+                        <GitBranch className="w-3 h-3" />
+                        <span>
+                          {isCausalHighlighted
+                            ? 'Kette aktiv'
+                            : 'Kette markieren'}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onToggleCausalHighlight(event.id, true)}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono border bg-white/65 border-[#C2B6A2] text-[#2C4E84] hover:border-[#9E2424] hover:text-[#9E2424] transition-colors cursor-pointer touch-manipulation whitespace-nowrap"
+                      >
+                        <span>In Übersicht</span>
+                        <ArrowUpRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className={`grid gap-2 ${
+                    hasCauses && hasEffects
+                      ? 'grid-cols-1 sm:grid-cols-2'
+                      : 'grid-cols-1'
+                  }`}
+                >
+                  {hasCauses && (
+                    <div className="space-y-1.5">
+                      <p className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-[#2C4E84]">
+                        <ArrowLeft className="w-3 h-3" />
+                        <span>Ermöglicht durch</span>
+                      </p>
+                      <div className="space-y-1.5">
+                        {event.causalLinks.causes.map((link) => {
+                          const target = eventById.get(link.targetEventId);
+                          if (!target) return null;
+                          return (
+                            <button
+                              key={link.targetEventId}
+                              type="button"
+                              onClick={() =>
+                                onJumpCausal?.(event.id, link.targetEventId)
+                              }
+                              className="w-full text-left bg-white/65 hover:bg-white border border-[#C6B8A2] hover:border-[#2C4E84] px-2.5 py-1.5 transition-colors cursor-pointer touch-manipulation group"
+                            >
+                              <div className="flex items-center justify-between gap-1.5 text-[10px] font-mono text-[#2C4E84]">
+                                <span className="truncate">
+                                  {target.shortDate} · {link.linkType}
+                                </span>
+                                <ArrowUpRight className="w-3 h-3 shrink-0 opacity-70 group-hover:opacity-100" />
+                              </div>
+                              <p className="mt-0.5 text-xs font-serif font-semibold text-[#173668] group-hover:text-[#2C4E84] leading-snug">
+                                {target.title}
+                              </p>
+                              <p className="mt-0.5 text-[11px] text-[#284B82] leading-snug">
+                                {link.rationale}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {hasEffects && (
+                    <div className="space-y-1.5">
+                      <p className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-[#9E2424]">
+                        <span>Führte direkt zu</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </p>
+                      <div className="space-y-1.5">
+                        {event.causalLinks.effects.map((link) => {
+                          const target = eventById.get(link.targetEventId);
+                          if (!target) return null;
+                          return (
+                            <button
+                              key={link.targetEventId}
+                              type="button"
+                              onClick={() =>
+                                onJumpCausal?.(event.id, link.targetEventId)
+                              }
+                              className="w-full text-left bg-white/65 hover:bg-white border border-[#C6B8A2] hover:border-[#9E2424] px-2.5 py-1.5 transition-colors cursor-pointer touch-manipulation group"
+                            >
+                              <div className="flex items-center justify-between gap-1.5 text-[10px] font-mono text-[#9E2424]">
+                                <span className="truncate">
+                                  {target.shortDate} · {link.linkType}
+                                </span>
+                                <ArrowUpRight className="w-3 h-3 shrink-0 opacity-70 group-hover:opacity-100" />
+                              </div>
+                              <p className="mt-0.5 text-xs font-serif font-semibold text-[#173668] group-hover:text-[#9E2424] leading-snug">
+                                {target.title}
+                              </p>
+                              <p className="mt-0.5 text-[11px] text-[#284B82] leading-snug">
+                                {link.rationale}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

@@ -28,6 +28,9 @@ export function FlankingPinboardPhoto({
       ? 13
       : -13;
 
+  const calmTilt = photo ? Math.max(-2.2, Math.min(2.2, photo.tiltDeg * 0.55)) : 0;
+  const calmX = photo ? Math.round(photo.offsetX * 0.5) : 0;
+
   return (
     <AnimatePresence mode="wait">
       {photo && (
@@ -35,32 +38,31 @@ export function FlankingPinboardPhoto({
           key={photo.id}
           initial={{
             opacity: 0,
-            x: photo.offsetX,
-            y: -34,
-            rotate: photo.tiltDeg + (side === 'left' ? -7 : 7),
-            scale: 1.06,
+            x: calmX,
+            y: -18,
+            rotate: calmTilt + (side === 'left' ? -4 : 4),
+            scale: 1.04,
           }}
           animate={{
             opacity: 1,
-            x: photo.offsetX,
-            y: photo.offsetY,
-            rotate: photo.tiltDeg,
+            x: calmX,
+            y: 0,
+            rotate: calmTilt,
             scale: 1,
             transition: {
               type: 'spring',
               stiffness: 230,
-              damping: 20,
+              damping: 22,
               mass: 0.85,
             },
           }}
           exit={{
             opacity: 0,
-            y: 135,
-            rotate: photo.tiltDeg + fallRotationDelta,
-            scale: 0.93,
+            y: 44,
+            rotate: calmTilt + fallRotationDelta * 0.5,
+            scale: 0.94,
             transition: {
-              duration: 0.36,
-              delay: 0.1,
+              duration: 0.28,
               ease: [0.45, 0, 0.85, 0.5],
             },
           }}

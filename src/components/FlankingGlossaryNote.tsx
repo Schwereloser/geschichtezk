@@ -22,6 +22,9 @@ export function FlankingGlossaryNote({
       ? 12
       : -12;
 
+  const calmTilt = note ? Math.max(-2.0, Math.min(2.0, note.tiltDeg * 0.55)) : 0;
+  const calmX = note ? Math.round(note.offsetX * 0.5) : 0;
+
   return (
     <AnimatePresence mode="wait">
       {note && (
@@ -29,32 +32,31 @@ export function FlankingGlossaryNote({
           key={note.id}
           initial={{
             opacity: 0,
-            x: note.offsetX,
-            y: note.offsetY - 22,
-            rotate: note.tiltDeg + (side === 'left' ? -6 : 6),
-            scale: 1.05,
+            x: calmX,
+            y: -14,
+            rotate: calmTilt + (side === 'left' ? -4 : 4),
+            scale: 1.04,
           }}
           animate={{
             opacity: 1,
-            x: note.offsetX,
-            y: note.offsetY,
-            rotate: note.tiltDeg,
+            x: calmX,
+            y: 0,
+            rotate: calmTilt,
             scale: 1,
             transition: {
               type: 'spring',
               stiffness: 240,
-              damping: 20,
+              damping: 22,
               mass: 0.82,
             },
           }}
           exit={{
             opacity: 0,
-            y: note.offsetY + 95,
-            rotate: note.tiltDeg + fallRotationDelta,
-            scale: 0.92,
+            y: 36,
+            rotate: calmTilt + fallRotationDelta * 0.5,
+            scale: 0.94,
             transition: {
-              duration: 0.32,
-              delay: 0.06,
+              duration: 0.26,
               ease: [0.45, 0, 0.85, 0.5],
             },
           }}

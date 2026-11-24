@@ -1,6 +1,6 @@
-import { ArrowRight, ShieldAlert } from 'lucide-react';
+import { ArrowRight, ShieldAlert, X } from 'lucide-react';
 import { motion } from 'motion/react';
-import { GUIDING_QUESTION } from '../data/timelineData';
+import { GUIDING_QUESTION, TimelineEvent } from '../data/timelineData';
 
 export interface OverviewPinPoint {
   x: number;
@@ -16,6 +16,15 @@ export interface OverviewCellRect {
   height: number;
 }
 
+export interface OverviewCausalArrow {
+  id: string;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  kind: 'cause' | 'effect';
+}
+
 interface OverviewPinboardDecorProps {
   isOverview: boolean;
   eventsCount: number;
@@ -23,6 +32,9 @@ interface OverviewPinboardDecorProps {
   stageHeight: number;
   overviewPins: OverviewPinPoint[];
   institutionCellRect: OverviewCellRect;
+  causalArrows?: OverviewCausalArrow[];
+  highlightedCausalEvent?: TimelineEvent | null;
+  onClearCausalHighlight?: () => void;
   onSelectInstitution: () => void;
   onResumeTimeline: () => void;
 }
@@ -50,6 +62,16 @@ function buildOverviewPixelThreadPath(pins: OverviewPinPoint[]): string {
   return d;
 }
 
+function buildCausalCurvePath(arrow: OverviewCausalArrow): string {
+  const dx = arrow.toX - arrow.fromX;
+  const dy = arrow.toY - arrow.fromY;
+  const dist = Math.hypot(dx, dy);
+  const lift = Math.min(64, Math.max(22, dist * 0.22));
+  const midX = (arrow.fromX + arrow.toX) / 2;
+  const midY = (arrow.fromY + arrow.toY) / 2 - lift;
+  return `M ${arrow.fromX} ${arrow.fromY} Q ${midX} ${midY}, ${arrow.toX} ${arrow.toY}`;
+}
+
 export function OverviewPinboardDecor({
   isOverview,
   eventsCount,
@@ -57,10 +79,14 @@ export function OverviewPinboardDecor({
   stageHeight,
   overviewPins,
   institutionCellRect,
+  causalArrows = [],
+  highlightedCausalEvent = null,
+  onClearCausalHighlight,
   onSelectInstitution,
   onResumeTimeline,
 }: OverviewPinboardDecorProps) {
   const threadPath = buildOverviewPixelThreadPath(overviewPins);
+  const hasCausalFocus = Boolean(highlightedCausalEvent && causalArrows.length > 0);
 
   return (
     <>
@@ -69,7 +95,7 @@ export function OverviewPinboardDecor({
         <motion.svg
           aria-hidden="true"
           initial={false}
-          animate={{ opacity: isOverview ? 0.88 : 0 }}
+          animate={{ opacity: isOverview ? (hasCausalFocus ? 0.25 : 0.88) : 0 }}
           transition={{ duration: 0.42, ease: ZOOM_EASE }}
           viewBox={`0 0 ${stageWidth} ${stageHeight}`}
           className="pointer-events-none select-none absolute inset-0 w-full h-full z-[5] overflow-visible"
@@ -89,6 +115,56 @@ export function OverviewPinboardDecor({
             strokeLinecap="round"
           />
         </motion.svg>
+      )}
+
+      {/* Causal Cause -> Focus -> Effect Arrows Layer in Overview */}
+      {isOverview && stageWidth > 0 && stageHeight > 0 && causalArrows.length > 0 && (
+        <svg
+          aria-hidden="true"
+          viewBox={`0 0 ${stageWidth} ${stageHeight}`}
+          className="pointer-events-none select-none absolute inset-0 w-full h-full z-[26] overflow-visible"
+        >
+          <defs>
+            <marker
+              id="causal-arrow-cause"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#2C4E84" />
+            </marker>
+            <marker
+              id="causal-arrow-effect"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#9E2424" />
+            </marker>
+          </defs>
+          {causalArrows.map((arrow) => (
+            <path
+              key={arrow.id}
+              d={buildCausalCurvePath(arrow)}
+              fill="none"
+              stroke={arrow.kind === 'cause' ? '#2C4E84' : '#9E2424'}
+              strokeWidth="2.4"
+              strokeDasharray={arrow.kind === 'cause' ? '5 3' : undefined}
+              strokeLinecap="round"
+              markerEnd={
+                arrow.kind === 'cause'
+                  ? 'url(#causal-arrow-cause)'
+                  : 'url(#causal-arrow-effect)'
+              }
+            />
+          ))}
+        </svg>
       )}
 
       {/* Top Overview Banner (slides smoothly upward above frame when zooming in) */}
@@ -130,17 +206,32 @@ export function OverviewPinboardDecor({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onResumeTimeline();
-            }}
-            className="shrink-0 self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#9E2424] hover:bg-[#821B1B] text-[#FAF4E6] font-mono text-[11px] font-medium border border-[#681212] shadow-xs transition-colors cursor-pointer touch-manipulation"
-          >
-            <span>Zum Zeitstrahl</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+            {highlightedCausalEvent && onClearCausalHighlight && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClearCausalHighlight();
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FAF4E6] hover:bg-white text-[#173668] font-mono text-[11px] border border-[#2C4E84] hover:border-[#9E2424] transition-colors cursor-pointer touch-manipulation whitespace-nowrap"
+              >
+                <span>Kette: {highlightedCausalEvent.shortDate}</span>
+                <X className="w-3.5 h-3.5 text-[#9E2424]" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onResumeTimeline();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#9E2424] hover:bg-[#821B1B] text-[#FAF4E6] font-mono text-[11px] font-medium border border-[#681212] shadow-xs transition-colors cursor-pointer touch-manipulation whitespace-nowrap"
+            >
+              <span>Zum Zeitstrahl</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </motion.div>
 

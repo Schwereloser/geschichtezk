@@ -26,6 +26,10 @@ export default function App() {
   const visibleCount = useVisibleSlotCount();
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [causalHistory, setCausalHistory] = useState<string[]>([]);
+  const [highlightedCausalEventId, setHighlightedCausalEventId] = useState<
+    string | null
+  >(null);
   const [autoIntroActive, setAutoIntroActive] = useState(() => {
     if (
       typeof window !== 'undefined' &&
@@ -85,24 +89,33 @@ export default function App() {
     [minIndex, maxIndex]
   );
 
-  const handleJumpToPhase = useCallback(
-    (phaseId: PhaseId) => {
-      const idx = TIMELINE_EVENTS.findIndex((ev) => ev.phaseId === phaseId);
-      if (idx >= 0) {
-        handleGoToIndex(idx);
-      }
+  const handleManualGoToIndex = useCallback(
+    (nextIndex: number) => {
+      setCausalHistory([]);
+      handleGoToIndex(nextIndex);
     },
     [handleGoToIndex]
   );
 
+  const handleJumpToPhase = useCallback(
+    (phaseId: PhaseId) => {
+      const idx = TIMELINE_EVENTS.findIndex((ev) => ev.phaseId === phaseId);
+      if (idx >= 0) {
+        handleManualGoToIndex(idx);
+      }
+    },
+    [handleManualGoToIndex]
+  );
+
   const handleJumpToConclusion = useCallback(() => {
-    handleGoToIndex(TIMELINE_EVENTS.length);
-  }, [handleGoToIndex]);
+    handleManualGoToIndex(TIMELINE_EVENTS.length);
+  }, [handleManualGoToIndex]);
 
   const handleJumpToEvent = useCallback(
     (eventId: string) => {
       const idx = TIMELINE_EVENTS.findIndex((ev) => ev.id === eventId);
       if (idx >= 0) {
+        setCausalHistory([]);
         handleGoToIndex(idx);
         setExpandedIds((prev) =>
           prev.includes(eventId) ? prev : [...prev, eventId]
@@ -112,14 +125,58 @@ export default function App() {
     [handleGoToIndex]
   );
 
+  const handleJumpCausal = useCallback(
+    (fromEventId: string, targetEventId: string) => {
+      const idx = TIMELINE_EVENTS.findIndex((ev) => ev.id === targetEventId);
+      if (idx >= 0) {
+        setCausalHistory((prev) => [...prev, fromEventId]);
+        handleGoToIndex(idx);
+        setExpandedIds((prev) =>
+          prev.includes(targetEventId) ? prev : [...prev, targetEventId]
+        );
+      }
+    },
+    [handleGoToIndex]
+  );
+
+  const handleReturnCausal = useCallback(() => {
+    setCausalHistory((prev) => {
+      if (prev.length === 0) return prev;
+      const previousId = prev[prev.length - 1];
+      const idx = TIMELINE_EVENTS.findIndex((ev) => ev.id === previousId);
+      if (idx >= 0) {
+        handleGoToIndex(idx);
+        setExpandedIds((exp) =>
+          exp.includes(previousId) ? exp : [...exp, previousId]
+        );
+      }
+      return prev.slice(0, -1);
+    });
+  }, [handleGoToIndex]);
+
   const handleOpenOverview = useCallback(() => {
     setAutoIntroActive(false);
     setIntroStage('overview');
   }, []);
 
+  const handleToggleCausalHighlight = useCallback(
+    (eventId: string, openOverview?: boolean) => {
+      if (openOverview) {
+        setHighlightedCausalEventId(eventId);
+        handleOpenOverview();
+        return;
+      }
+      setHighlightedCausalEventId((prev) =>
+        prev === eventId ? null : eventId
+      );
+    },
+    [handleOpenOverview]
+  );
+
   const handleSelectOverviewSlot = useCallback(
     (slotIndex: number) => {
       setAutoIntroActive(false);
+      setCausalHistory([]);
       handleGoToIndex(slotIndex);
       if (
         typeof window !== 'undefined' &&
@@ -155,21 +212,24 @@ export default function App() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
-        handleGoToIndex(clampedFocusedIndex - 1);
+        handleManualGoToIndex(clampedFocusedIndex - 1);
       } else if (e.key === 'ArrowRight') {
-        handleGoToIndex(clampedFocusedIndex + 1);
+        handleManualGoToIndex(clampedFocusedIndex + 1);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleGoToIndex, introStage, clampedFocusedIndex]);
+  }, [handleManualGoToIndex, introStage, clampedFocusedIndex]);
 
   const handleToggleExpand = (id: string) => {
     setExpandedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
+
+  const causalOriginEventId =
+    causalHistory.length > 0 ? causalHistory[causalHistory.length - 1] : null;
 
   return (
     <MotionConfig reducedMotion="user">
@@ -183,6 +243,8 @@ export default function App() {
             visibleCount={visibleCount}
             expandedIds={expandedIds}
             introStage={introStage}
+            highlightedCausalEventId={highlightedCausalEventId}
+            causalOriginEventId={causalOriginEventId}
             onSkipIntro={() => {
               setAutoIntroActive(false);
               setIntroStage('ready');
@@ -191,12 +253,16 @@ export default function App() {
             onSelectOverviewSlot={handleSelectOverviewSlot}
             onResumeFromOverview={handleResumeFromOverview}
             onToggleExpand={handleToggleExpand}
-            onPrev={() => handleGoToIndex(clampedFocusedIndex - 1)}
-            onNext={() => handleGoToIndex(clampedFocusedIndex + 1)}
-            onCenterIndex={handleGoToIndex}
+            onPrev={() => handleManualGoToIndex(clampedFocusedIndex - 1)}
+            onNext={() => handleManualGoToIndex(clampedFocusedIndex + 1)}
+            onCenterIndex={handleManualGoToIndex}
             onJumpToPhase={handleJumpToPhase}
             onJumpToConclusion={handleJumpToConclusion}
             onJumpToEvent={handleJumpToEvent}
+            onJumpCausal={handleJumpCausal}
+            onReturnCausal={handleReturnCausal}
+            onToggleCausalHighlight={handleToggleCausalHighlight}
+            onClearCausalHighlight={() => setHighlightedCausalEventId(null)}
           />
         </main>
       </div>

@@ -116,6 +116,17 @@ export interface VoteResult {
   details: string[];
 }
 
+export interface CausalLink {
+  targetEventId: string;
+  linkType: string;
+  rationale: string;
+}
+
+export interface EventCausalLinks {
+  causes: CausalLink[];
+  effects: CausalLink[];
+}
+
 export interface TimelineEvent {
   id: string;
   indexNumber: string;
@@ -131,6 +142,7 @@ export interface TimelineEvent {
   summary: string;
   eventsAndMeasures: string[];
   actors: ActorEntry[];
+  causalLinks: EventCausalLinks;
   contextNotes?: string[];
   suspendedRights?: string[];
   quotes?: QuoteEntry[];
@@ -895,6 +907,29 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Nur 3 Nationalsozialisten im Kabinett (Hitler, Frick, Göring).',
       'Konservative Ministermehrheit; Papen glaubt, Hitler kontrollieren zu können.',
     ],
+    causalLinks: {
+      causes: [],
+      effects: [
+        {
+          targetEventId: 'aufloesung-reichstag',
+          linkType: 'Machthebel',
+          rationale:
+            'Hitler nutzt seine neue Stellung als Kanzler, um schon am Folgetag Neuwahlen durchzusetzen.',
+        },
+        {
+          targetEventId: 'verordnung-schutz-volk',
+          linkType: 'Notverordnung',
+          rationale:
+            'Mit dem Zugang zu Hindenburgs Verordnungsrecht werden Presse und Opposition ab Februar beschnitten.',
+        },
+        {
+          targetEventId: 'sa-ss-hilfspolizei',
+          linkType: 'Polizeizugriff',
+          rationale:
+            'Görings Amt in Preußen öffnet den Weg, SA und SS staatliche Polizeigewalt zu übertragen.',
+        },
+      ],
+    },
     contextNotes: [
       'Ernennung formal auf Basis der Weimarer Verfassung – ermöglicht durch konservative Eliten.',
     ],
@@ -938,6 +973,30 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Neuwahl am 5. März mit dem Ziel einer Regierungsmehrheit.',
       'Beginn eines massiven NSDAP-Wahlkampfs.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ernennung-hitler',
+          linkType: 'Regierungsmacht',
+          rationale:
+            'Erst die Ernennung zum Kanzler ermöglichte den Antrag auf Auflösung des Parlaments.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'geheimtreffen-wirtschaft',
+          linkType: 'Wahlfinanzierung',
+          rationale:
+            'Für die bevorstehende Neuwahl wirbt die NSDAP gezielt Millionenbeträge bei Großindustriellen ein.',
+        },
+        {
+          targetEventId: 'reichstagswahl-1933',
+          linkType: 'Wahltermin',
+          rationale:
+            'Setzt den Termin für die bereits von Terror und Zensur überschattete Wahl am 5. März.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       regierung: 'attacked',
@@ -970,6 +1029,30 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Behörden können politische Veranstaltungen und Zeitungen verbieten.',
       'Besonders betroffen: kommunistische und sozialdemokratische Organisationen.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ernennung-hitler',
+          linkType: 'Verordnungsweg',
+          rationale:
+            'Hitler lenkt Hindenburgs Notverordnungsrecht erstmals gezielt gegen politische Gegner.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'reichstagsbrandverordnung',
+          linkType: 'Eskalation',
+          rationale:
+            'Bereitet den rechtlichen Boden vor, Grundrechte drei Wochen später vollständig auszusetzen.',
+        },
+        {
+          targetEventId: 'reichstagswahl-1933',
+          linkType: 'Wahlbehinderung',
+          rationale:
+            'Erschwert Zeitungen und Kundgebungen von KPD und SPD schon Wochen vor dem Wahltag.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       regierung: 'attacked',
@@ -1033,6 +1116,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Wirtschaftsvertreter werden über die politischen Ziele informiert.',
       'Bereitstellung von 3 Millionen Reichsmark für den NSDAP-Wahlkampf.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'aufloesung-reichstag',
+          linkType: 'Wahlkampfbedarf',
+          rationale:
+            'Durch die angesetzte Neuwahl am 5. März braucht die NSDAP kurzfristig einen großen Wahlfonds.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'reichstagswahl-1933',
+          linkType: 'Propagandaübermacht',
+          rationale:
+            'Die zugesagten 3 Millionen Reichsmark sichern eine reichsweite Überlegenheit im Wahlkampf.',
+        },
+      ],
+    },
     historicalCorrection:
       'Im Text unter Abschnitt 2 („20. März“) genannt – fand historisch am 20. Februar 1933 statt.',
     institutionStates: {
@@ -1088,6 +1189,30 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Verhaftung, Einschüchterung und Misshandlung politischer Gegner.',
       'Grenze zwischen Polizei und NS-Gewaltverbänden verschwimmt.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ernennung-hitler',
+          linkType: 'Staatszugriff',
+          rationale:
+            'Mit Göring an der Spitze des preußischen Innenministeriums erhält die NS-Führung direkte Befehlsgewalt über die Polizei.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'reichstagsbrand',
+          linkType: 'Einsatzbereiter Terrorapparat',
+          rationale:
+            'Die frisch bewaffnete Hilfspolizei steht in der Brandnacht sofort für Massenverhaftungen bereit.',
+        },
+        {
+          targetEventId: 'kz-dachau',
+          linkType: 'Vorstufe Lagersystem',
+          rationale:
+            'Parteigebundene Gewaltverbände mit Polizeistatus ebnen den Weg für außerjustizielle Lager.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       regierung: 'attacked',
@@ -1136,6 +1261,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Festnahme von Marinus van der Lubbe am Brandort.',
       'NS-Behauptung eines angeblichen kommunistischen Umsturzversuchs.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'sa-ss-hilfspolizei',
+          linkType: 'Zugriff auf der Straße',
+          rationale:
+            'Dank der neuen Hilfspolizei kann Göring noch in derselben Nacht tausende Gegner festnehmen lassen.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'reichstagsbrandverordnung',
+          linkType: 'Politischer Vorwand',
+          rationale:
+            'Das Feuer liefert die behauptete Aufstandsgefahr, mit der am nächsten Tag die Grundrechte aufgehoben werden.',
+        },
+      ],
+    },
     contextNotes: [
       'Tatsächliche Hintergründe und mögliche Mitbeteiligte sind historisch umstritten.',
     ],
@@ -1193,6 +1336,42 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       '„Schutzhaft“ ohne richterliche Kontrolle sowie Hausdurchsuchungen.',
       'Verbot von Zeitungen und Versammlungen – gültig bis Kriegsende 1945.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'reichstagsbrand',
+          linkType: 'Auslöser / Vorwand',
+          rationale:
+            'Der Brand am Vorabend dient als Begründung, den dauerhaften Ausnahmezustand nach Art. 48 zu verhängen.',
+        },
+        {
+          targetEventId: 'verordnung-schutz-volk',
+          linkType: 'Rechtliche Vorstufe',
+          rationale:
+            'Steigert die noch begrenzten Verbote vom 4. Februar zur vollständigen Aussetzung der Grundrechte.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'reichstagswahl-1933',
+          linkType: 'Unfreie Wahl',
+          rationale:
+            'Erlaubt die Verfolgung von KPD- und SPD-Kandidaten sowie Zeitungsverbote direkt vor dem 5. März.',
+        },
+        {
+          targetEventId: 'kz-dachau',
+          linkType: '„Schutzhaft“-Basis',
+          rationale:
+            'Schafft die scheinlegale Handhabe für unbefristete Inhaftierungen im KZ ohne Richter.',
+        },
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Erzwungene Mehrheit',
+          rationale:
+            'Mit Verhaftungen und dem Ausschalten der KPD sichert die Verordnung die nötige Abstimmungsmehrheit.',
+        },
+      ],
+    },
     suspendedRights: [
       'Persönliche Freiheit',
       'Meinungsfreiheit',
@@ -1248,6 +1427,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       '43,9 % NSDAP; nur zusammen mit DNVP parlamentarische Mehrheit.',
       'Wahlkampf geprägt von Gewalt und Verfolgung von KPD- und SPD-Politikern.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'reichstagsbrandverordnung',
+          linkType: 'Grundrechtsentzug',
+          rationale:
+            'Verhaftungen und Zeitungsverbote unter Art. 48 verhindern einen freien Wahlkampf der Opposition.',
+        },
+        {
+          targetEventId: 'geheimtreffen-wirtschaft',
+          linkType: 'Wahlkampffonds',
+          rationale:
+            'Industrielle Spenden finanzieren die massive Propagandaübermacht der NSDAP.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'tag-von-potsdam',
+          linkType: 'Mehrheitswerbung',
+          rationale:
+            'Da 43,9 % für eine Verfassungsänderung nicht reichen, muss Hitler bürgerlich-konservative Abgeordnete umwerben.',
+        },
+        {
+          targetEventId: 'gleichschaltung-laender-1',
+          linkType: 'Wahlschlüssel',
+          rationale:
+            'Das Reichstagswahlergebnis dient am 31. März als Schablone für die Umbildung aller Landtage.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1302,6 +1511,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Feierliche Reichstagseröffnung; Hitler gibt sich demonstrativ respektvoll.',
       'Soll Vertrauen bei traditionellen gesellschaftlichen Eliten gewinnen.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'reichstagswahl-1933',
+          linkType: 'Fehlende Zweidrittelmehrheit',
+          rationale:
+            'Nach 43,9 % bei der Wahl benötigt die NSDAP die Zustimmung bürgerlicher Parteien im neuen Reichstag.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Vertrauenskulisse',
+          rationale:
+            'Die respektvolle Inszenierung neben Hindenburg beruhigt Konservative und Zentrum zwei Tage vor der Abstimmung.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1350,6 +1577,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Erste Häftlinge: Kommunisten, Sozialdemokraten und Gewerkschafter.',
       'Wird zum organisatorischen Modell für spätere Konzentrationslager.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'reichstagsbrandverordnung',
+          linkType: '„Schutzhaft“-Grundlage',
+          rationale:
+            'Die Aussetzung der persönlichen Freiheit vom 28. Februar erlaubt unbefristete Haft ohne Gericht.',
+        },
+        {
+          targetEventId: 'sa-ss-hilfspolizei',
+          linkType: 'SS-Gewaltapparat',
+          rationale:
+            'Parteigebundene Einsatzkräfte und bayerische Polizei füllen das neue Lager außerhalb jeder Justizkontrolle.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Drohkulisse',
+          rationale:
+            'Am Vortag der Abstimmung macht das erste KZ allen Abgeordneten deutlich, was Gegnern droht.',
+        },
+        {
+          targetEventId: 'zerschlagung-gewerkschaften',
+          linkType: 'Haftort für Gegner',
+          rationale:
+            'Verhaftete Gewerkschafter und Sozialdemokraten werden ab Mai direkt in dieses Lagersystem verschleppt.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1406,6 +1663,48 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Gesetzgebung geht auf 4 Jahre befristet an die Regierung über.',
       'KPD-Mandate annulliert; zahlreiche SPD-Abgeordnete verhaftet.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'reichstagsbrandverordnung',
+          linkType: 'Ausschaltung der KPD',
+          rationale:
+            'Verhaftungen und Mandatsentzug senken die für die Zweidrittelmehrheit erforderliche Hürde.',
+        },
+        {
+          targetEventId: 'tag-von-potsdam',
+          linkType: 'Bürgerliche Zustimmung',
+          rationale:
+            'Die konservative Einbindung in Potsdam und Hitlers Kirchenversprechen sichern die Stimmen des Zentrums.',
+        },
+        {
+          targetEventId: 'kz-dachau',
+          linkType: 'Einschüchterung',
+          rationale:
+            'SA- und SS-Posten in der Krolloper sowie das neue KZ Dachau setzen Abgeordnete unter Druck.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'gleichschaltung-laender-1',
+          linkType: 'Gesetzgebungsmonopol',
+          rationale:
+            'Mit der Befugnis, ohne Reichstag Gesetze zu erlassen, beginnt eine Woche später die Gleichschaltung der Länder.',
+        },
+        {
+          targetEventId: 'berufsbeamtentum',
+          linkType: 'Säuberungsgesetze',
+          rationale:
+            'Erlaubt der Regierung, politische Gegner und jüdische Beamte per Kabinettsbeschluss zu entlassen.',
+        },
+        {
+          targetEventId: 'konkordatsverhandlungen-rom',
+          linkType: 'Kirchenversprechen',
+          rationale:
+            'Hitlers Zusagen an die Kirchen während der Reichstagsdebatte münden unmittelbar in die Gespräche mit Rom.',
+        },
+      ],
+    },
     voteResult: {
       yes: 444,
       no: 94,
@@ -1469,6 +1768,30 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Länderparlamente verlieren ihre politische Eigenständigkeit.',
       'KPD-Mandate bleiben unberücksichtigt.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Neue Gesetzesmacht',
+          rationale:
+            'Erstmals wendet die Reichsregierung ihr alleiniges Gesetzgebungsrecht gegen den Föderalismus an.',
+        },
+        {
+          targetEventId: 'reichstagswahl-1933',
+          linkType: 'Wahlschlüssel',
+          rationale:
+            'Überträgt die Mehrheitsverhältnisse vom 5. März ohne KPD-Sitze auf die Länder.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'gleichschaltung-laender-2',
+          linkType: 'Vollständige Kontrolle',
+          rationale:
+            'Nachdem die Landtage umbesetzt sind, unterstellt das zweite Gesetz eine Woche später auch die Landesregierungen.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1506,6 +1829,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Einsetzung von Reichsstatthaltern in allen Ländern.',
       'Föderale Eigenständigkeit wird stark eingeschränkt.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'gleichschaltung-laender-1',
+          linkType: 'Zweiter Schritt',
+          rationale:
+            'Baut auf den gleichgeschalteten Landtagen auf und entzieht nun den Landesregierungen ihre Eigenständigkeit.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Zentralisierte Staatsgewalt',
+          rationale:
+            'Mit Reichsstatthaltern in jedem Land fällt das letzte föderale Gegengewicht gegen die Alleinherrschaft der NSDAP.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1553,6 +1894,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Entfernung politischer Gegner und jüdischer Beamter aus dem Staatsdienst.',
       'Anfangs Ausnahmen für bestimmte Frontkämpfer des Ersten Weltkriegs.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Verfassungsdurchbrechung',
+          rationale:
+            'Die Regierung kann nun ohne Parlament den Schutz des Berufsbeamtentums aushebeln.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'buecherverbrennungen',
+          linkType: 'Hochschul-Säuberung',
+          rationale:
+            'Mit der Entlassung jüdischer und demokratischer Professoren verstärkt sich der Gleichschaltungsdruck an den Universitäten.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1613,6 +1972,30 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Vatikan will kirchliche Institutionen und Schulen vor Gleichschaltung schützen.',
       'NS-Regime fordert im Gegenzug ein Verbot parteipolitischer Betätigung für Geistliche (später Art. 32).',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Kirchenzusage',
+          rationale:
+            'Hitlers Versprechen bei der Reichstagsabstimmung am 23. März bildet den direkten Auftakt zu den Verhandlungen in Rom.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'selbstaufloesung-parteien',
+          linkType: 'Entzug des Rückhalts',
+          rationale:
+            'Das drohende Politikverbot für Geistliche nimmt der Zentrumspartei ihren kirchlichen Rückhalt bis zur Auflösung am 5. Juli.',
+        },
+        {
+          targetEventId: 'reichskonkordat',
+          linkType: 'Vertragsabschluss',
+          rationale:
+            'Die Verhandlungen zwischen Papen, Kaas und Pacelli führen direkt zur Unterzeichnung am 20. Juli.',
+        },
+      ],
+    },
     contextNotes: [
       'Bezug zur Leitfrage: Durch das Einbinden des Vatikans entzieht die NS-Führung der demokratischen Zentrumspartei die kirchliche Stütze und ebnet deren Selbstauflösung (5. Juli) den Weg.',
     ],
@@ -1663,6 +2046,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Gewerkschaftsvertreter beteiligen sich an den NS-Feierlichkeiten.',
       'Täuschung und propagandistische Einbindung vor dem Zugriff am Folgetag.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Staatsregie',
+          rationale:
+            'Mit voller Regierungsmacht erklärt das Regime den 1. Mai per Gesetz zum Feiertag der „nationalen Arbeit“.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'zerschlagung-gewerkschaften',
+          linkType: 'Tarnmanöver',
+          rationale:
+            'Während Gewerkschaften auf Beruhigung hoffen und mitfeiern, ist der Sturm auf ihre Häuser für den 2. Mai schon vorbereitet.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1716,6 +2117,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Freie Gewerkschaften werden gewaltsam zerschlagen.',
       'Unabhängige Interessenvertretung der Arbeitnehmer beseitigt.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'tag-der-nationalen-arbeit',
+          linkType: 'Überraschungsschlag',
+          rationale:
+            'Nutzt die Täuschung der Maifeiern am Vortag aus, um Gewerkschaftshäuser ohne Gegenwehr zu besetzen.',
+        },
+        {
+          targetEventId: 'kz-dachau',
+          linkType: 'Terror-Druck',
+          rationale:
+            'Verhaftete Gewerkschaftsfunktionäre werden sofort in das seit März bestehende Lagersystem verschleppt.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'gruendung-daf',
+          linkType: 'Vermögensübernahme',
+          rationale:
+            'Auf den Trümmern und Kassen der zerschlagenen Gewerkschaften entsteht acht Tage später die DAF.',
+        },
+        {
+          targetEventId: 'verbot-spd',
+          linkType: 'Geschwächte Basis',
+          rationale:
+            'Mit dem Verlust der freien Gewerkschaften verliert auch die SPD ihre wichtigste gesellschaftliche Stütze.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1763,6 +2194,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Tarifautonomie und Streikrecht werden abgeschafft.',
       'DAF dient nicht dem Schutz, sondern der Kontrolle der Arbeiterschaft.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'zerschlagung-gewerkschaften',
+          linkType: 'Ersatzorganisation',
+          rationale:
+            'Die DAF übernimmt die beschlagnahmten Gebäude, Kassen und Mitglieder der am 2. Mai zerschlagenen Gewerkschaften.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Gesellschaftskontrolle',
+          rationale:
+            'Ohne Streikrecht und mit Zwangseinbindung der Betriebe fehlt jede organisierte Gegenmacht gegen das Parteimonopol.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1829,6 +2278,24 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Aktion zur kulturellen Gleichschaltung von Literatur und Universitäten.',
       'Verbrannt u. a. Kästner, Heinrich Mann, Remarque und Brecht.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'berufsbeamtentum',
+          linkType: 'Universitärer Druck',
+          rationale:
+            'Auf die Entlassung kritischer Hochschullehrer folgt die öffentliche Ausgrenzung verfemter Autorinnen und Autoren.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Öffentliche Einschüchterung',
+          rationale:
+            'Die Gleichschaltung von Kultur und Öffentlichkeit nimmt oppositionellen Stimmen jeden Rückhalt vor dem Parteienverbot.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1878,6 +2345,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'SPD-Parteivermögen wird beschlagnahmt.',
       'Sozialdemokratische Politiker werden verhaftet und verfolgt.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'zerschlagung-gewerkschaften',
+          linkType: 'Zerschlagene Basis',
+          rationale:
+            'Ohne freie Gewerkschaften ist die Arbeiterschaft bereits organisatorisch entmachtet, bevor Frick die SPD verbietet.',
+        },
+        {
+          targetEventId: 'ermaechtigungsgesetz',
+          linkType: 'Verbot ohne Parlament',
+          rationale:
+            'Die Reichsregierung schaltet die einzige Partei aus, die am 23. März geschlossen mit Nein gestimmt hatte.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'selbstaufloesung-parteien',
+          linkType: 'Domino-Effekt',
+          rationale:
+            'Das Verbot der SPD zeigt allen noch verbliebenen Parteien, dass ein Fortbestand unter dem Regime unmöglich ist.',
+        },
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Weg zum Monopol',
+          rationale:
+            'Beseitigt die letzte große demokratische Oppositionspartei vor dem Gesetz vom 14. Juli.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -1933,6 +2430,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Zentrumspartei und Bayerische Volkspartei geben auf.',
       'Die NSDAP bleibt als einzige politische Kraft übrig.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'verbot-spd',
+          linkType: 'Offene Drohung',
+          rationale:
+            'Nach dem gewaltsamen SPD-Verbot und Verhaftungen bürgerlicher Politiker fürchten Zentrum und BVP ein ähnliches Vorgehen.',
+        },
+        {
+          targetEventId: 'konkordatsverhandlungen-rom',
+          linkType: 'Vertragserwartung',
+          rationale:
+            'Die Verhandlungen mit dem Vatikan nehmen der Zentrumspartei ihre politische Rolle.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Faktisches Monopol',
+          rationale:
+            'Da alle konkurrierenden Parteien aufgelöst sind, schreibt das Gesetz vom 14. Juli diesen Zustand endgültig fest.',
+        },
+        {
+          targetEventId: 'reichskonkordat',
+          linkType: 'Vorbedingung erfüllt',
+          rationale:
+            'Mit der Selbstauflösung des Zentrums am 5. Juli ist der Weg für die Konkordatsunterzeichnung in Rom frei.',
+        },
+      ],
+    },
     contextNotes: [
       'Direkte Verbindung zum Vatikan: Erst die Aussicht auf das Reichskonkordat (inkl. Verbot parteipolitischer Arbeit für Geistliche) bewegt die Zentrumspartei am 5. Juli zur endgültigen Aufgabe.',
     ],
@@ -1985,6 +2512,42 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Gründung oder Unterstützung anderer Parteien wird unter Strafe gestellt.',
       'Das Mehrparteiensystem ist endgültig abgeschafft.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'verbot-spd',
+          linkType: 'Verbotene Opposition',
+          rationale:
+            'Die letzte große demokratische Oppositionspartei war bereits am 22. Juni zerschlagen worden.',
+        },
+        {
+          targetEventId: 'selbstaufloesung-parteien',
+          linkType: 'Aufgelöstes Parteiensystem',
+          rationale:
+            'Nach den Selbstauflösungen bis Anfang Juli existiert außerhalb der NSDAP keine legale Partei mehr.',
+        },
+        {
+          targetEventId: 'gleichschaltung-laender-2',
+          linkType: 'Zentraler Staat',
+          rationale:
+            'Durch die Kontrolle über Länder, DAF und Öffentlichkeit ist der Machtanspruch bereits abgesichert.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'reichskonkordat',
+          linkType: 'Tatsachen gegenüber Rom',
+          rationale:
+            'Besiegelt sechs Tage vor dem Konkordat, dass es im Deutschen Reich keinen politischen Katholizismus mehr gibt.',
+        },
+        {
+          targetEventId: 'konkordatsbruch-1934',
+          linkType: 'Unkontrollierte Alleinherrschaft',
+          rationale:
+            'Ohne Parlament und konkurrierende Parteien kann das Regime Verträge und Zusagen später straflos brechen.',
+        },
+      ],
+    },
     institutionStates: {
       ...ALL_NORMAL,
       grundrechte: 'destroyed',
@@ -2049,6 +2612,36 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Artikel 32 („Entpolitisierung“): Verbietet Geistlichen und Ordensleuten jede parteipolitische Betätigung.',
       'Schein-Garantien für katholische Vereine und Schulen sollen gläubige Katholiken an den neuen Staat binden.',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'konkordatsverhandlungen-rom',
+          linkType: 'Verhandlungsergebnis',
+          rationale:
+            'Schließt die im April begonnenen Gespräche zwischen Papen und Pacelli völkerrechtlich ab.',
+        },
+        {
+          targetEventId: 'selbstaufloesung-parteien',
+          linkType: 'Ende des Zentrums',
+          rationale:
+            'Die Aufgabe der Zentrumspartei am 5. Juli räumt das letzte innenpolitische Hindernis aus dem Weg.',
+        },
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Festgeschriebenes Monopol',
+          rationale:
+            'Das Parteienmonopol vom 14. Juli macht Artikel 32 zum dauerhaften Verzicht auf katholische Parteipolitik.',
+        },
+      ],
+      effects: [
+        {
+          targetEventId: 'konkordatsbruch-1934',
+          linkType: 'Gebrochene Zusagen',
+          rationale:
+            'Nachdem das Regime außenpolitische Anerkennung gewonnen hat, höhlt es die versprochenen Schutzrechte ab Herbst 1933 wieder aus.',
+        },
+      ],
+    },
     contextNotes: [
       'Bezug zur Leitfrage: Während Parlament, Parteien und Gewerkschaften ausgeschaltet sind, sichert der Vertrag mit dem Vatikan die Diktatur diplomatisch nach außen und befriedet kirchliche Gegenkräfte im Innern.',
     ],
@@ -2116,6 +2709,23 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
       'Am 30. Juni 1934 („Röhm-Putsch“) werden neben SA-Führern auch führende Katholiken wie Erich Klausener und Adalbert Probst ermordet.',
       'Vatikanische Protestnoten bleiben wirkungslos (1937 folgt die kritische Enzyklika „Mit brennender Sorge“).',
     ],
+    causalLinks: {
+      causes: [
+        {
+          targetEventId: 'reichskonkordat',
+          linkType: 'Täuschung über Schutz',
+          rationale:
+            'Das Konkordat hatte katholische Opposition zunächst befriedet – nun nutzt das Regime seine gefestigte Stellung für offene Eingriffe.',
+        },
+        {
+          targetEventId: 'einparteienstaat-gesetz',
+          linkType: 'Unangefochtenes Monopol',
+          rationale:
+            'Ohne Parlament und Gegenparteien fürchtet die NS-Führung ab Ende 1933 auch beim Vertragsbruch keine politische Gegenwehr mehr.',
+        },
+      ],
+      effects: [],
+    },
     contextNotes: [
       'Bezug zur Leitfrage: Das Beispiel des Vatikans zeigt das doppelte Muster der NS-Herrschaftssicherung – 1933 Legitimation und Täuschung per Vertrag, 1933/34 schrittweiser Bruch der Zusagen nach innen.',
     ],

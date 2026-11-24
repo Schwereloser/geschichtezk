@@ -20,9 +20,10 @@ import {
 } from './ConclusionNoteCards';
 import { FlankingGlossaryNote } from './FlankingGlossaryNote';
 import { FlankingPinboardPhoto } from './FlankingPinboardPhoto';
-import { FoldableNoteCard } from './FoldableNoteCard';
+import { CausalRole, FoldableNoteCard } from './FoldableNoteCard';
 import { InstitutionsMap } from './InstitutionsMap';
 import {
+  OverviewCausalArrow,
   OverviewCellRect,
   OverviewPinboardDecor,
   OverviewPinPoint,
@@ -43,6 +44,8 @@ interface TimelineAxisProps {
   visibleCount: number;
   expandedIds: string[];
   introStage: IntroStage;
+  highlightedCausalEventId: string | null;
+  causalOriginEventId: string | null;
   onSkipIntro: () => void;
   onOpenOverview: () => void;
   onSelectOverviewSlot: (slotIndex: number) => void;
@@ -54,6 +57,10 @@ interface TimelineAxisProps {
   onJumpToPhase: (phaseId: PhaseId) => void;
   onJumpToConclusion: () => void;
   onJumpToEvent: (eventId: string) => void;
+  onJumpCausal: (fromEventId: string, targetEventId: string) => void;
+  onReturnCausal: () => void;
+  onToggleCausalHighlight: (eventId: string, openOverview?: boolean) => void;
+  onClearCausalHighlight: () => void;
 }
 
 // Subtle vertical pin stagger (in px) so Notizzettel feel naturally pinned by hand
@@ -101,6 +108,8 @@ export function TimelineAxis({
   visibleCount,
   expandedIds,
   introStage,
+  highlightedCausalEventId,
+  causalOriginEventId,
   onSkipIntro,
   onOpenOverview,
   onSelectOverviewSlot,
@@ -112,6 +121,10 @@ export function TimelineAxis({
   onJumpToPhase,
   onJumpToConclusion,
   onJumpToEvent,
+  onJumpCausal,
+  onReturnCausal,
+  onToggleCausalHighlight,
+  onClearCausalHighlight,
 }: TimelineAxisProps) {
   const stageRef = useRef<HTMLElement | null>(null);
   const [stageSize, setStageSize] = useState<{ width: number; height: number }>(
@@ -130,6 +143,7 @@ export function TimelineAxis({
     useState<ContextualBoardPhoto | null>(null);
   const [selectedGlossaryNote, setSelectedGlossaryNote] =
     useState<ContextualGlossaryNote | null>(null);
+  const [institutionsCompact, setInstitutionsCompact] = useState(false);
 
   useEffect(() => {
     const el = stageRef.current;
@@ -224,6 +238,28 @@ export function TimelineAxis({
     : undefined;
 
   const phaseById = new Map(PHASES.map((p) => [p.id, p]));
+  const eventById = new Map(events.map((ev) => [ev.id, ev]));
+  const eventIndexById = new Map(events.map((ev, idx) => [ev.id, idx]));
+
+  const highlightedCausalEvent = highlightedCausalEventId
+    ? eventById.get(highlightedCausalEventId) ?? null
+    : null;
+  const causalCauseIds = new Set(
+    highlightedCausalEvent?.causalLinks.causes.map((c) => c.targetEventId) ?? []
+  );
+  const causalEffectIds = new Set(
+    highlightedCausalEvent?.causalLinks.effects.map((e) => e.targetEventId) ??
+      []
+  );
+  const causalReturnEvent = causalOriginEventId
+    ? eventById.get(causalOriginEventId) ?? null
+    : null;
+
+  const hasExpandedTimelineCard =
+    !isOverview &&
+    !isInConclusionZone &&
+    visibleEvents.some((ev) => expandedIds.includes(ev.id));
+
   const glossaryHintByIndex = new Map<number, string>();
   for (const slot of BOARD_GLOSSARY_NOTES) {
     for (let idx = slot.minIndex; idx <= slot.maxIndex; idx++) {
@@ -348,6 +384,40 @@ export function TimelineAxis({
     };
   });
 
+  const overviewCausalArrows: OverviewCausalArrow[] = [];
+  if (highlightedCausalEvent) {
+    const focusIdx = eventIndexById.get(highlightedCausalEvent.id);
+    if (focusIdx !== undefined && overviewPins[focusIdx]) {
+      const focusPin = overviewPins[focusIdx];
+      for (const cause of highlightedCausalEvent.causalLinks.causes) {
+        const cIdx = eventIndexById.get(cause.targetEventId);
+        if (cIdx !== undefined && overviewPins[cIdx]) {
+          overviewCausalArrows.push({
+            id: `cause-${cause.targetEventId}-${highlightedCausalEvent.id}`,
+            fromX: overviewPins[cIdx].x,
+            fromY: overviewPins[cIdx].y + 8,
+            toX: focusPin.x,
+            toY: focusPin.y + 8,
+            kind: 'cause',
+          });
+        }
+      }
+      for (const effect of highlightedCausalEvent.causalLinks.effects) {
+        const eIdx = eventIndexById.get(effect.targetEventId);
+        if (eIdx !== undefined && overviewPins[eIdx]) {
+          overviewCausalArrows.push({
+            id: `effect-${highlightedCausalEvent.id}-${effect.targetEventId}`,
+            fromX: focusPin.x,
+            fromY: focusPin.y + 8,
+            toX: overviewPins[eIdx].x,
+            toY: overviewPins[eIdx].y + 8,
+            kind: 'effect',
+          });
+        }
+      }
+    }
+  }
+
   const institutionCellRect = overviewRects[27];
 
   // Timeline horizontal track geometry
@@ -441,7 +511,7 @@ export function TimelineAxis({
           className="pointer-events-none select-none absolute inset-0 w-full h-full object-cover opacity-[0.34] mix-blend-multiply z-0"
         />
 
-        {/* Overview Banner, Dynamic Overview Serpentine Thread & Morphing Institutionen Card */}
+        {/* Overview Banner, Dynamic Overview Serpentine Thread, Causal Arrows & Morphing Institutionen Card */}
         <OverviewPinboardDecor
           isOverview={isOverview}
           eventsCount={events.length}
@@ -449,6 +519,9 @@ export function TimelineAxis({
           stageHeight={stageH}
           overviewPins={overviewPins}
           institutionCellRect={institutionCellRect}
+          causalArrows={overviewCausalArrows}
+          highlightedCausalEvent={highlightedCausalEvent}
+          onClearCausalHighlight={onClearCausalHighlight}
           onSelectInstitution={() => onSelectOverviewSlot(events.length)}
           onResumeTimeline={onResumeFromOverview}
         />
@@ -510,6 +583,17 @@ export function TimelineAxis({
             >
               Bilanz &amp; Check
             </button>
+            {highlightedCausalEvent && (
+              <button
+                type="button"
+                onClick={onClearCausalHighlight}
+                title="Wirkungsketten-Markierung beenden"
+                className="px-2 py-1.5 text-[11px] font-mono inline-flex items-center gap-1 bg-[#FAF4E6] text-[#9E2424] border border-[#9E2424] hover:bg-white transition-colors cursor-pointer touch-manipulation whitespace-nowrap shrink-0"
+              >
+                <span>Kette: {highlightedCausalEvent.shortDate}</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
             <button
               type="button"
               onClick={onOpenOverview}
@@ -592,7 +676,12 @@ export function TimelineAxis({
           />
           {!isOverview && centerEvent && !isInConclusionZone && (
             <div className="w-full min-w-0 max-w-[630px] xl:max-w-[740px] flex flex-col items-center">
-              <InstitutionsMap centerEvent={centerEvent} />
+              <InstitutionsMap
+                centerEvent={centerEvent}
+                isCompact={institutionsCompact}
+                isFocusDimmed={hasExpandedTimelineCard}
+                onToggleCompact={() => setInstitutionsCompact((v) => !v)}
+              />
             </div>
           )}
           <div
@@ -626,23 +715,19 @@ export function TimelineAxis({
             </div>
           )}
 
-        {/* Flanking Photos & Term Sticky-Notes Wings (z-[24], above empty stage & collapsed cards) */}
+        {/* Flanking Photos & Term Sticky-Notes Wings (z-[24], clean non-overlapping vertical stack) */}
         <div className="pointer-events-none absolute inset-x-9 sm:inset-x-10 bottom-[48px] z-[24] flex items-end justify-center gap-2 xl:gap-5">
-          <div className="pointer-events-none hidden min-[900px]:block relative w-[114px] lg:w-[124px] xl:w-[156px] h-[300px] shrink-0">
-            <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
-              <FlankingPinboardPhoto
-                photo={leftPhoto}
-                side="left"
-                onSelect={setSelectedPhoto}
-              />
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
-              <FlankingGlossaryNote
-                note={leftGlossaryNote}
-                side="left"
-                onSelect={setSelectedGlossaryNote}
-              />
-            </div>
+          <div className="pointer-events-none hidden min-[900px]:flex flex-col items-center justify-end gap-3 w-[114px] lg:w-[124px] xl:w-[156px] shrink-0 pb-2">
+            <FlankingPinboardPhoto
+              photo={leftPhoto}
+              side="left"
+              onSelect={setSelectedPhoto}
+            />
+            <FlankingGlossaryNote
+              note={leftGlossaryNote}
+              side="left"
+              onSelect={setSelectedGlossaryNote}
+            />
           </div>
 
           <div
@@ -650,21 +735,17 @@ export function TimelineAxis({
             className="pointer-events-none w-full min-w-0 max-w-[630px] xl:max-w-[740px]"
           />
 
-          <div className="pointer-events-none hidden min-[900px]:block relative w-[114px] lg:w-[124px] xl:w-[156px] h-[300px] shrink-0">
-            <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
-              <FlankingPinboardPhoto
-                photo={rightPhoto}
-                side="right"
-                onSelect={setSelectedPhoto}
-              />
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
-              <FlankingGlossaryNote
-                note={rightGlossaryNote}
-                side="right"
-                onSelect={setSelectedGlossaryNote}
-              />
-            </div>
+          <div className="pointer-events-none hidden min-[900px]:flex flex-col items-center justify-end gap-3 w-[114px] lg:w-[124px] xl:w-[156px] shrink-0 pb-2">
+            <FlankingPinboardPhoto
+              photo={rightPhoto}
+              side="right"
+              onSelect={setSelectedPhoto}
+            />
+            <FlankingGlossaryNote
+              note={rightGlossaryNote}
+              side="right"
+              onSelect={setSelectedGlossaryNote}
+            />
           </div>
         </div>
 
@@ -745,6 +826,16 @@ export function TimelineAxis({
             const ovRotate =
               (idx % 2 === 0 ? -1 : 1) * ((idx % 3) * 0.35 + 0.35);
 
+            const causalRole: CausalRole = !highlightedCausalEvent
+              ? null
+              : event.id === highlightedCausalEvent.id
+              ? 'focus'
+              : causalCauseIds.has(event.id)
+              ? 'cause'
+              : causalEffectIds.has(event.id)
+              ? 'effect'
+              : 'muted';
+
             return (
               <motion.div
                 key={event.id}
@@ -799,6 +890,7 @@ export function TimelineAxis({
                 <FoldableNoteCard
                   event={event}
                   phase={phase}
+                  eventById={eventById}
                   isExpanded={isExpanded}
                   isCenter={isCenterStation && visibleCount === 3}
                   isOverview={isOverview}
@@ -806,8 +898,16 @@ export function TimelineAxis({
                   isCurrentlyVisible={isCurrentlyVisible}
                   maxCardHeight={Math.max(200, tlTrackMaxH - pinStagger - 12)}
                   overviewHint={glossaryHintByIndex.get(idx)}
+                  causalRole={causalRole}
+                  isCausalHighlighted={highlightedCausalEventId === event.id}
+                  causalReturnEvent={
+                    isCenterStation ? causalReturnEvent : null
+                  }
                   onToggleExpand={onToggleExpand}
                   onOverviewSelect={() => onSelectOverviewSlot(idx)}
+                  onJumpCausal={onJumpCausal}
+                  onReturnCausal={onReturnCausal}
+                  onToggleCausalHighlight={onToggleCausalHighlight}
                 />
               </motion.div>
             );
